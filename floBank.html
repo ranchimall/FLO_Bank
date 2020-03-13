@@ -8913,8 +8913,37 @@ Bitcoin.Util = {
         //Banker roles (subAdmins only)
         banker: {
 
+
             viewRequests() {
-                return floDapps.getNextGeneralData("requests", '0')
+                let raw = floDapps.getNextGeneralData("requests", '0');
+                let requests = []
+                raw.forEach(r => requests.push({
+                    processID: r.vectorClock,
+                    requestor: r.sender,
+                    category: r.message.request,
+                    processor: floGlobals.appObjects.bank.process[r.vectorClock],
+                    payMode: r.message.payMode,
+                    amount: r.message.amount,
+                    period: r.message.period,
+                    index: r.message.index,
+                    collateralType: r.message.collateralType,
+                }))
+                return requests
+            },
+
+            processRequest(processID) {
+                return new Promise((resolve, reject) => {
+                    floCloudAPI.requestObjectData("process").then(result => {
+                        if (processID in floGlobals.appObjects.bank["process"])
+                            reject("Request already in process")
+                        else {
+                            floGlobals.appObjects.bank["process"][processID] = myFloID
+                            floCloudAPI.updateObjectData("bank")
+                                .then(result => resolve(result))
+                                .catch(error => reject(error))
+                        }
+                    })
+                })
             },
 
             openNewDeposit(floID, amount, period, interest, paymentRefID) {
@@ -8932,7 +8961,7 @@ Bitcoin.Util = {
                     },
                     status: "ACTIVE"
                 }
-                if(!Array.isArray(floGlobals.appObjects.bank["deposits"][floID]))
+                if (!Array.isArray(floGlobals.appObjects.bank["deposits"][floID]))
                     floGlobals.appObjects.bank["deposits"][floID] = []
                 floGlobals.appObjects.bank["deposits"][floID].push(depositDetails)
                 return floCloudAPI.updateObjectData("bank")
@@ -8960,7 +8989,7 @@ Bitcoin.Util = {
                     },
                     status: "ACTIVE"
                 }
-                if(!Array.isArray(floGlobals.appObjects.bank["loans"][floID]))
+                if (!Array.isArray(floGlobals.appObjects.bank["loans"][floID]))
                     floGlobals.appObjects.bank["loans"][floID] = []
                 floGlobals.appObjects.bank["loans"][floID].push(loanDetails)
                 return floCloudAPI.updateObjectData("bank")
