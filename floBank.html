@@ -8784,7 +8784,7 @@ Bitcoin.Util = {
 <script id="floBank">
     const floBank = {
 
-        initApp: function(){
+        initApp() {
             return new Promise((resolve, reject) => {
                 Promise.all([this.refreshObjectData(), this.refreshGeneralData(), this.refreshInbox()])
                     .then(results => resolve(results))
@@ -8792,7 +8792,7 @@ Bitcoin.Util = {
             })
         },
 
-        refreshObjectData: function () {
+        refreshObjectData() {
             return new Promise((resolve, reject) => {
                 var objectDataList = ["deposits", "loans", "collaterals"]
                 var promises = []
@@ -8802,9 +8802,9 @@ Bitcoin.Util = {
             })
         },
 
-        refreshGeneralData: function(){
+        refreshGeneralData() {
             return new Promise((resolve, reject) => {
-                var generalDataList = ["depositRequest", "loanRequest", "collateralRequest"]
+                var generalDataList = ["requests"]
                 var promises = []
                 Promise.all(generalDataList.map(data => floCloudAPI.requestGeneralData(data)))
                     .then(results => resolve('General Data Refreshed Successfully'))
@@ -8812,76 +8812,163 @@ Bitcoin.Util = {
             })
         },
 
-        refreshInbox: function(){
+        refreshInbox() {
             return new Promise((resolve, reject) => {
-                floCloudAPI.requestGeneralData("directMessage", {receiverID: myFloID})
+                floCloudAPI.requestGeneralData("directMessage", {
+                        receiverID: myFloID,
+                        senderIDs: (floGlobals.subAdmins.includes(myFloID) ? undefined : floGlobals
+                            .subAdmins)
+                    })
                     .then(results => resolve('Inbox Refreshed Successfully'))
                     .catch(error => reject(error))
             })
         },
 
-        viewInbox: function(){
+        viewInbox() {
             return floDapps.getNextGeneralData("directMessage", '0')
         },
 
-        sendDirectMessage: function(message, receiver){
-            return floCloudAPI.sendGeneralData(message, "directMessage", {receiverID: receiver})
+        sendDirectMessage(message, receiver) {
+            return floCloudAPI.sendGeneralData(message, "directMessage", {
+                receiverID: receiver
+            })
+        },
+
+        sendPaymentDetails(processID, paymentRefID, receiver) {
+            let message = {
+                processID: processID,
+                paymentRefID: paymentRefID,
+            }
+            return this.sendDirectMessage(message, receiver)
+        },
+
+        sendPaymentRequest(processID, accountDetails, receiver) {
+            let message = {
+                processID: processID,
+                accountDetails: accountDetails,
+            }
+            return this.sendDirectMessage(message, receiver)
         },
 
         //User roles (depositor, loan-taker, collateral-buyer)
         user: {
 
-            depositRequest: function(amount, period, payMode){
+            openDeposit(amount, period, payMode) {
                 let message = {
-                    amount: amount, 
-                    period:  period, 
+                    request: "openDeposit",
+                    amount: amount,
+                    period: period,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "depositRequest")
-            }, 
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
 
-            collateralRequest: function(amount, collateralType, payMode){
+            closeDeposit(index, payMode) {
                 let message = {
-                    amount: amount, 
-                    collateralType:  collateralType, 
+                    request: "closeDeposit",
+                    index: index,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "collateralRequest")
-            }, 
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
 
-            loanRequest: function(amount, period, collateralType, payMode){
+            openLoan(amount, period, collateralType, payMode) {
                 let message = {
-                    amount: amount, 
-                    period:  period, 
-                    collateralType:  collateralType, 
+                    request: "openLoan",
+                    amount: amount,
+                    period: period,
+                    collateralType: collateralType,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "loanRequest")
-            }, 
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
 
-            sendPaymentDetails: function(processID, paymentRefID, receiver){
+            closeLoan(index, payMode) {
                 let message = {
-                    processID: processID, 
-                    paymentRefID: paymentRefID,
+                    request: "closeLoan",
+                    index: index,
+                    payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "directMessage", {receiverID: receiver})
-            }
-        
-        }, 
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
+
+            buyCollateral(amount, collateralType, payMode) {
+                let message = {
+                    request: "buyCollateral",
+                    amount: amount,
+                    collateralType: collateralType,
+                    payMode: payMode
+                }
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
+
+            sellCollateral(index, payMode) {
+                let message = {
+                    request: "sellCollateral",
+                    index: index,
+                    payMode: payMode
+                }
+                return floCloudAPI.sendGeneralData(message, "requests")
+            },
+        },
 
         //Banker roles (subAdmins only)
         banker: {
 
-            viewDepositRequests(){
-                return floDapps.getNextGeneralData("depositRequest", '0')
+            viewRequests() {
+                return floDapps.getNextGeneralData("requests", '0')
             },
 
-            viewLoanRequests(){
-                return floDapps.getNextGeneralData("loanRequest", '0')
+            openNewDeposit(floID, amount, period, interest, paymentRefID) {
+                let depositDetails = {
+                    amount: amount,
+                    period: period,
+                    interest: interest,
+                    opening: {
+                        paymentRefID: paymentRefID,
+                        timestamp: Date.now()
+                    },
+                    closing: {
+                        paymentRefID: null,
+                        timestamp: null
+                    },
+                    status: "ACTIVE"
+                }
+                floGlobals.appObjects["deposits"][floID].push(depositDetails)
+                return floCloudAPI.updateObjectData("deposits")
             },
 
-            viewCollateralRequests(){
-                return floDapps.getNextGeneralData("collateralRequest", '0')
+            closeDeposit(floID, index, paymentRefID) {
+                floGlobals.appObjects["deposits"][floID][index].closing.paymentRefID = paymentRefID;
+                floGlobals.appObjects["deposits"][floID][index].closing.timestamp = Date.now();
+                floGlobals.appObjects["deposits"][floID][index].status = "CLOSED";
+                return floCloudAPI.updateObjectData("deposits")
+            },
+
+            openNewLoan(floID, amount, period, interest, paymentRefID) {
+                let loanDetails = {
+                    amount: amount,
+                    period: period,
+                    interest: interest,
+                    opening: {
+                        paymentRefID: paymentRefID,
+                        timestamp: Date.now()
+                    },
+                    closing: {
+                        paymentRefID: null,
+                        timestamp: null
+                    },
+                    status: "ACTIVE"
+                }
+                floGlobals.appObjects["loans"][floID].push(loanDetails)
+                return floCloudAPI.updateObjectData("loans")
+            },
+
+            closeLoan(floID, index, paymentRefID) {
+                floGlobals.appObjects["loans"][floID][index].closing.paymentRefID = paymentRefID;
+                floGlobals.appObjects["loans"][floID][index].closing.timestamp = Date.now();
+                floGlobals.appObjects["loans"][floID][index].status = "CLOSED";
+                return floCloudAPI.updateObjectData("deposits")
             }
         }
     }
