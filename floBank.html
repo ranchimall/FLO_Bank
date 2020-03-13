@@ -8794,9 +8794,7 @@ Bitcoin.Util = {
 
         refreshObjectData() {
             return new Promise((resolve, reject) => {
-                var objectDataList = ["deposits", "loans", "collaterals"]
-                var promises = []
-                Promise.all(objectDataList.map(data => floCloudAPI.requestObjectData(data)))
+                floCloudAPI.requestObjectData("bank")
                     .then(results => resolve('Object Data Refreshed Successfully'))
                     .catch(error => reject(error))
             })
@@ -8934,15 +8932,17 @@ Bitcoin.Util = {
                     },
                     status: "ACTIVE"
                 }
-                floGlobals.appObjects["deposits"][floID].push(depositDetails)
-                return floCloudAPI.updateObjectData("deposits")
+                if(!Array.isArray(floGlobals.appObjects.bank["deposits"][floID]))
+                    floGlobals.appObjects.bank["deposits"][floID] = []
+                floGlobals.appObjects.bank["deposits"][floID].push(depositDetails)
+                return floCloudAPI.updateObjectData("bank")
             },
 
             closeDeposit(floID, index, paymentRefID) {
-                floGlobals.appObjects["deposits"][floID][index].closing.paymentRefID = paymentRefID;
-                floGlobals.appObjects["deposits"][floID][index].closing.timestamp = Date.now();
-                floGlobals.appObjects["deposits"][floID][index].status = "CLOSED";
-                return floCloudAPI.updateObjectData("deposits")
+                floGlobals.appObjects.bank["deposits"][floID][index].closing.paymentRefID = paymentRefID;
+                floGlobals.appObjects.bank["deposits"][floID][index].closing.timestamp = Date.now();
+                floGlobals.appObjects.bank["deposits"][floID][index].status = "CLOSED";
+                return floCloudAPI.updateObjectData("bank")
             },
 
             openNewLoan(floID, amount, period, interest, paymentRefID) {
@@ -8960,15 +8960,17 @@ Bitcoin.Util = {
                     },
                     status: "ACTIVE"
                 }
-                floGlobals.appObjects["loans"][floID].push(loanDetails)
-                return floCloudAPI.updateObjectData("loans")
+                if(!Array.isArray(floGlobals.appObjects.bank["loans"][floID]))
+                    floGlobals.appObjects.bank["loans"][floID] = []
+                floGlobals.appObjects.bank["loans"][floID].push(loanDetails)
+                return floCloudAPI.updateObjectData("bank")
             },
 
             closeLoan(floID, index, paymentRefID) {
-                floGlobals.appObjects["loans"][floID][index].closing.paymentRefID = paymentRefID;
-                floGlobals.appObjects["loans"][floID][index].closing.timestamp = Date.now();
-                floGlobals.appObjects["loans"][floID][index].status = "CLOSED";
-                return floCloudAPI.updateObjectData("deposits")
+                floGlobals.appObjects.bank["loans"][floID][index].closing.paymentRefID = paymentRefID;
+                floGlobals.appObjects.bank["loans"][floID][index].closing.timestamp = Date.now();
+                floGlobals.appObjects.bank["loans"][floID][index].status = "CLOSED";
+                return floCloudAPI.updateObjectData("bank")
             }
         }
     }
