@@ -30,7 +30,11 @@
     vectorClock: {},
     appObjects: {},
     generalData: {},
-    generalVC: {}
+    generalVC: {},
+
+    //bank app
+    policy: {},
+    collaterals : []
   }
 </script>
 
@@ -8332,7 +8336,7 @@ Bitcoin.Util = {
                     if(!Array.isArray(floGlobals.generalData[filterStr]))
                         floGlobals.generalData[filterStr] = [] 
                     for(vc in dataSet){
-                        floGlobals.generalData[filterStr].push({sender: dataSet[vc].senderID, vectorClock: vc, message: dataSet[vc].message})
+                        floGlobals.generalData[filterStr].push({sender: dataSet[vc].senderID, vectorClock: vc, message: dataSet[vc].message, pubKey: dataSet[vc].pubKey})
                         compactIDB.writeData("generalData", floGlobals.generalData[filterStr], filterStr)
                         floGlobals.generalVC[filterStr] = vc
                         compactIDB.writeData("generalVC", vc, filterStr)
@@ -8487,7 +8491,11 @@ Bitcoin.Util = {
                         appObjects:{},
                         vectorClock:{},
                         generalData:{},
-                        generalVC:{}
+                        generalVC:{},
+
+                        //bankApp
+                        collaterals: {},
+                        policy: {}
                     }
                     //add other given objectStores
                     for(o in this.appObs)
@@ -8546,11 +8554,23 @@ Bitcoin.Util = {
                                     if(Array.isArray(content.addSubAdmin))
                                         for(var k = 0; k < content.addSubAdmin.length; k++)
                                             compactIDB.writeData("subAdmins",true,content.addSubAdmin[k]);
+                                    for(let c in content.removeCollateral)
+                                        compactIDB.removeData("collaterals", c);
+                                    for(let c in content.addCollateral)
+                                        compactIDB.writeData("collaterals", content.addCollateral[c], c);
+                                    for(let p in content.policy)
+                                        compactIDB.writeData("policy", content.policy[p], p);
                                 }
                                 compactIDB.writeData("lastTx",result.totalTxs,floGlobals.adminID);
+                                
                                 compactIDB.readAllData("subAdmins").then(result => {
                                     floGlobals.subAdmins = Object.keys(result);
-                                    resolve("Read subAdmins from blockchain");                    
+                                    let dataList = ["collaterals", "policy"]
+                                    Promises.all(dataList.map(d => compactIDB.readAllData(d))).then(results => {
+                                        for(let i in dataList)
+                                            floGlobals[dataList[i]] = results[i]
+                                        resolve("Read subAdmins from blockchain");
+                                    })
                                 })
                             })
                         }).catch(error => reject(error))
@@ -8773,7 +8793,7 @@ Bitcoin.Util = {
         floDapps.launchStartUp().then(result => {
             console.log(result)
             alert(`Welcome FLO_ID: ${myFloID}`)
-            floBank.initApp()
+            floBank.refreshAppData()
                 .then(result => console.log(result))
                 .catch(error => console.error(error))
             //App functions....
@@ -8784,152 +8804,466 @@ Bitcoin.Util = {
 <script id="floBank">
     const floBank = {
 
-        initApp() {
-            return new Promise((resolve, reject) => {
-                Promise.all([this.refreshObjectData(), this.refreshGeneralData(), this.refreshInbox()])
-                    .then(results => resolve(results))
-                    .catch(error => reject(error))
-            })
+        util: {
+
+            refreshObjectData() {
+                return new Promise((resolve, reject) => {
+                    floCloudAPI.requestObjectData("bank")
+                        .then(results => resolve('Object Data Refreshed Successfully'))
+                        .catch(error => reject(error))
+                })
+            },
+
+            refreshRequests() {
+                return new Promise((resolve, reject) => {
+                    floCloudAPI.requestGeneralData("requests", {
+                            senderIDs: (floGlobals.subAdmins.includes(myFloID) ? undefined : myFloID)
+                        }).then(results => resolve('Requests refreshed Successfully'))
+                        .catch(error => reject(error))
+                })
+            },
+
+            refreshInbox() {
+                return new Promise((resolve, reject) => {
+                    floCloudAPI.requestGeneralData("directMessage", {
+                            receiverID: myFloID,
+                            senderIDs: (floGlobals.subAdmins.includes(myFloID) ? undefined : floGlobals
+                                .subAdmins)
+                        }).then(results => resolve('Inbox Refreshed Successfully'))
+                        .catch(error => reject(error))
+                })
+            },
+
+            parseRequests() {
+                let raw = floDapps.getNextGeneralData("requests", '0');
+                let requests = {};
+                raw.forEach(r => {
+                    requests[r.vectorClock] = {
+                        processID: r.vectorClock,
+                        requestor: r.sender,
+                        pubKey: r.pubKey,
+                        category: r.message.request,
+                        processor: floGlobals.appObjects.bank.process[r.vectorClock] || null,
+                        payMode: r.message.payMode,
+                        amount: r.message.amount,
+                        period: r.message.period,
+                        index: r.message.index,
+                        collateral: r.message.collateral,
+                        collateralType: r.message.collateralType,
+                    }
+                });
+                this.requests = requests;
+            }
         },
 
-        refreshObjectData() {
+        refreshAppData() {
             return new Promise((resolve, reject) => {
-                floCloudAPI.requestObjectData("bank")
-                    .then(results => resolve('Object Data Refreshed Successfully'))
-                    .catch(error => reject(error))
-            })
-        },
-
-        refreshGeneralData() {
-            return new Promise((resolve, reject) => {
-                var generalDataList = ["requests"]
-                var promises = []
-                Promise.all(generalDataList.map(data => floCloudAPI.requestGeneralData(data)))
-                    .then(results => resolve('General Data Refreshed Successfully'))
-                    .catch(error => reject(error))
-            })
-        },
-
-        refreshInbox() {
-            return new Promise((resolve, reject) => {
-                floCloudAPI.requestGeneralData("directMessage", {
-                        receiverID: myFloID,
-                        senderIDs: (floGlobals.subAdmins.includes(myFloID) ? undefined : floGlobals
-                            .subAdmins)
-                    })
-                    .then(results => resolve('Inbox Refreshed Successfully'))
-                    .catch(error => reject(error))
+                Promise.all([this.util.refreshObjectData(), this.util.refreshRequests(), this.util
+                        .refreshInbox()
+                    ])
+                    .then(results => {
+                        this.util.parseRequests();
+                        resolve(results);
+                    }).catch(error => reject(error))
             })
         },
 
         viewInbox() {
-            return floDapps.getNextGeneralData("directMessage", '0')
+            let inbox = floDapps.getNextGeneralData("directMessage", '0');
+            inbox.forEach(d => {
+                if ("secret" in d.message)
+                    d.message = JSON.parse(floCrypto.decryptData(d.message, myPrivKey))
+            })
+            return inbox;
         },
 
-        sendDirectMessage(message, receiver) {
-            return floCloudAPI.sendGeneralData(message, "directMessage", {
-                receiverID: receiver
+        sendDirectMessage(message, receiver, receiverPubKey = null) {
+            return new Promise((resolve, reject) => {
+                if (receiverPubKey) {
+                    if (floCrypto.getFloIDfromPubkeyHex(receiverPubKey) != receiver)
+                        return reject("receiver Public-key mismatch")
+                    message = floCrypto.encryptData(JSON.stringify(message), receiverPubKey);
+                }
+                floCloudAPI.sendGeneralData(message, "directMessage", {
+                        receiverID: receiver
+                    })
+                    .then(result => resolve(result))
+                    .catch(error => reject(error))
             })
         },
 
-        sendPaymentDetails(processID, paymentRefID, receiver) {
-            let message = {
-                processID: processID,
-                paymentRefID: paymentRefID,
-            }
-            return this.sendDirectMessage(message, receiver)
+        viewAccount(floID) {
+            let deposits = floGlobals.appObjects.bank["deposits"][floID];
+            let loans = floGlobals.appObjects.bank["loans"][floID];
+            let collaterals = floGlobals.appObjects.bank["collaterals"][floID];
+            return {
+                deposits,
+                loans,
+                collaterals
+            };
         },
 
-        sendPaymentRequest(processID, accountDetails, receiver) {
-            let message = {
-                processID: processID,
-                accountDetails: accountDetails,
-            }
-            return this.sendDirectMessage(message, receiver)
+        viewCollateralTypes() {
+            return Object.keys(floGlobals.collaterals)
         },
 
-        //User roles (depositor, loan-taker, collateral-buyer)
-        user: {
+        getCollateralNetUnitValue(type) {
+            return new Promise((resolve, reject) => {
+                //fetch API calls
+                //resolve the net unit value
+                //reject if any error
+            })
+        },
 
-            openDeposit(amount, period, payMode) {
+        viewRequests(processID = null) {
+            if (!processID)
+                return this.util.requests;
+            else if (Array.isArray(processID)) {
+                let result = {}
+                for (let p of processID)
+                    result[p] = this.util.requests[p];
+                return result
+            } else
+                return this.util.requests[processID]
+        },
+
+        openDeposit_1(amount, period, payMode) {
+            return new Promise((resolve, reject) => {
                 let message = {
                     request: "openDeposit",
                     amount: amount,
                     period: period,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+                floCloudAPI.sendGeneralData(message, "requests")
+                    .then(results => resolve("Open Deposit request sent"))
+                    .catch(error => reject(error))
+            })
+        },
 
-            closeDeposit(index, payMode) {
+        openDeposit_2(processID, accountDetails) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            accountDetails
+                        }, r.requestor, r.pubKey)
+                        .then(results => resolve(
+                            "Deposit process Initiated: Requested deposit amount from client"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        openDeposit_3(processID, paymentRef, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        paymentRef
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Deposit paymentRef sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        openDeposit_4(processID, interest, paymentRefID) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.openNewDeposit(r.requestor, r.amount, r.period, interest, paymentRefID)
+                    .then(result => {
+                        this.util.sendDirectMessage({
+                                processID,
+                                status: "New Deposit Opened"
+                            }, r.requestor, r.pubKey)
+                            .then(result => resolve("New Deposit opened successfully"))
+                            .catch(error => reject(error))
+                    }).catch(error => reject(error))
+            })
+        },
+
+        closeDeposit_1(index, payMode) {
+            return new Promise((resolve, reject) => {
                 let message = {
                     request: "closeDeposit",
                     index: index,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+                floCloudAPI.sendGeneralData(message, "requests")
+                    .then(result => resolve("Close deposit request sent"))
+                    .catch(error => reject(error))
+            })
+        },
 
-            openLoan(amount, period, collateralType, payMode) {
-                let message = {
-                    request: "openLoan",
-                    amount: amount,
-                    period: period,
-                    collateralType: collateralType,
-                    payMode: payMode
-                }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+        closeDeposit_2(processID) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            request: "paymentAccount"
+                        }, r.requestor, r.pubKey)
+                        .then(results => resolve(
+                            "closeDeposit process Initiated: Requested account details from client"
+                        ))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
 
-            closeLoan(index, payMode) {
+        closeDeposit_3(processID, accountDetails, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        accountDetails
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Account details sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        closeDeposit_4(processID, paymentRef) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.closeDeposit(r.requestor, r.index, paymentRef).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            text: "Deposit closed"
+                        }, r.requestor, r.pubKey)
+                        .then(result => resolve("New Deposit opened successfully"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        openLoan_1(amount, period, collateral, payMode) {
+            let message = {
+                request: "openLoan",
+                amount: amount,
+                period: period,
+                collateral: collateral,
+                payMode: payMode
+            }
+            return floCloudAPI.sendGeneralData(message, "requests")
+        },
+
+        openLoan_2(processID) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.checkCollateralEligibility(r.requestor, r.collateral, r.amount).then(
+                        result => {
+                            this.util.sendDirectMessage({
+                                    processID,
+                                    request: "paymentAccount"
+                                }, r.requestor, r.pubKey)
+                                .then(results => resolve(
+                                    "openLoan process Initiated: Requested account details from client"
+                                ))
+                                .catch(error => reject(error))
+                        }).catch(error => {
+                        this.util.sendDirectMessage({
+                                processID,
+                                text: `Loan not sanctioned: ${error}`
+                            }, r.requestor, r.pubKey)
+                            .then(results => resolve(`openLoan rejected: ${error}`))
+                            .catch(error => reject(error))
+                    })
+                }).catch(error => reject(error))
+            })
+        },
+
+        openLoan_3(processID, accountDetails, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        accountDetails
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Account details sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        openLoan_4(processID, interest, paymentRef) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.openNewLoan(r.requestor, r.amount, r.period, interest, r.collateral, paymentRef)
+                    .then(result => {
+                        this.util.sendDirectMessage({
+                                processID,
+                                text: "Loan opened"
+                            }, r.requestor, r.pubKey)
+                            .then(result => resolve("New Deposit opened successfully"))
+                            .catch(error => reject(error))
+                    }).catch(error => reject(error))
+            })
+        },
+
+        closeLoan_1(index, payMode) {
+            return new Promise((resolve, reject) => {
                 let message = {
                     request: "closeLoan",
                     index: index,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+                floCloudAPI.sendGeneralData(message, "requests")
+                    .then(result => resolve("Close loan request sent"))
+                    .catch(error => reject(error))
+            })
+        },
 
-            buyCollateral(amount, collateralType, payMode) {
+        closeLoan_2(processID, accountDetails) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            accountDetails
+                        }, r.requestor, r.pubKey)
+                        .then(results => resolve(
+                            "closeLoan process Initiated: Requested loan repay from client"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        closeLoan_3(processID, paymentRef, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        paymentRef
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Loan repay paymentRef sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        closeLoan_4(processID, paymentRef) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.closeLoan(r.requestor, r.index, paymentRef).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            text: "Deposit closed"
+                        }, r.requestor, r.pubKey)
+                        .then(result => resolve("New Deposit opened successfully"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        buyCollateral_1(amount, collateralType, payMode) {
+            return new Promise((resolve, reject) => {
                 let message = {
                     request: "buyCollateral",
                     amount: amount,
                     collateralType: collateralType,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+                floCloudAPI.sendGeneralData(message, "requests")
+                    .then(result => resolve("Buy collateral request sent"))
+                    .catch(error => reject(error))
+            })
+        },
 
-            sellCollateral(index, payMode) {
+        buyCollateral_2(processID, accountDetails) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            accountDetails
+                        }, r.requestor, r.pubKey)
+                        .then(results => resolve(
+                            "buyCollateral process Initiated: Requested amount from client"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        buyCollateral_3(processID, paymentRef, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        paymentRef
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Collateral amount paymentRef sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        buyCollateral_4(processID, paymentRefID, units, details, comment) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.openCollateral(r.requestor, paymentRefID, r.collateralType, units, details,
+                        comment)
+                    .then(result => {
+                        this.util.sendDirectMessage({
+                                processID,
+                                status: "Collateral brought"
+                            }, r.requestor, r.pubKey)
+                            .then(result => resolve("New Collateral brought successfully"))
+                            .catch(error => reject(error))
+                    }).catch(error => reject(error))
+            })
+        },
+
+        sellCollateral_1(index, payMode) {
+            return new Promise((resolve, reject) => {
                 let message = {
                     request: "sellCollateral",
                     index: index,
                     payMode: payMode
                 }
-                return floCloudAPI.sendGeneralData(message, "requests")
-            },
+                floCloudAPI.sendGeneralData(message, "requests")
+                    .then(result => resolve("Sell Collateral request sent"))
+                    .catch(error => reject(error))
+            })
         },
 
-        //Banker roles (subAdmins only)
+        sellCollateral_2(processID) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.processRequest(processID).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            request: "paymentAccount"
+                        }, r.requestor, r.pubKey)
+                        .then(results => resolve(
+                            "sellCollateral process Initiated: Requested account details from client"
+                        ))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        sellCollateral_3(processID, accountDetails, bankerFloID, bankerPubKey) {
+            return new Promise((resolve, reject) => {
+                this.util.sendDirectMessage({
+                        processID,
+                        accountDetails
+                    }, bankerFloID, bankerPubKey)
+                    .then(results => resolve("Account details sent to banker"))
+                    .catch(error => reject(error))
+            })
+        },
+
+        sellCollateral_4(processID, paymentRef) {
+            return new Promise((resolve, reject) => {
+                let r = this.util.requests[processID];
+                this.banker.closeCollateral(r.requestor, r.index, paymentRef).then(result => {
+                    this.util.sendDirectMessage({
+                            processID,
+                            text: "Collateral sold"
+                        }, r.requestor, r.pubKey)
+                        .then(result => resolve("New Deposit opened successfully"))
+                        .catch(error => reject(error))
+                }).catch(error => reject(error))
+            })
+        },
+
+        //Banker only functions (subAdmins only)
         banker: {
-
-
-            viewRequests() {
-                let raw = floDapps.getNextGeneralData("requests", '0');
-                let requests = []
-                raw.forEach(r => requests.push({
-                    processID: r.vectorClock,
-                    requestor: r.sender,
-                    category: r.message.request,
-                    processor: floGlobals.appObjects.bank.process[r.vectorClock],
-                    payMode: r.message.payMode,
-                    amount: r.message.amount,
-                    period: r.message.period,
-                    index: r.message.index,
-                    collateralType: r.message.collateralType,
-                }))
-                return requests
-            },
 
             processRequest(processID) {
                 return new Promise((resolve, reject) => {
@@ -8974,7 +9308,38 @@ Bitcoin.Util = {
                 return floCloudAPI.updateObjectData("bank")
             },
 
-            openNewLoan(floID, amount, period, interest, paymentRefID) {
+            checkCollateralEligibility(floID, collateralIndex, loanAmount) {
+                return new Promise((resolve, reject) => {
+                    let collateral;
+                    try {
+                        collateral = floGlobals.appObjects["collaterals"][floID][collateralIndex];
+                    } catch (error) {
+                        return reject("Account doesnot own any collateral")
+                    }
+                    if (!collateral)
+                        return reject("Collateral Not Found!")
+                    else if (collateral.status !== "ACTIVE")
+                        return reject(`Collateral is not Active! (current status: ${collateral.status})`)
+                    else if (collateral.loanRefs && collateral.loanRefs.length) {
+                        let loans = collateral.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][
+                            i
+                        ])
+                        let totalLoanAmt = 0
+                        loans.forEach(l => totalLoanAmt += l.amount)
+                        let netVal = this.collateralNetUnitValues[collateral.type];
+                        let loanThreshold = floGlobals.policy["loanRatio"] * collateral.units * netVal;
+                        if (totalLoanAmt >= loanThreshold)
+                            return reject("Collateral threshold already exceeded")
+                        let tmpAmt = loanAmount + totalLoanAmt;
+                        if (tmpAmt >= loanThreshold)
+                            return reject("Collateral doesnot have enough NET value")
+                        resolve("Collateral eligible for loan")
+                    } else
+                        resolve("Collateral eligible for loan")
+                })
+            },
+
+            openNewLoan(floID, amount, period, interest, collateralIndex, paymentRefID) {
                 let loanDetails = {
                     amount: amount,
                     period: period,
@@ -8983,6 +9348,7 @@ Bitcoin.Util = {
                         paymentRefID: paymentRefID,
                         timestamp: Date.now()
                     },
+                    collateral: collateralIndex,
                     closing: {
                         paymentRefID: null,
                         timestamp: null
@@ -9000,6 +9366,84 @@ Bitcoin.Util = {
                 floGlobals.appObjects.bank["loans"][floID][index].closing.timestamp = Date.now();
                 floGlobals.appObjects.bank["loans"][floID][index].status = "CLOSED";
                 return floCloudAPI.updateObjectData("bank")
+            },
+
+            openCollateral(floID, paymentRefID, type, units, details, comment) {
+                let newCollateral = {
+                    type: type,
+                    units: units,
+                    details: details,
+                    opening: {
+                        paymentRefID: paymentRefID,
+                        timestamp: Date.now()
+                    },
+                    closing: {
+                        paymentRefID: null,
+                        timestamp: null
+                    },
+                    status: "ACTIVE",
+                    loanRefs: [],
+                    comment: comment
+                }
+                if (!Array.isArray(floGlobals.appObjects.bank["collaterals"][floID]))
+                    floGlobals.appObjects.bank["collaterals"][floID] = []
+                floGlobals.appObjects.bank["collaterals"][floID].push(depositDetails)
+                return floCloudAPI.updateObjectData("bank")
+            },
+
+            setCollateralStatus(floID, index, status) {
+                //status values = "ACTIVE" | "LOCKED"
+                floGlobals.appObjects.bank["collaterals"][floID][index].status = status;
+                return floCloudAPI.updateObjectData("bank")
+            },
+
+            closeCollateral(floID, index, paymentRef) {
+                floGlobals.appObjects.bank["collaterals"][floID][index].closing.paymentRefID = paymentRefID;
+                floGlobals.appObjects.bank["collaterals"][floID][index].closing.timestamp = Date.now();
+                floGlobals.appObjects.bank["collaterals"][floID][index].status = "CLOSED";
+                return floCloudAPI.updateObjectData("bank")
+            },
+
+            isCollateralOverflow(floID, index, netUnitValues) {
+                if (!collateral.loanRefs.length)
+                    return false
+                let collateral = floGlobals.appObjects["collaterals"][floID][index];
+                let loanThreshold = floGlobals.policy["loanRatio"] * collateral.units * netUnitValues[collateral
+                    .type];
+                let loans = collateral.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][i])
+                let totalLoanAmt = 0
+                loans.forEach(l => totalLoanAmt += l.amount)
+                if (totalLoanAmt >= loanThreshold)
+                    return true;
+                else
+                    return false;
+            },
+
+            viewCollateralOverflows(floIDs = null) {
+                return new Promise((resolve, reject) => {
+                    if (!floIDs)
+                        floIDs = Object.keys(floGlobals.appObjects["collaterals"])
+                    else if (floCrypto.validateAddr(floIDs))
+                        floIDs = [floIDs]
+                    else if (!Array.isArray(floIDs))
+                        return reject(
+                            "Invalid parameters: Parameters must be valid floID or array of floIDs")
+                    let overflows = {}
+                    floIDs.forEach(floID => {
+                        if (floID in floGlobals.appObjects["collaterals"]) {
+                            overflows[floID] = []
+                            for (let i in floGlobals.appObjects["collaterals"][floID].length) {
+                                if (this.isCollateralOverflow(floID, i, netUnitValues))
+                                    overflows[floID].push(floGlobals.appObjects["collaterals"][
+                                        floID
+                                    ][i])
+                            }
+                            if (!overflows[floID].length)
+                                delete overflows[floID]
+                        }
+                    })
+                    resolve(overflows)
+                })
             }
         }
     }
