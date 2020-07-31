@@ -8853,7 +8853,52 @@ Bitcoin.Util = {
                     }
                 });
                 this.requests = requests;
-            }
+            },
+
+            refreshNetUnitValues() {
+                return new Promise((resolve, reject) => {
+
+                    if(typeof this.unitValues !== "object")
+                        this.unitValues = {};
+
+                    //fetch API call function
+                    const fetchValue = function(type){
+                        return new Promise((res, rej) => {
+                            let c = floGlobals.collaterals[c]
+                            fetch(c.url).then(response  => {
+                                if(response.ok){
+                                    response.json().then(data => {
+                                        let value;
+                                        if(!c.path)
+                                            value = data;
+                                        else if(Array.isArray(c.path)){
+                                            value = data;
+                                            for(p of path)
+                                                value = value[p];
+                                        } else 
+                                            value = data[path];
+                                        if(c.multiplier)
+                                            value *= c.multiplier;
+                                        this.unitValues[type] = value;
+                                        resolve({[type]: value})
+                                    });
+                                } else 
+                                    throw Error("Response Not Valid")
+                            }).catch(error => {
+                                this.unitValues[type] = NaN;
+                                resolve({[type]: error})
+                            })
+                        })
+                    }
+                    
+                    let promises = [];
+                    for(let c in floGlobals.collaterals)
+                        promises.push(fetchValue(c))
+                    Promise.all(promises)
+                        .then(results => resolve(Object.assign({}, ...results)))
+                        .catch(error => reject(error))
+                })
+            },
         },
 
         refreshAppData() {
@@ -8905,14 +8950,6 @@ Bitcoin.Util = {
 
         viewCollateralTypes() {
             return Object.keys(floGlobals.collaterals)
-        },
-
-        getCollateralNetUnitValue(type) {
-            return new Promise((resolve, reject) => {
-                //fetch API calls
-                //resolve the net unit value
-                //reject if any error
-            })
         },
 
         viewRequests(processID = null) {
@@ -9262,6 +9299,74 @@ Bitcoin.Util = {
             })
         },
 
+        checkCollateralEligibility(floID, collateralIndex, loanAmount) {
+                return new Promise((resolve, reject) => {
+                    let col;
+                    try {
+                        col = floGlobals.appObjects["collaterals"][floID][collateralIndex];
+                    } catch (error) {
+                        return reject("Account doesnot own any collateral")
+                    }
+                    if (!col)
+                        return reject("Collateral Not Found!")
+                    else if (col.status !== "ACTIVE")
+                        return reject(`Collateral is not Active! (current status: ${col.status})`)
+                    else if (col.loanRefs && col.loanRefs.length) {
+                        let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][
+                            i
+                        ])
+                        let totalLoanAmt = 0
+                        loans.forEach(l => totalLoanAmt += l.amount)
+                        let netVal = this.util.unitValues[col.type];
+                        let loanThreshold = floGlobals.policy["loanRatio"] * col.units * netVal;
+                        if (totalLoanAmt >= loanThreshold)
+                            return reject("Collateral threshold already exceeded")
+                        let tmpAmt = loanAmount + totalLoanAmt;
+                        if (tmpAmt >= loanThreshold)
+                            return reject("Collateral doesnot have enough NET value")
+                        resolve("Collateral eligible for loan")
+                    } else
+                        resolve("Collateral eligible for loan")
+                })
+            },
+
+
+        isCollateralOverflow(floID, index) {
+                if (!col.loanRefs.length)
+                    return false
+                let col = floGlobals.appObjects["collaterals"][floID][index];
+                let loanThreshold = floGlobals.policy["loanRatio"] * col.units * this.util.unitValues[col.type];
+                let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][i])
+                let totalLoanAmt = 0;
+                loans.forEach(l => totalLoanAmt += l.amount)
+                if (totalLoanAmt >= loanThreshold)
+                    return true;
+                else
+                    return false;
+            },
+
+            viewCollateralOverflows(floIDs = null) {
+                    if (!floIDs)
+                        floIDs = Object.keys(floGlobals.appObjects["collaterals"])
+                    else if (floCrypto.validateAddr(floIDs))
+                        floIDs = [floIDs]
+                    else if (!Array.isArray(floIDs))
+                        throw Error("Invalid parameters: Parameters must be floID or array of floIDs");
+                    let overflows = {}
+                    floIDs.forEach(f => {
+                        if (f in floGlobals.appObjects["collaterals"]) {
+                            overflows[f] = []
+                            for (let i in floGlobals.appObjects["collaterals"][f]) {
+                                if (this.isCollateralOverflow(f, i))
+                                    overflows[f].push(floGlobals.appObjects["collaterals"][f][i])
+                            }
+                            if (!overflows[f].length)
+                                delete overflows[f]
+                        }
+                    })
+                    return overflows;
+            },
+
         //Banker only functions (subAdmins only)
         banker: {
 
@@ -9307,38 +9412,7 @@ Bitcoin.Util = {
                 floGlobals.appObjects.bank["deposits"][floID][index].status = "CLOSED";
                 return floCloudAPI.updateObjectData("bank")
             },
-
-            checkCollateralEligibility(floID, collateralIndex, loanAmount) {
-                return new Promise((resolve, reject) => {
-                    let collateral;
-                    try {
-                        collateral = floGlobals.appObjects["collaterals"][floID][collateralIndex];
-                    } catch (error) {
-                        return reject("Account doesnot own any collateral")
-                    }
-                    if (!collateral)
-                        return reject("Collateral Not Found!")
-                    else if (collateral.status !== "ACTIVE")
-                        return reject(`Collateral is not Active! (current status: ${collateral.status})`)
-                    else if (collateral.loanRefs && collateral.loanRefs.length) {
-                        let loans = collateral.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][
-                            i
-                        ])
-                        let totalLoanAmt = 0
-                        loans.forEach(l => totalLoanAmt += l.amount)
-                        let netVal = this.collateralNetUnitValues[collateral.type];
-                        let loanThreshold = floGlobals.policy["loanRatio"] * collateral.units * netVal;
-                        if (totalLoanAmt >= loanThreshold)
-                            return reject("Collateral threshold already exceeded")
-                        let tmpAmt = loanAmount + totalLoanAmt;
-                        if (tmpAmt >= loanThreshold)
-                            return reject("Collateral doesnot have enough NET value")
-                        resolve("Collateral eligible for loan")
-                    } else
-                        resolve("Collateral eligible for loan")
-                })
-            },
-
+            
             openNewLoan(floID, amount, period, interest, collateralIndex, paymentRefID) {
                 let loanDetails = {
                     amount: amount,
@@ -9402,49 +9476,7 @@ Bitcoin.Util = {
                 floGlobals.appObjects.bank["collaterals"][floID][index].closing.timestamp = Date.now();
                 floGlobals.appObjects.bank["collaterals"][floID][index].status = "CLOSED";
                 return floCloudAPI.updateObjectData("bank")
-            },
-
-            isCollateralOverflow(floID, index, netUnitValues) {
-                if (!collateral.loanRefs.length)
-                    return false
-                let collateral = floGlobals.appObjects["collaterals"][floID][index];
-                let loanThreshold = floGlobals.policy["loanRatio"] * collateral.units * netUnitValues[collateral
-                    .type];
-                let loans = collateral.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][i])
-                let totalLoanAmt = 0
-                loans.forEach(l => totalLoanAmt += l.amount)
-                if (totalLoanAmt >= loanThreshold)
-                    return true;
-                else
-                    return false;
-            },
-
-            viewCollateralOverflows(floIDs = null) {
-                return new Promise((resolve, reject) => {
-                    if (!floIDs)
-                        floIDs = Object.keys(floGlobals.appObjects["collaterals"])
-                    else if (floCrypto.validateAddr(floIDs))
-                        floIDs = [floIDs]
-                    else if (!Array.isArray(floIDs))
-                        return reject(
-                            "Invalid parameters: Parameters must be valid floID or array of floIDs")
-                    let overflows = {}
-                    floIDs.forEach(floID => {
-                        if (floID in floGlobals.appObjects["collaterals"]) {
-                            overflows[floID] = []
-                            for (let i in floGlobals.appObjects["collaterals"][floID].length) {
-                                if (this.isCollateralOverflow(floID, i, netUnitValues))
-                                    overflows[floID].push(floGlobals.appObjects["collaterals"][
-                                        floID
-                                    ][i])
-                            }
-                            if (!overflows[floID].length)
-                                delete overflows[floID]
-                        }
-                    })
-                    resolve(overflows)
-                })
-            }
+            }           
         }
     }
 </script>
