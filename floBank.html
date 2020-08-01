@@ -33,7 +33,6 @@
     generalVC: {},
 
     //bank app
-    policy: {},
     collaterals : []
   }
 </script>
@@ -8862,23 +8861,30 @@ Bitcoin.Util = {
                                         for (let l in content.settings)
                                             compactIDB.writeData("settings", content
                                                 .settings[l], l);
-                                    
-                                    for(let c in content.removeCollateral)
+
+                                    for (let c in content.removeCollateral)
                                         compactIDB.removeData("collaterals", c);
-                                    for(let c in content.addCollateral)
-                                        compactIDB.writeData("collaterals", content.addCollateral[c], c);
+                                    for (let c in content.addCollateral)
+                                        compactIDB.writeData("collaterals", content
+                                            .addCollateral[c], c);
                                 }
                                 compactIDB.writeData("lastTx", result.totalTxs,
                                     floGlobals.adminID);
                                 compactIDB.readAllData("subAdmins").then(result => {
                                     floGlobals.subAdmins = Object.keys(result);
-                                    compactIDB.readAllData("settings").then(result => {
-                                        floGlobals.settings = result;
-                                        compactIDB.readAllData("collaterals").then(result => {
-                                            floGlobals.collaterals = result;
-                                            resolve("Read app configuration from blockchain");
+                                    compactIDB.readAllData("settings").then(
+                                        result => {
+                                            floGlobals.settings = result;
+                                            compactIDB.readAllData(
+                                                "collaterals").then(
+                                                result => {
+                                                    floGlobals
+                                                        .collaterals =
+                                                        result;
+                                                    resolve(
+                                                        "Read app configuration from blockchain");
+                                                })
                                         })
-                                    })
                                 })
                             })
                         }).catch(error => reject(error))
@@ -9279,41 +9285,47 @@ Bitcoin.Util = {
             refreshNetUnitValues() {
                 return new Promise((resolve, reject) => {
 
-                    if(typeof this.unitValues !== "object")
-                        this.unitValues = {};
+                    if (typeof this.unitValues !== "object")
+                        this.unitValues = {
+                            deposit: 1
+                        };
 
                     //fetch API call function
-                    const fetchValue = function(type){
+                    const fetchValue = function (type) {
                         return new Promise((res, rej) => {
                             let c = floGlobals.collaterals[c]
-                            fetch(c.url).then(response  => {
-                                if(response.ok){
+                            fetch(c.url).then(response => {
+                                if (response.ok) {
                                     response.json().then(data => {
                                         let value;
-                                        if(!c.path)
+                                        if (!c.path)
                                             value = data;
-                                        else if(Array.isArray(c.path)){
+                                        else if (Array.isArray(c.path)) {
                                             value = data;
-                                            for(p of path)
+                                            for (p of path)
                                                 value = value[p];
-                                        } else 
+                                        } else
                                             value = data[path];
-                                        if(c.multiplier)
+                                        if (c.multiplier)
                                             value *= c.multiplier;
                                         this.unitValues[type] = value;
-                                        resolve({[type]: value})
+                                        resolve({
+                                            [type]: value
+                                        })
                                     });
-                                } else 
+                                } else
                                     throw Error("Response Not Valid")
                             }).catch(error => {
                                 this.unitValues[type] = NaN;
-                                resolve({[type]: error})
+                                resolve({
+                                    [type]: error
+                                })
                             })
                         })
                     }
-                    
+
                     let promises = [];
-                    for(let c in floGlobals.collaterals)
+                    for (let c in floGlobals.collaterals)
                         promises.push(fetchValue(c))
                     Promise.all(promises)
                         .then(results => resolve(Object.assign({}, ...results)))
@@ -9325,7 +9337,7 @@ Bitcoin.Util = {
         refreshAppData() {
             return new Promise((resolve, reject) => {
                 Promise.all([this.util.refreshObjectData(), this.util.refreshRequests(), this.util
-                        .refreshInbox()
+                        .refreshInbox(), this.util.refreshNetUnitValues()
                     ])
                     .then(results => {
                         this.util.parseRequests();
@@ -9335,23 +9347,17 @@ Bitcoin.Util = {
         },
 
         viewInbox() {
-            let inbox = floDapps.getNextGeneralData("directMessage", '0');
-            inbox.forEach(d => {
-                if ("secret" in d.message)
-                    d.message = JSON.parse(floCrypto.decryptData(d.message, myPrivKey))
-            })
+            let inbox = floDapps.getNextGeneralData("directMessage", '0', {decrypt: true});
             return inbox;
         },
 
         sendDirectMessage(message, receiver, receiverPubKey = null) {
             return new Promise((resolve, reject) => {
-                if (receiverPubKey) {
-                    if (floCrypto.getFloIDfromPubkeyHex(receiverPubKey) != receiver)
+                if (receiverPubKey && floCrypto.getFloIDfromPubkeyHex(receiverPubKey) != receiver) 
                         return reject("receiver Public-key mismatch")
-                    message = floCrypto.encryptData(JSON.stringify(message), receiverPubKey);
-                }
                 floCloudAPI.sendGeneralData(message, "directMessage", {
-                        receiverID: receiver
+                        receiverID: receiver,
+                        encrypt: receiverPubKey
                     })
                     .then(result => resolve(result))
                     .catch(error => reject(error))
@@ -9402,8 +9408,10 @@ Bitcoin.Util = {
         openDeposit_2(processID, accountDetails) {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
+                debugger;
                 this.banker.processRequest(processID).then(result => {
-                    this.util.sendDirectMessage({
+                    debugger;
+                    this.sendDirectMessage({
                             processID,
                             accountDetails
                         }, r.requestor, r.pubKey)
@@ -9416,7 +9424,7 @@ Bitcoin.Util = {
 
         openDeposit_3(processID, paymentRef, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         paymentRef
                     }, bankerFloID, bankerPubKey)
@@ -9430,7 +9438,7 @@ Bitcoin.Util = {
                 let r = this.util.requests[processID];
                 this.banker.openNewDeposit(r.requestor, r.amount, r.period, interest, paymentRefID)
                     .then(result => {
-                        this.util.sendDirectMessage({
+                        this.sendDirectMessage({
                                 processID,
                                 status: "New Deposit Opened"
                             }, r.requestor, r.pubKey)
@@ -9457,7 +9465,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.processRequest(processID).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             request: "paymentAccount"
                         }, r.requestor, r.pubKey)
@@ -9471,7 +9479,7 @@ Bitcoin.Util = {
 
         closeDeposit_3(processID, accountDetails, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         accountDetails
                     }, bankerFloID, bankerPubKey)
@@ -9484,7 +9492,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.closeDeposit(r.requestor, r.index, paymentRef).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             text: "Deposit closed"
                         }, r.requestor, r.pubKey)
@@ -9511,7 +9519,7 @@ Bitcoin.Util = {
                 this.banker.processRequest(processID).then(result => {
                     this.util.checkCollateralEligibility(r.requestor, r.collateral, r.amount).then(
                         result => {
-                            this.util.sendDirectMessage({
+                            this.sendDirectMessage({
                                     processID,
                                     request: "paymentAccount"
                                 }, r.requestor, r.pubKey)
@@ -9520,7 +9528,7 @@ Bitcoin.Util = {
                                 ))
                                 .catch(error => reject(error))
                         }).catch(error => {
-                        this.util.sendDirectMessage({
+                        this.sendDirectMessage({
                                 processID,
                                 text: `Loan not sanctioned: ${error}`
                             }, r.requestor, r.pubKey)
@@ -9533,7 +9541,7 @@ Bitcoin.Util = {
 
         openLoan_3(processID, accountDetails, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         accountDetails
                     }, bankerFloID, bankerPubKey)
@@ -9547,7 +9555,7 @@ Bitcoin.Util = {
                 let r = this.util.requests[processID];
                 this.banker.openNewLoan(r.requestor, r.amount, r.period, interest, r.collateral, paymentRef)
                     .then(result => {
-                        this.util.sendDirectMessage({
+                        this.sendDirectMessage({
                                 processID,
                                 text: "Loan opened"
                             }, r.requestor, r.pubKey)
@@ -9574,7 +9582,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.processRequest(processID).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             accountDetails
                         }, r.requestor, r.pubKey)
@@ -9587,7 +9595,7 @@ Bitcoin.Util = {
 
         closeLoan_3(processID, paymentRef, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         paymentRef
                     }, bankerFloID, bankerPubKey)
@@ -9600,7 +9608,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.closeLoan(r.requestor, r.index, paymentRef).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             text: "Deposit closed"
                         }, r.requestor, r.pubKey)
@@ -9628,7 +9636,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.processRequest(processID).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             accountDetails
                         }, r.requestor, r.pubKey)
@@ -9641,7 +9649,7 @@ Bitcoin.Util = {
 
         buyCollateral_3(processID, paymentRef, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         paymentRef
                     }, bankerFloID, bankerPubKey)
@@ -9656,7 +9664,7 @@ Bitcoin.Util = {
                 this.banker.openCollateral(r.requestor, paymentRefID, r.collateralType, units, details,
                         comment)
                     .then(result => {
-                        this.util.sendDirectMessage({
+                        this.sendDirectMessage({
                                 processID,
                                 status: "Collateral brought"
                             }, r.requestor, r.pubKey)
@@ -9683,7 +9691,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.processRequest(processID).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             request: "paymentAccount"
                         }, r.requestor, r.pubKey)
@@ -9697,7 +9705,7 @@ Bitcoin.Util = {
 
         sellCollateral_3(processID, accountDetails, bankerFloID, bankerPubKey) {
             return new Promise((resolve, reject) => {
-                this.util.sendDirectMessage({
+                this.sendDirectMessage({
                         processID,
                         accountDetails
                     }, bankerFloID, bankerPubKey)
@@ -9710,7 +9718,7 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 let r = this.util.requests[processID];
                 this.banker.closeCollateral(r.requestor, r.index, paymentRef).then(result => {
-                    this.util.sendDirectMessage({
+                    this.sendDirectMessage({
                             processID,
                             text: "Collateral sold"
                         }, r.requestor, r.pubKey)
@@ -9721,79 +9729,79 @@ Bitcoin.Util = {
         },
 
         checkCollateralEligibility(floID, collateralIndex, loanAmount) {
-                return new Promise((resolve, reject) => {
-                    let col;
-                    try {
-                        col = floGlobals.appObjects["collaterals"][floID][collateralIndex];
-                    } catch (error) {
-                        return reject("Account doesnot own any collateral")
-                    }
-                    if (!col)
-                        return reject("Collateral Not Found!")
-                    else if (col.status !== "ACTIVE")
-                        return reject(`Collateral is not Active! (current status: ${col.status})`)
-                    else if (col.loanRefs && col.loanRefs.length) {
-                        let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][
-                            i
-                        ])
-                        let totalLoanAmt = 0
-                        loans.forEach(l => totalLoanAmt += l.amount)
-                        let netVal = this.util.unitValues[col.type];
-                        let loanThreshold = floGlobals.policy["loanRatio"] * col.units * netVal;
-                        if (totalLoanAmt >= loanThreshold)
-                            return reject("Collateral threshold already exceeded")
-                        let tmpAmt = loanAmount + totalLoanAmt;
-                        if (tmpAmt >= loanThreshold)
-                            return reject("Collateral doesnot have enough NET value")
-                        resolve("Collateral eligible for loan")
-                    } else
-                        resolve("Collateral eligible for loan")
-                })
-            },
+            return new Promise((resolve, reject) => {
+                let col;
+                try {
+                    col = floGlobals.appObjects["collaterals"][floID][collateralIndex];
+                } catch (error) {
+                    return reject("Account doesnot own any collateral")
+                }
+                if (!col)
+                    return reject("Collateral Not Found!")
+                else if (col.status !== "ACTIVE")
+                    return reject(`Collateral is not Active! (current status: ${col.status})`)
+                else if (col.loanRefs && col.loanRefs.length) {
+                    let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][
+                        i
+                    ])
+                    let totalLoanAmt = 0
+                    loans.forEach(l => totalLoanAmt += l.amount)
+                    let netVal = this.util.unitValues[col.type];
+                    let loanThreshold = floGlobals.settings["loanRatio"] * col.units * netVal;
+                    if (totalLoanAmt >= loanThreshold)
+                        return reject("Collateral threshold already exceeded")
+                    let tmpAmt = loanAmount + totalLoanAmt;
+                    if (tmpAmt >= loanThreshold)
+                        return reject("Collateral doesnot have enough NET value")
+                    resolve("Collateral eligible for loan")
+                } else
+                    resolve("Collateral eligible for loan")
+            })
+        },
 
 
         isCollateralOverflow(floID, index) {
-                if (!col.loanRefs.length)
-                    return false
-                let col = floGlobals.appObjects["collaterals"][floID][index];
-                let loanThreshold = floGlobals.policy["loanRatio"] * col.units * this.util.unitValues[col.type];
-                let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][i])
-                let totalLoanAmt = 0;
-                loans.forEach(l => totalLoanAmt += l.amount)
-                if (totalLoanAmt >= loanThreshold)
-                    return true;
-                else
-                    return false;
-            },
+            if (!col.loanRefs.length)
+                return false
+            let col = floGlobals.appObjects["collaterals"][floID][index];
+            let loanThreshold = floGlobals.settings["loanRatio"] * col.units * this.util.unitValues[col.type];
+            let loans = col.loanRefs.map(i => floGlobals.appObjects.bank["loans"][floID][i])
+            let totalLoanAmt = 0;
+            loans.forEach(l => totalLoanAmt += l.amount)
+            if (totalLoanAmt >= loanThreshold)
+                return true;
+            else
+                return false;
+        },
 
-            viewCollateralOverflows(floIDs = null) {
-                    if (!floIDs)
-                        floIDs = Object.keys(floGlobals.appObjects["collaterals"])
-                    else if (floCrypto.validateAddr(floIDs))
-                        floIDs = [floIDs]
-                    else if (!Array.isArray(floIDs))
-                        throw Error("Invalid parameters: Parameters must be floID or array of floIDs");
-                    let overflows = {}
-                    floIDs.forEach(f => {
-                        if (f in floGlobals.appObjects["collaterals"]) {
-                            overflows[f] = []
-                            for (let i in floGlobals.appObjects["collaterals"][f]) {
-                                if (this.isCollateralOverflow(f, i))
-                                    overflows[f].push(floGlobals.appObjects["collaterals"][f][i])
-                            }
-                            if (!overflows[f].length)
-                                delete overflows[f]
-                        }
-                    })
-                    return overflows;
-            },
+        viewCollateralOverflows(floIDs = null) {
+            if (!floIDs)
+                floIDs = Object.keys(floGlobals.appObjects["collaterals"])
+            else if (floCrypto.validateAddr(floIDs))
+                floIDs = [floIDs]
+            else if (!Array.isArray(floIDs))
+                throw Error("Invalid parameters: Parameters must be floID or array of floIDs");
+            let overflows = {}
+            floIDs.forEach(f => {
+                if (f in floGlobals.appObjects["collaterals"]) {
+                    overflows[f] = []
+                    for (let i in floGlobals.appObjects["collaterals"][f]) {
+                        if (this.isCollateralOverflow(f, i))
+                            overflows[f].push(floGlobals.appObjects["collaterals"][f][i])
+                    }
+                    if (!overflows[f].length)
+                        delete overflows[f]
+                }
+            })
+            return overflows;
+        },
 
         //Banker only functions (subAdmins only)
         banker: {
 
             processRequest(processID) {
                 return new Promise((resolve, reject) => {
-                    floCloudAPI.requestObjectData("process").then(result => {
+                    floCloudAPI.requestObjectData("bank").then(result => {
                         if (processID in floGlobals.appObjects.bank["process"])
                             reject("Request already in process")
                         else {
@@ -9833,7 +9841,7 @@ Bitcoin.Util = {
                 floGlobals.appObjects.bank["deposits"][floID][index].status = "CLOSED";
                 return floCloudAPI.updateObjectData("bank")
             },
-            
+
             openNewLoan(floID, amount, period, interest, collateralIndex, paymentRefID) {
                 let loanDetails = {
                     amount: amount,
@@ -9897,9 +9905,9 @@ Bitcoin.Util = {
                 floGlobals.appObjects.bank["collaterals"][floID][index].closing.timestamp = Date.now();
                 floGlobals.appObjects.bank["collaterals"][floID][index].status = "CLOSED";
                 return floCloudAPI.updateObjectData("bank")
-            }           
+            }
         },
-    
+
         manageCollateralList(adminPrivKey, addCollateral, removeCollateral) {
             return new Promise((resolve, reject) => {
                 if (!Object.keys(addCollateral).length) addCollateral = undefined;
