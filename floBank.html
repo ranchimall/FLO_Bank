@@ -9413,7 +9413,6 @@ Bitcoin.Util = {
                 this.readDataFromBlockchain().then(result => {
                     if (reset) {
                         compactIDB.readAllData('accounts').then(accounts => {
-                            console.info(this)
                             this.util.lastUpdate = null;
                             this.accMap = {};
                             this.accounts = [];
@@ -9528,14 +9527,13 @@ Bitcoin.Util = {
                             floID: data[2],
                             type: "deposit",
                             amount: data[4],
-                            txid: data[7],
                             pubKey: data[5],
                             sign: data[6],
-                        }, data[1]);
+                        }, data[1], data[7]);
                     break;
                 case "close-deposit":
                     if (floCrypto.verifySign(this.istr + `close-deposit#${data[3]}`, data[5], data[4]))
-                        this.closeAccount(data[2], data[3], data[1]);
+                        this.closeAccount(data[2], data[3], data[1], data[6]);
                     break;
                 case "open-loan":
                     if (floCrypto.verifySign(this.istr + `open#${data[3]}:loan${data[4]}`, data[6], data[5]))
@@ -9543,14 +9541,13 @@ Bitcoin.Util = {
                             floID: data[2],
                             type: "loan",
                             amount: data[4],
-                            txid: data[7],
                             pubKey: data[5],
                             sign: data[6],
-                        }, data[1]);
+                        }, data[1], data[7]);
                     break;
                 case "close-loan":
                     if (floCrypto.verifySign(this.istr + `close-loan#${data[3]}:${data[6]}`, data[5], data[4]))
-                        this.closeAccount(data[2], data[3], data[1]);
+                        this.closeAccount(data[2], data[3], data[1], data[6]);
                     break;
             }
         },
@@ -9621,11 +9618,24 @@ Bitcoin.Util = {
 
         },
 
-        addAccount: function(floID, account, time) {
+        checkTxDuplicate: function(txid, floID = null) {
+            let accounts = [];
+            if (!floID)
+                accounts = this.accounts;
+            else
+                this.accMap[floID].forEach(i => accounts.push(this.accounts[i]));
+            for (let acc of accounts)
+                if (acc.openTx === txid || acc.closeTx === txid)
+                    return true;
+            return false;
+        },
+
+        addAccount: function(floID, account, time, txid) {
             this.updateAccountNetValues(time);
             account.netAmt = account.amount;
             account.status = "active";
             account.openTime = time;
+            account.openTx = txid;
             let index = this.accounts.push(account);
             index -= 1;
             if (!this.accMap[floID])
@@ -9634,7 +9644,7 @@ Bitcoin.Util = {
             this.updateRates();
         },
 
-        closeAccount: function(floID, index, time) {
+        closeAccount: function(floID, index, time, txid) {
             accIndex = this.accMap[floID][index];
             if (!accIndex)
                 throw Error("Invalid Account index");
@@ -9646,13 +9656,14 @@ Bitcoin.Util = {
             this.updateAccountNetValues(time);
             account.status = "closed";
             account.closeTime = time;
+            account.closeTx = txid;
             this.updateRates();
         },
 
         updateAccountNetValues: function(time = Date.now()) {
             if (this.util.lastUpdate > time)
                 throw Error("update time is already passed");
-            let t, rates;
+            let t, rates = {};
             rates["loan"] = this.rates["I_b"];
             rates["deposit"] = this.rates["I_s"];
             t = Decimal.sub(time, this.util.lastUpdate || time); //if lastUpdate is null, t becomes 0 ie, no update to values
@@ -9907,6 +9918,8 @@ Bitcoin.Util = {
                         throw Error('Invalid request: Request-type is not openDeposit')
                     if (req.status !== "pending")
                         throw Error("Request already processed");
+                    if (this.checkTxDuplicate(req.txid, req.floID))
+                        throw Error("R>Invalid deposit: Token transaction already used")
                     let tx = await this.tokenAPI.getTx(req.txid);
                     if (!this.tokenAPI.validateToken(tx, req.floID, floGlobals.adminID, req.amount))
                         throw Error("R>Invalid deposit: Invalid token transaction");
@@ -10052,7 +10065,7 @@ Bitcoin.Util = {
         },
 
         requestLoan: function(amount) {
-            return new Promise((resolve, reject) => {
+            return new Promise(async (resolve, reject) => {
                 await this.refreshData()
                 let index = this.util.myIndex + 1;
                 //check for validity of loan (ie, check if enough deposit is present)
@@ -10177,6 +10190,8 @@ Bitcoin.Util = {
                     if (!floCrypto.verifySign(this.istr + `close-loan#${req.index}:${req.txid}`, req.sign, req.pubKey))
                         throw Error("R>Invalid signature: Re-signing required");
                     //verify token tx
+                    if (this.checkTxDuplicate(req.txid, req.floID))
+                        throw Error("R>Invalid deposit: Token transaction already used")
                     let tx = await this.tokenAPI.getTx(req.txid);
                     await this.refreshData()
                     let acc = this.getAccount(req.floID, req.index);
@@ -10188,7 +10203,7 @@ Bitcoin.Util = {
                         throw Error("R>Invalid request: Invalid token transaction")
                     let timestamp = this.util.lastUpdate;
                     //close loan via blockchain
-                    let data = ["close-loan", timestamp, req.floID, req.index, req.pubKey, req, sign, req.txid].join('|')
+                    let data = ["close-loan", timestamp, req.floID, req.index, req.pubKey, req.sign, req.txid].join('|')
                     txid = await floBlockchainAPI.writeData(myFloID, this.util.istr + data, myPrivKey, floGlobals.adminID)
                     let response = {
                         requestID: reqID,
