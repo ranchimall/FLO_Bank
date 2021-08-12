@@ -13,7 +13,7 @@
 
         //Required for blockchain API operators
         apiURL: {
-            FLO: [ 'https://livenet.flocha.in/'],
+            FLO: [ 'https://livenet.flocha.in/', 'https://flosight.duckdns.org/'],
             FLO_TEST: ['https://testnet-flosight.duckdns.org/', 'https://testnet.flocha.in/']
         },
         tokenURL: "https://ranchimallflo.duckdns.org/",
@@ -41,7 +41,6 @@
             accounts: {},
             responses: {},
             requests: {},
-            settings: {},
             appendix: {}
         });
         delete floDapps.util.startUpFunctions.readAppConfigFromAPI;
@@ -7306,7 +7305,7 @@ Bitcoin.Util = {
         }
     }
 </script>
-<script id="floBlockchainAPI" version="2.0.1e">
+<script id="floBlockchainAPI" version="2.1.0">
     /* FLO Blockchain Operator to send/receive data from blockchain using API calls*/
     const floBlockchainAPI = {
 
@@ -7408,7 +7407,7 @@ Bitcoin.Util = {
                             } else break;
                         }
                         if (utxoAmt < sendAmt + fee)
-                            reject("Insufficient balance!");
+                            reject("Insufficient FLO balance!");
                         else {
                             trx.addoutput(receiverAddr, sendAmt);
                             var change = utxoAmt - sendAmt - fee;
@@ -7714,7 +7713,7 @@ Bitcoin.Util = {
         receivedOnly: filters only received data
         pattern     : filters data that with JSON pattern
         filter      : custom filter funtion for floData (eg . filter: d => {return d[0] == '$'})
-        txid        : (boolean) resolve txid or not
+        tx          : (boolean) resolve tx data or not (resolves an Array of Object with tx details)
         sender      : flo-id(s) of sender
         receiver    : flo-id(s) of receiver
         */
@@ -7780,7 +7779,16 @@ Bitcoin.Util = {
                                 }
                                 if (options.filter && !options.filter(response.items[i].floData))
                                     continue;
-                                filteredData.push(options.txid ? [response.items[i].txid, response.items[i].floData] : response.items[i].floData);
+
+                                if (options.tx) {
+                                    let d = {}
+                                    d.txid = response.items[i].txid;
+                                    d.time = response.items[i].time;
+                                    d.blockheight = response.items[i].blockheight;
+                                    d.data = response.items[i].floData;
+                                    filteredData.push(d);
+                                } else
+                                    filteredData.push(response.items[i].floData)
                             }
                             resolve({
                                 totalTxs: response.totalItems,
@@ -9448,7 +9456,7 @@ Bitcoin.Util = {
 
         launchApp: function(reqCallback, resCallback) {
             return new Promise((resolve, reject) => {
-                let data = ["requests", "responses", "appendix", "settings"];
+                let data = ["requests", "responses", "appendix"];
                 Promise.all(data.map(d => compactIDB.readAllData(d))).then(results => {
                     console.debug(data, results)
                     for (let i in results)
@@ -9472,7 +9480,6 @@ Bitcoin.Util = {
             istr: floGlobals.application + '::'
         },
 
-        settings: {},
         model: {},
         constants: {},
         accMap: {},
@@ -9483,24 +9490,20 @@ Bitcoin.Util = {
             return new Promise((resolve, reject) => {
                 this.readDataFromBlockchain().then(accounts => {
                     if (reset) {
-                        ["I_b", "I_s"].forEach(m => this.model[m] = this.exParser(this.settings[m]));
-                        for (let s in this.settings)
-                            if (s.startsWith("constant-"))
-                                this.constants[s.substring("constant-".length)] = this.settings[s]
                         compactIDB.readAllData('accounts').then(accounts => {
                             this.util.lastUpdate = null;
                             this.accMap = {};
                             this.accounts = [];
                             this.rates = {};
                             for (let a in accounts)
-                                this.parseAccount(a, accounts[a].data, accounts[a].txid);
+                                this.parseAccount(a, accounts[a]);
                             this.updateAccountNetValues();
                             resolve("Data Refreshed with sync from localDB");
                         }).catch(error => reject(error))
                     } else {
                         try {
                             for (let a in accounts)
-                                this.parseAccount(a, accounts[a].data, accounts[a].txid);
+                                this.parseAccount(a, accounts[a]);
                             this.updateAccountNetValues();
                             resolve("Data Refreshed");
                         } catch (error) {
@@ -9587,21 +9590,23 @@ Bitcoin.Util = {
                 let options = {
                     sentOnly: true,
                     ignoreOld: this.appendix.lastTx,
-                    txid: true,
+                    tx: true,
                     filter: d => d.startsWith(this.util.istr)
                 }
                 floBlockchainAPI.readData(floGlobals.adminID, options).then(result => {
                     let accounts = {},
                         promises = [];
-                    result.data.reverse().forEach(d => {
-                        let data = d[1].substring(this.util.istr.length);
+                    result.data.reverse().forEach(({
+                        txid,
+                        time,
+                        data
+                    }) => {
+                        data = data.substring(this.util.istr.length);
                         try {
                             if (data.startsWith("set:")) {
-                                let settings = JSON.parse(data.substring("set:".length))
-                                for (let s in settings) {
-                                    promises.push(compactIDB.writeData("settings", settings[s], s));
-                                    this.settings[s] = settings[s];
-                                }
+                                time *= 1000; //seconds to milliseconds
+                                accounts[time] = JSON.parse(data.substring("set:".length));
+                                promises.push(compactIDB.writeData("accounts", accounts[time], time));
                             } else {
                                 let values = data.split('|');
                                 if (values.length > 1) {
@@ -9609,7 +9614,7 @@ Bitcoin.Util = {
                                     if (isNaN(key)) return;
                                     accounts[key] = {
                                         data: values,
-                                        txid: d[0]
+                                        txid: txid
                                     };
                                     promises.push(compactIDB.addData('accounts', accounts[key], key));
                                 }
@@ -9644,7 +9649,23 @@ Bitcoin.Util = {
             return this.util.istr + data.join('|');
         },
 
-        parseAccount: function(time, data, txid) {
+        parseAccount: function(time, account) {
+            if (!account.data) {
+                this.updateAccountNetValues(time);
+                if (account["I_b"])
+                    this.model["I_b"] = this.exParser(account["I_b"]);
+                if (account["I_s"])
+                    this.model["I_s"] = this.exParser(account["I_s"]);
+                for (let c in account)
+                    if (c.startsWith("constant-"))
+                        this.constants[c.substring("constant-".length)] = account[c];
+                this.updateRates();
+                return;
+            }
+            const {
+                data,
+                txid
+            } = account;
             let acc = {};
             data.forEach(d => {
                 d = d.split(":");
@@ -9763,7 +9784,7 @@ Bitcoin.Util = {
                         return reject("Invalid amount");
                     this.getBalance(senderID, token).then(bal => {
                         if (amount > bal)
-                            return reject("Insufficiant balance");
+                            return reject("Insufficiant token balance");
                         floBlockchainAPI.writeData(senderID, `send ${amount} ${token}# ${message}`, privKey, receiverID)
                             .then(txid => resolve(txid))
                             .catch(error => reject(error))
@@ -9805,7 +9826,7 @@ Bitcoin.Util = {
                         return reject("Invalid token amount");
                     this.tokenAPI.getBalance(senderID, token).then(bal => {
                         if (tokenAmt > bal)
-                            return reject("Insufficiant balance");
+                            return reject("Insufficiant token balance");
                         floBlockchainAPI.writeData(senderID, data + `| send ${tokenAmt} ${token}#`, privKey, receiverID)
                             .then(txid => resolve(txid))
                             .catch(error => reject(error))
@@ -9918,6 +9939,7 @@ Bitcoin.Util = {
                 if (typeof token === "string" && /^[\w]+$/.test(token))
                     constants[token] = this.constants[token];
             constants["U"] = U;
+            console.debug("Borrowing Rate Model:", model, constants);
             return this.evaluator(model, constants, toNum);
         },
 
@@ -9933,6 +9955,7 @@ Bitcoin.Util = {
                     constants[token] = this.constants[token];
             constants["U"] = U;
             constants["I_b"] = I_b;
+            console.debug("Saving Rate Model:", model, constants);
             return this.evaluator(model, constants, toNum);
         },
 
@@ -10182,7 +10205,7 @@ Bitcoin.Util = {
                     if (acc.status !== "active")
                         throw (`Account#${index} is not active`)
                     if (details.netTotal < acc.netAmt)
-                        throw (`Unable to withdraw deposit: Loan amount exceeds`)
+                        throw (`Unable to withdraw deposit amount ${acc.netAmt}: Loan amount exceeds! \nTotal deposit: ${details.totalDeposit}\nTotal Loan: ${details.totalLoan}\nNet Balance: ${details.netTotal}`)
                     await this.refreshData()
                     let request = {
                         rtype: "closeDeposit",
@@ -10266,7 +10289,7 @@ Bitcoin.Util = {
                 //check for validity of loan (ie, check if enough deposit is present)
                 let user = this.getUserDetails(myFloID)
                 if (user.netTotal <= amount)
-                    return reject("Deposit insufficient")
+                    return reject(`Deposit insufficient! Max eligible loan amount: ${user.netTotal}`);
                 let request = {
                     rtype: "openLoan",
                     index: index,
@@ -10424,6 +10447,24 @@ Bitcoin.Util = {
                             .catch(error => reject(error))
                     }
                 }
+            })
+        },
+
+        updateModel: function(I_b = null, I_s = null, constants = {}) {
+            return new Promise((resolve, reject) => {
+                if (myFloID !== floGlobals.adminID)
+                    reject("Access Denied! Admin only")
+                let settings = {};
+                if (I_b)
+                    settings["I_b"] = I_b;
+                if (I_s)
+                    settings["I_s"] = I_s;
+                for (let c in constants)
+                    settings["constant-" + c] = constants[c];
+                let data = this.util.istr + "set:" + JSON.stringify(settings);
+                floBlockchainAPI.writeData(floGlobals.adminID, data, myPrivKey)
+                    .then(result => resolve(result))
+                    .catch(error => reject(error));
             })
         },
 
