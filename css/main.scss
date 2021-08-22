@@ -38,7 +38,7 @@ body[data-theme='dark'] {
     * {
         --accent-color: #ff7d7d;
         --accent-color--light: rgba(236, 184, 184, 0.1);
-        --text-color: 240, 240, 240;
+        --text-color: 230, 230, 230;
         --text-color-light: 170, 170, 170;
         --background-color: 10, 10, 10;
         --foreground-color: rgb(20, 20, 20);
@@ -97,12 +97,6 @@ button,
 
 button:disabled {
     opacity: 0.5;
-}
-
-a.button {
-    padding: 0.6rem 1.2rem;
-    border-radius: 0.3rem;
-    background-color: rgba(var(--text-color), 0.06);
 }
 
 a:any-link:focus-visible {
@@ -341,14 +335,38 @@ ul {
 
 .icon-button{
     padding: 0.6rem;
-    border-radius: 0.5rem;
+    border-radius: 0.8rem;
     background-color: var(--accent-color--light);
     .icon{
         fill: var(--accent-color);
     }
 }
+#confirmation_popup,
+#prompt_popup {
+    flex-direction: column;
+
+    h4 {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    sm-button {
+        margin: 0;
+    }
+
+    .flex {
+        padding: 0;
+        margin-top: 1rem;
+
+        sm-button:first-of-type {
+            margin-right: 0.6rem;
+            margin-left: auto;
+        }
+    }
+}
 
 button:active,
+.button:active,
 .nav-item:active{
     transform: scale(0.9);
 }
@@ -396,11 +414,45 @@ details {
     }
 
 }
+.card{
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba(var(--text-color), 0.06);
+}
 .page-layout{
     display: grid;
     grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
     & > * {
         grid-column: 2/3;
+    }
+}
+.page{
+    height: 100%;
+}
+#sign_in,
+#sign_up{
+    place-items: center;
+    section{
+        width: min(24rem, 100%);
+    }
+    sm-form{
+        margin: 2rem 0;
+    }
+}
+#sign_up{
+    sm-copy{
+        font-size: 0.9rem;
+        --button-border-radius: 0.5rem
+    }
+    .h2{
+        margin-bottom: 0.5rem;
+    }
+    .card{
+        margin: 1.5rem 0;
+    }
+    h5{
+        font-weight: 500;
+        color: rgba(var(--text-color), 0.8);
     }
 }
 #homepage{
@@ -477,6 +529,10 @@ details {
     #dashboard{
         padding: 0 1.5rem;
     }
+    #main_nav{
+        border-radius: 1rem 1rem 0 0;
+        background-color: var(--foreground-color);
+    }
     .nav-item{
         flex: 1;
         flex-direction: column;
@@ -490,6 +546,10 @@ details {
     }
 }
 @media screen and (min-width: 640px) {
+    #confirmation_popup,
+    #prompt_popup {
+        --width: 24rem;
+    }
     .page-layout{
         grid-template-columns: 1fr 80vw 1fr;
     }
@@ -507,7 +567,7 @@ details {
             right: 0;
             content: '';
             width: 1px;
-            background-color: var(--accent-color);
+            background-color: rgba(var(--text-color), 0.3);
             height: 80%;
         }
     }
@@ -515,12 +575,12 @@ details {
         &--active{
             background-color: var(--accent-color--light);
         }
+        &:not(:last-of-type){
+            margin-bottom: 0.5rem;
+        }
         &:last-of-type{
             margin-top: auto;
             margin-bottom: 1.5rem;
-        }
-        .icon{
-
         }
         &__title{
             display: none;

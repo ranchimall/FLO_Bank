@@ -36,36 +36,6 @@
         }
     </script>
     <script src="components.js" defer></script>
-    <script id="onLoadStartUp">
-        function onLoadStartUp() {
-
-            //floDapps.addStartUpFunction('Sample', Promised Function)
-            //floDapps.setAppObjectStores({sampleObs1:{}, sampleObs2:{options{autoIncrement:true, keyPath:'SampleKey'}, Indexes:{sampleIndex:{}}}})
-            //floDapps.setCustomPrivKeyInput( () => { FUNCTION BODY *must resolve private key* } )
-
-            floDapps.setAppObjectStores({
-                accounts: {},
-                responses: {},
-                requests: {},
-                appendix: {}
-            });
-            delete floDapps.util.startUpFunctions.readAppConfigFromAPI;
-            delete floDapps.util.startUpFunctions.loadDataFromAppIDB;
-            floDapps.launchStartUp().then(result => {
-                console.log(result);
-                // alert(`Welcome FLO_ID: ${myFloID}`);
-                //App functions....
-                bank_app.launchApp(DummyCallBack, DummyCallBack)
-                    .then(result => console.log(result))
-                    .catch(error => console.error(error))
-            }).catch(error => console.error(error));
-        }
-
-        const DummyCallBack = (d, e) => {
-            if (e) console.error("DummyCallback", e);
-            console.log("DummyCallback", d);
-        }
-    </script>
 </head>
 
 <body onload="onLoadStartUp()">
@@ -92,13 +62,37 @@
         </div>
     </sm-popup>
     <article id="sign_in" class="page page-layout hide-completely">
-        <h1>Sign In</h1>
-        <sm-form>
-            <sm-input type="password" placeholder="FLO private key" variant="outlined" animate required></sm-input>
-            <sm-button variant="primary" disabled>SIgn In</sm-button>
-        </sm-form>
+        <section>
+            <h1 class="h2">Sign In</h1>
+            <p>Welcome back, glad to see you again</p>
+            <sm-form>
+                <sm-input id="private_key_field" type="password" placeholder="FLO private key" required></sm-input>
+                <sm-button id="sign_in_button" variant="primary" disabled>Sign In</sm-button>
+            </sm-form>
+            <p>
+                New here? <a href="#/sign_up">get your FLO login credentials</a>
+            </p>
+        </section>
     </article>
-    <article id="homepage" class="page">
+    <article id="sign_up" class="page page-layout hide-completely">
+        <section class="grid">
+            <h1 class="h2">FLO credentials</h1>
+            <p>Get your FLO credentials to use RanchiMall Bank and all RanchiMall FLO apps. </p>
+            <strong></strong>
+            <div class="grid gap-1-5 card">
+                <div class="grid gap-0-5">
+                    <h5>FLO ID</h5>
+                    <sm-copy id="generated_flo_id"></sm-copy>
+                </div>
+                <div class="grid gap-0-5">
+                    <h5>Private key</h5>
+                    <sm-copy id="generated_private_key"></sm-copy>
+                </div>
+            </div>
+            <sm-button id="sign_up_button" variant="primary">Sign in with these credentials</sm-button>
+        </section>
+    </article>
+    <article id="homepage" class="page hide-completely">
         <header id="main_header">
             <div id="logo">
                 <svg id="main_logo" viewBox="0 0 27.25 32">
@@ -112,30 +106,30 @@
             </div>
             <theme-toggle></theme-toggle>
             <button class="icon-button">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                   </svg>
             </button>
         </header>
         <nav id="main_nav">
-            <a href="#/dashboard" class="nav-item interact">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <a href="#/dashboard" class="nav-item nav-item--active">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                   </svg>
                 <span class="nav-item__title">
                     Dashboard
                 </span>
             </a>
-            <a href="#/transactions" class="nav-item interact">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <a href="#/transactions" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M5 12a1 1 0 102 0V6.414l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L5 6.414V12zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
                   </svg>
                 <span class="nav-item__title">
                     Transactions
                 </span>
             </a>
-            <a href="#/settings" class="nav-item interact">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <a href="#/settings" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                   </svg>
                 <span class="nav-item__title">
@@ -147,7 +141,7 @@
             <div id="dashboard" class="sub-page">
                 <section>
                     <h4 class="flex align-center">
-                        <svg class="icon button__icon--left" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
                           </svg>
                           Quick actions
@@ -170,23 +164,32 @@
                 <section>
                     <div class="flex align-center space-between">
                         <h4 class="flex align-center">
-                            <svg class="icon button__icon--left" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                               </svg>
                               Recent transactions
                         </h4>
-                        <button class="button">See all</button>
+                        <a href="#/transactions" class="button">See all</a>
                     </div>
                     <div id="recent_transactions_container" class="observe-empty-state"></div>
                     <p class="empty-state">No transactions so far. Confirmed transactions will be shown here.</p>
                 </section>
             </div>
-            <div id="transactions" class="sub-page"></div>
-            <div id="settings" class="sub-page"></div>
+            <div id="transactions" class="sub-page hide-completely"></div>
+            <div id="settings" class="sub-page hide-completely">
+                <sm-button onclick="signOut()">Sign out</sm-button>
+            </div>
         </section>
         <section id="user_section"></section>
     </article>
-    <script>
+    <template id="activity_template">
+        <a class="activity">
+            <div class="activity__icon"></div>
+            <div class="activity__title"></div>
+            <time class="activity__time"></time>
+        </a>
+    </template>
+    <script id="ui_utils">
         // Global variables
         const appPages = ['sign_in', 'sign_up', 'homepage'];
         const appSubPages = ['dashboard', 'transactions', 'settings']
@@ -293,7 +296,8 @@
                 return this.items[this.items.length - 1];
             }
         }
-
+        let popupStack = new Stack()
+        let zIndex = 10
         // function required for popups or modals to appear
         function showPopup(popupId, pinned) {
             zIndex++
@@ -435,7 +439,6 @@
         window.addEventListener('hashchange', e => showPage(window.location.hash))
         window.addEventListener("load", () => {
             document.body.classList.remove('hide-completely')
-            showPage(window.location.hash)
             // document.querySelectorAll('sm-input[data-flo-id]').forEach(input => input.customValidation = validateAddr)
             document.addEventListener('keyup', (e) => {
                 if (e.code === 'Escape') {
@@ -455,8 +458,7 @@
             let params
             if (targetPage === '') {
                 pageId = 'homepage'
-            }
-            else {
+            }else {
                 if(targetPage.includes('/')){
                     if (targetPage.includes('?')) {
                         const splitAddress = targetPage.split('?')
@@ -465,25 +467,36 @@
                     } else {
                         pageId = targetPage.split('/').pop()
                     }
+                }else{
+                    pageId = targetPage
                 }
             }
+            if(typeof myFloID === "undefined" && !(pageId === 'sign_up' || pageId === 'sign_in')) return
             if (searchParams) {
                 const urlSearchParams = new URLSearchParams('?' + searchParams);
                 params = Object.fromEntries(urlSearchParams.entries());
             }
             if (appPages.includes(pageId)){
                 switch (pageId) {
+                    case 'sign_in': 
+                    setTimeout(() => {
+                        getRef('private_key_field').focusIn()
+                    }, 0);
+                    break;
+                    case 'sign_up': 
+                        const {floID, privKey} = floCrypto.generateNewID()   
+                        getRef('generated_flo_id').value = floID
+                        getRef('generated_private_key').value = privKey
+                    break;
                 }
                 document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
                 getRef(pageId)?.classList.remove('hide-completely')
                 getRef(pageId)?.animate([
                     {
                         opacity: 0,
-                        transform: 'translateX(-1rem)'
                     },
                     {
                         opacity: 1,
-                        transform: 'none'
                     },
                 ],
                     {
@@ -492,7 +505,9 @@
                     })
                 lastPage = pageId
             }else if(appSubPages.includes(pageId)){
-                console.log(pageId)
+                if(getRef('homepage').classList.contains('hide-completely')){
+                    getRef('homepage').classList.remove('hide-completely')
+                }
                 document.querySelector('.sub-page:not(.hide-completely)')?.classList.add('hide-completely')
                 getRef(pageId)?.classList.remove('hide-completely')
                 getRef('main_nav').querySelector('.nav-item--active')?.classList.remove('nav-item--active')
@@ -507,12 +522,73 @@
                         transform: 'none'
                     },
                 ],
-                    {
-                        duration: 300,
-                        easing: 'ease'
-                    })
+                {
+                    duration: 300,
+                    easing: 'ease'
+                })
             }
+        }
+        </script>
+    <script id="ui_functions">
+        function getSignedIn(){
+            return new Promise((resolve, reject) => {
+                if(window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')){
+                    showPage(window.location.hash)
+                }else{
+                    window.location.hash = '#/sign_in'
+                }
+                getRef('sign_in_button').onclick = () => {
+                    resolve(getRef('private_key_field').value.trim())
+                    getRef('private_key_field').value = ''
+                }
+                getRef('sign_up_button').onclick = () => {
+                    resolve(getRef('generated_private_key').value.trim())
+                    getRef('generated_private_key').value = ''
+                }
+            })
+        }
+        function signOut(){
+            getConfirmation('Sign out?', 'You are about to sign out of the app, continue?')
+            .then(async (res) => {
+                if (res) {
+                    await floDapps.clearCredentials()
+                    onLoadStartUp()
+                }
+            })
+        }
+    </script>
+    <script id="onLoadStartUp">
+        function onLoadStartUp() {
 
+            //floDapps.addStartUpFunction('Sample', Promised Function)
+            //floDapps.setAppObjectStores({sampleObs1:{}, sampleObs2:{options{autoIncrement:true, keyPath:'SampleKey'}, Indexes:{sampleIndex:{}}}})
+            floDapps.setCustomPrivKeyInput(getSignedIn)
+            floDapps.setAppObjectStores({
+                accounts: {},
+                responses: {},
+                requests: {},
+                appendix: {}
+            });
+            delete floDapps.util.startUpFunctions.readAppConfigFromAPI;
+            delete floDapps.util.startUpFunctions.loadDataFromAppIDB;
+            floDapps.launchStartUp().then(result => {
+                console.log(result);
+                // alert(`Welcome FLO_ID: ${myFloID}`);
+                //App functions....
+                if(window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')){
+                    window.location.hash = ''
+                }else{
+                    showPage(window.location.hash)
+                }
+                bank_app.launchApp(DummyCallBack, DummyCallBack)
+                    .then(result => console.log(result))
+                    .catch(error => console.error(error))
+            }).catch(error => console.error(error));
+        }
+
+        const DummyCallBack = (d, e) => {
+            if (e) console.error("DummyCallback", e);
+            console.log("DummyCallback", d);
         }
     </script>
     <script id="init_lib" version="1.0.1">
@@ -7416,7 +7492,6 @@
         }
     })();
     </script>
-
     <script id="floCrypto" version="2.0.1">
         /* FLO Crypto Operators*/
         const floCrypto = {

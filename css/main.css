@@ -36,7 +36,7 @@ body[data-theme=dark],
 body[data-theme=dark] * {
   --accent-color: #ff7d7d;
   --accent-color--light: rgba(236, 184, 184, 0.1);
-  --text-color: 240, 240, 240;
+  --text-color: 230, 230, 230;
   --text-color-light: 170, 170, 170;
   --background-color: 10, 10, 10;
   --foreground-color: rgb(20, 20, 20);
@@ -102,12 +102,6 @@ button,
 
 button:disabled {
   opacity: 0.5;
-}
-
-a.button {
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.3rem;
-  background-color: rgba(var(--text-color), 0.06);
 }
 
 a:-webkit-any-link:focus-visible {
@@ -366,14 +360,42 @@ ul {
 
 .icon-button {
   padding: 0.6rem;
-  border-radius: 0.5rem;
+  border-radius: 0.8rem;
   background-color: var(--accent-color--light);
 }
 .icon-button .icon {
   fill: var(--accent-color);
 }
 
+#confirmation_popup,
+#prompt_popup {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+#confirmation_popup h4,
+#prompt_popup h4 {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+#confirmation_popup sm-button,
+#prompt_popup sm-button {
+  margin: 0;
+}
+#confirmation_popup .flex,
+#prompt_popup .flex {
+  padding: 0;
+  margin-top: 1rem;
+}
+#confirmation_popup .flex sm-button:first-of-type,
+#prompt_popup .flex sm-button:first-of-type {
+  margin-right: 0.6rem;
+  margin-left: auto;
+}
+
 button:active,
+.button:active,
 .nav-item:active {
   -webkit-transform: scale(0.9);
           transform: scale(0.9);
@@ -424,12 +446,50 @@ details[open] > summary .icon {
           transform: rotate(180deg);
 }
 
+.card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  background-color: rgba(var(--text-color), 0.06);
+}
+
 .page-layout {
   display: grid;
   grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
 }
 .page-layout > * {
   grid-column: 2/3;
+}
+
+.page {
+  height: 100%;
+}
+
+#sign_in,
+#sign_up {
+  place-items: center;
+}
+#sign_in section,
+#sign_up section {
+  width: min(24rem, 100%);
+}
+#sign_in sm-form,
+#sign_up sm-form {
+  margin: 2rem 0;
+}
+
+#sign_up sm-copy {
+  font-size: 0.9rem;
+  --button-border-radius: 0.5rem ;
+}
+#sign_up .h2 {
+  margin-bottom: 0.5rem;
+}
+#sign_up .card {
+  margin: 1.5rem 0;
+}
+#sign_up h5 {
+  font-weight: 500;
+  color: rgba(var(--text-color), 0.8);
 }
 
 #homepage {
@@ -534,6 +594,11 @@ details[open] > summary .icon {
     padding: 0 1.5rem;
   }
 
+  #main_nav {
+    border-radius: 1rem 1rem 0 0;
+    background-color: var(--foreground-color);
+  }
+
   .nav-item {
     -webkit-box-flex: 1;
         -ms-flex: 1;
@@ -554,6 +619,11 @@ details[open] > summary .icon {
   }
 }
 @media screen and (min-width: 640px) {
+  #confirmation_popup,
+#prompt_popup {
+    --width: 24rem;
+  }
+
   .page-layout {
     grid-template-columns: 1fr 80vw 1fr;
   }
@@ -577,12 +647,15 @@ details[open] > summary .icon {
     right: 0;
     content: "";
     width: 1px;
-    background-color: var(--accent-color);
+    background-color: rgba(var(--text-color), 0.3);
     height: 80%;
   }
 
   .nav-item--active {
     background-color: var(--accent-color--light);
+  }
+  .nav-item:not(:last-of-type) {
+    margin-bottom: 0.5rem;
   }
   .nav-item:last-of-type {
     margin-top: auto;
