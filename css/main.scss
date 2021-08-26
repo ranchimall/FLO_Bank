@@ -18,13 +18,13 @@ body {
 body {
     &,
     * {
-        --accent-color: #FF8181;
-        --accent-color--light: rgb(231, 67, 67, 0.06);
+        --accent-color: #2672ff;
+        --accent-color--light: rgba(38, 114, 255, 0.1);
         --text-color: 36, 36, 36;
-        --background-color: 255, 246, 246;
-        --foreground-color: rgb(255, 250, 250);
-        --danger-color: red;
-        --green: #00913c;
+        --background-color: 247, 250, 255;
+        --foreground-color: rgb(250, 252, 255);
+        --danger-color: rgb(255, 75, 75);
+        --green: #1cad59;
         scrollbar-width: thin;
     }
 
@@ -36,18 +36,14 @@ body[data-theme='dark'] {
 
     &,
     * {
-        --accent-color: #ff7d7d;
-        --accent-color--light: rgba(236, 184, 184, 0.1);
+        --accent-color: rgb(170, 190, 255);
+        --accent-color--light: rgba(231, 239, 255, 0.1);
         --text-color: 230, 230, 230;
         --text-color-light: 170, 170, 170;
         --background-color: 10, 10, 10;
         --foreground-color: rgb(20, 20, 20);
         --danger-color: rgb(255, 106, 106);
         --green: #00E676;
-    }
-
-    ::-webkit-calendar-picker-indicator {
-        filter: invert(1);
     }
 }
 
@@ -301,8 +297,8 @@ ul {
 
 .interact {
     position: relative;
-    overflow: hidden;
     cursor: pointer;
+    transition: transform 0.3s;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -367,6 +363,7 @@ ul {
 
 button:active,
 .button:active,
+.interact:active,
 .nav-item:active{
     transform: scale(0.9);
 }
@@ -458,7 +455,6 @@ details {
 #homepage{
     height: 100%;
     display: grid;
-    gap: 0 1.5rem;
     grid-template-rows: auto 1fr auto;
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas: 'main-header' 'subpages' 'main-nav';
@@ -490,14 +486,16 @@ details {
     display: grid;
     gap: 1rem;
     align-items: center;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: 1fr auto;
 }
 #subpage_container{
     grid-area: subpages;
+    overflow-y: auto;
 }
 #dashboard{
     display: grid;
     gap: 1.5rem;
+    padding: 0 1.5rem;
 }
 #quick_actions_container{
     display: flex;
@@ -521,9 +519,77 @@ details {
         }
     }
     &__title{
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         font-weight: 500;
     }
+}
+#recent_transactions_container{
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+.activity-card{
+    display: grid;
+    gap: 0.8rem;
+    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    color: inherit;
+    cursor: pointer;
+    &__icon{
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 0.8rem;
+        background-color: rgba(var(--text-color), 0.06);
+        .icon{
+            height: 1.3rem;
+            width: 1.3rem;
+        }
+    }
+    &__title{
+        font-size: 0.95rem;
+        &::first-letter{
+            text-transform: uppercase;
+        }
+        font-weight: 500;
+    }
+    &__time{
+        font-size: 0.8rem;
+        color: rgba(var(--text-color), 0.8);
+    }
+}
+#all_responses_list{
+    padding: 1.5rem 1.5rem 5rem 1.5rem;
+}
+.activity-card--response{
+    align-items: flex-start;
+    gap: 0.2rem 0.8rem;
+    border-radius: 0.5rem;
+    grid-template-areas: 'icon . time' 'icon . time';
+    .activity-card__icon{
+        grid-area: icon;
+    }
+    .activity-card__description{
+        font-size: 0.8rem;
+        color: rgba(var(--text-color), 0.8);
+    }
+    .activity-card__time{
+        grid-area: time;
+    }
+    .success{
+        .icon{
+            fill: var(--green);
+        }
+    }
+    .failed{
+        .icon{
+            fill: var(--danger-color);
+        }
+    }
+}
+#user_section{
+    padding: 1.5rem;
 }
 @media screen and (max-width: 640px) {
     #dashboard{
@@ -556,7 +622,7 @@ details {
     #homepage{
         background-color: var(--foreground-color);
         grid-template-rows: auto 1fr;
-        grid-template-columns: auto minmax(0, 1fr) 20rem;
+        grid-template-columns: auto minmax(0, 1fr);
         grid-template-areas: 'main-header main-header user-section' 'main-nav subpages user-section';
     }
     #main_nav{
@@ -573,7 +639,7 @@ details {
     }
     .nav-item{
         &--active{
-            background-color: var(--accent-color--light);
+            // background-color: var(--accent-color--light);
         }
         &:not(:last-of-type){
             margin-bottom: 0.5rem;
@@ -592,9 +658,16 @@ details {
         background-color: rgba(var(--background-color), 1);
     }
 }
+@media screen and (max-width: 1024px) {
+    #user_section{
+        position: fixed;
+        background-color: rgba(var(--background-color), 1);
+        z-index: 2;
+        transform: translateX(-100%);
+    }
+}
 @media screen and (min-width: 1024px) {
     #homepage{
-        gap: 0 3rem;
         grid-template-columns: 14rem minmax(0, 1fr) 24rem;
     }
     .nav-item{

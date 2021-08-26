@@ -92,6 +92,10 @@
             <sm-button id="sign_up_button" variant="primary">Sign in with these credentials</sm-button>
         </section>
     </article>
+    <article id="loading" class="page page-layout">
+        <sm-spinner></sm-spinner>
+        <h4>Loading RanchiMall Bank</h4>
+    </article>
     <article id="homepage" class="page hide-completely">
         <header id="main_header">
             <div id="logo">
@@ -105,11 +109,6 @@
                 </div>
             </div>
             <theme-toggle></theme-toggle>
-            <button class="icon-button">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
-                  </svg>
-            </button>
         </header>
         <nav id="main_nav">
             <a href="#/dashboard" class="nav-item nav-item--active">
@@ -118,6 +117,14 @@
                   </svg>
                 <span class="nav-item__title">
                     Dashboard
+                </span>
+            </a>
+            <a href="#/notifications" class="nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                  </svg>
+                <span class="nav-item__title">
+                    Notifications
                 </span>
             </a>
             <a href="#/transactions" class="nav-item">
@@ -176,23 +183,53 @@
                 </section>
             </div>
             <div id="transactions" class="sub-page hide-completely"></div>
+            <div id="notifications" class="sub-page hide-completely">
+                <div id="all_responses_list" class="observe-empty-state grid gap-1-5"></div>
+                <p class="empty-state">No notifications so far.</p>
+            </div>
             <div id="settings" class="sub-page hide-completely">
                 <sm-button onclick="signOut()">Sign out</sm-button>
             </div>
         </section>
-        <section id="user_section"></section>
+        <section id="user_section">
+            <h4 class="flex align-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
+                My balance
+            </h4>
+            <div class="balance-card">
+                <div class="balance-card__token">Rupee</div>
+                <div id="rupee_balance" class="balance-card__amount"></div>
+            </div>
+            <div class="balance-card">
+                <div class="balance-card__token">FLO</div>
+                <div id="flo_balance" class="balance-card__amount"></div>
+            </div>
+        </section>
+    </article>
+    <article id="transaction" class="page hide-completely">
+
     </article>
     <template id="activity_template">
-        <a class="activity">
-            <div class="activity__icon"></div>
-            <div class="activity__title"></div>
-            <time class="activity__time"></time>
+        <a class="activity-card interact">
+            <div class="activity-card__icon"></div>
+            <div class="activity-card__title"></div>
+            <time class="activity-card__time"></time>
+        </a>
+    </template>
+    <template id="response_template">
+        <a class="activity-card activity-card--response interact">
+            <div class="activity-card__icon"></div>
+            <div class="activity-card__title"></div>
+            <p class="activity-card__description"></p>
+            <time class="activity-card__time"></time>
         </a>
     </template>
     <script id="ui_utils">
         // Global variables
-        const appPages = ['sign_in', 'sign_up', 'homepage'];
-        const appSubPages = ['dashboard', 'transactions', 'settings']
+        const appPages = ['sign_in', 'sign_up', 'homepage', 'transaction'];
+        const appSubPages = ['dashboard', 'notifications', 'transactions', 'settings']
         const domRefs = {};
         let timerId;
         const currentYear = new Date().getFullYear();
@@ -451,7 +488,7 @@
         });
 
         let lastPage
-        function showPage(targetPage, options = {}) {
+        async function showPage(targetPage, options = {}) {
             const { firstLoad, hashChange } = options
             let pageId
             let searchParams
@@ -505,7 +542,22 @@
                     })
                 lastPage = pageId
             }else if(appSubPages.includes(pageId)){
+                switch (pageId) {
+                    case 'dashboard': 
+                        renderRecentTransactions()
+                        Promise.all([bank_app.tokenAPI.getBalance(myFloID), floBlockchainAPI.getBalance(myFloID)])
+                        .then(([rupeeBalance, floBalance]) => {
+                            getRef('rupee_balance').textContent = rupeeBalance 
+                            getRef('flo_balance').textContent = floBalance
+                        })
+                        .catch(error => notify(error, 'error'))
+                    break;
+                    case 'notifications': 
+                        renderResponses()
+                    break
+                }
                 if(getRef('homepage').classList.contains('hide-completely')){
+                    document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
                     getRef('homepage').classList.remove('hide-completely')
                 }
                 document.querySelector('.sub-page:not(.hide-completely)')?.classList.add('hide-completely')
@@ -530,6 +582,82 @@
         }
         </script>
     <script id="ui_functions">
+        const render = {
+            activityCard(activityDetails = {}){
+                const {requestID, amount, rtype, timestamp, status} = activityDetails
+                const card = getRef('activity_template').content.cloneNode(true).firstElementChild
+                let icon 
+                let action = ''
+                switch(rtype){
+                    case 'openDeposit':
+                        icon = `
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><g><path d="M19.83,7.5l-2.27-2.27c0.07-0.42,0.18-0.81,0.32-1.15C17.96,3.9,18,3.71,18,3.5C18,2.67,17.33,2,16.5,2 c-1.64,0-3.09,0.79-4,2l-5,0C4.46,4,2,6.46,2,9.5S4.5,21,4.5,21l5.5,0v-2h2v2l5.5,0l1.68-5.59L22,14.47V7.5H19.83z M13,9H8V7h5V9z M16,11c-0.55,0-1-0.45-1-1c0-0.55,0.45-1,1-1s1,0.45,1,1C17,10.55,16.55,11,16,11z"/></g></svg>
+                        `
+                        action = 'deposit'
+                    break
+                    case 'closeDeposit':
+                        icon = ``
+                        action = 'withdraw'
+                    break
+                    case 'openLoan':
+                        icon = `
+                           <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
+                        `
+                        action = 'Get loan of'
+                    break
+                    case 'closeLoan':
+                        icon = ``
+                        action = 'Repay loan of'
+                    break
+                }
+                card.setAttribute('href', `#/transaction?requestID=${requestID}`)
+                card.querySelector('.activity-card__icon').innerHTML = icon
+                card.querySelector('.activity-card__title').textContent = `${action} ${amount} (${status})`
+                card.querySelector('.activity-card__time').textContent = getFormatedTime(timestamp, true)
+                return card
+            },
+            responseCard(responseDetails){
+                const {requestID, reason = 'none', rtype, status = 'pending', timestamp} = responseDetails
+                const {amount = undefined, index = undefined} = bank_app.viewAllRequests()[requestID]
+                const card = getRef('response_template').content.cloneNode(true).firstElementChild
+                let icon 
+                let action = ''
+                switch(rtype){
+                    case 'openDeposit':
+                        action = 'deposit'
+                    break
+                    case 'closeDeposit':
+                        action = 'withdraw'
+                    break
+                    case 'openLoan':
+                        action = 'loan'
+                    break
+                    case 'closeLoan':
+                        action = 'repaying loan'
+                    break
+                }
+                if(status === 'success'){
+                    icon = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    `
+                }else{
+                    icon = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    `
+                }
+                // card.setAttribute('href', `#/transaction?requestID=${requestID}`)
+                card.querySelector('.activity-card__icon').innerHTML = icon
+                card.querySelector('.activity-card__icon').classList.add(status)
+                card.querySelector('.activity-card__title').textContent = `${action} ${status === 'success' ? 'approved': 'failed'}`
+                card.querySelector('.activity-card__description').textContent = `Your request for ${action} of ${amount} was ${status === 'success' ? 'successful': 'rejected'}`
+                card.querySelector('.activity-card__time').textContent = getFormatedTime(timestamp, true)
+                return card
+            }
+        }
         function getSignedIn(){
             return new Promise((resolve, reject) => {
                 if(window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')){
@@ -556,8 +684,75 @@
                 }
             })
         }
+        let updateStartIndex = 0
+        let updateEndIndex = 0
+        const intersectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting){
+                    observer.disconnect() 
+                    renderFilteredUpdates({lazyLoad: true})
+                }
+            })
+        },{
+            threshold: 0.3
+        })
+        function renderResponses(options = {}) {
+            let {lazyLoad = false} = options
+            const frag = document.createDocumentFragment();
+            const allResponses = bank_app.viewAllResponses()
+            const updates = []
+            for (key in allResponses) {    
+                updates.push({id: key, ...allResponses[key]});
+            }
+            if(lazyLoad){
+                updateStartIndex = updateEndIndex
+                updateEndIndex = updates.length > updateEndIndex + 10 ? updateEndIndex + 10 : updates.length
+            }else{
+                intersectionObserver.disconnect()
+                getRef('all_responses_list').innerHTML = ``;
+                updateStartIndex = 0
+                updateEndIndex = updates.length > 10 ? 10 : updates.length
+            }
+            for (let index = updateStartIndex; index < updateEndIndex; index++) {
+                const {id} = updates[index]
+                const responseDetails = {
+                    ...updates[index],
+                    responseID: id,
+                    timestamp: id.split('_')[0],
+                }
+                frag.append(render.responseCard(responseDetails))
+            }
+            getRef('all_responses_list').append(frag)
+            if(updateEndIndex !== updates.length && getRef('all_responses_list').lastElementChild){
+                intersectionObserver.observe(getRef('all_responses_list').lastElementChild)
+            }
+        }
+        function renderRecentTransactions() {
+            const activityFrag = document.createDocumentFragment()
+            const transactions = bank_app.viewAllRequests()
+            const responses = bank_app.viewAllResponses()
+            let index = 0
+            for (const key in transactions) {
+                if(index > 5){
+                    break
+                }
+                const {amount, rtype} = transactions[key]
+                const transactionDetails = {
+                    amount,
+                    rtype,
+                    requestID: key,
+                    timestamp: key.split('_')[0],
+                    status: requestResponsePairs[key] ? responses[requestResponsePairs[key]].status : 'pending'
+                }
+                activityFrag.append(render.activityCard(transactionDetails))
+                index++
+            }
+            getRef('recent_transactions_container').innerHTML = ''
+            getRef('recent_transactions_container').append(activityFrag)
+        }
     </script>
     <script id="onLoadStartUp">
+        const requestResponsePairs = {}
         function onLoadStartUp() {
 
             //floDapps.addStartUpFunction('Sample', Promised Function)
@@ -575,14 +770,23 @@
                 console.log(result);
                 // alert(`Welcome FLO_ID: ${myFloID}`);
                 //App functions....
-                if(window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')){
-                    window.location.hash = ''
-                }else{
-                    showPage(window.location.hash)
-                }
                 bank_app.launchApp(DummyCallBack, DummyCallBack)
-                    .then(result => console.log(result))
-                    .catch(error => console.error(error))
+                .then(result => {
+                    console.log(result)
+                    // create pairs of requestIDs and their respective responses for efficient lookup
+                    const allResponses =  bank_app.viewAllResponses()
+                    for(const key in allResponses){
+                        const {requestID} = allResponses[key]
+                        requestResponsePairs[requestID] = key
+                    }
+                    if(window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')){
+                        window.location.hash = ''
+                    }else{
+                        showPage(window.location.hash)
+                    }
+                    
+                })
+                .catch(error => console.error(error))
             }).catch(error => console.error(error));
         }
 
