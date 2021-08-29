@@ -182,9 +182,12 @@
                     <p class="empty-state">No transactions so far. Confirmed transactions will be shown here.</p>
                 </section>
             </div>
-            <div id="transactions" class="sub-page hide-completely"></div>
             <div id="notifications" class="sub-page hide-completely">
-                <div id="all_responses_list" class="observe-empty-state grid gap-1-5"></div>
+                <div id="all_responses_list" class="observe-empty-state grid"></div>
+                <p class="empty-state">No notifications so far.</p>
+            </div>
+            <div id="transactions" class="sub-page hide-completely">
+                <div id="all_requests_list" class="observe-empty-state grid"></div>
                 <p class="empty-state">No notifications so far.</p>
             </div>
             <div id="settings" class="sub-page hide-completely">
@@ -208,14 +211,29 @@
             </div>
         </section>
     </article>
-    <article id="transaction" class="page hide-completely">
-
+    <article id="transaction" class="page hide-completely page-layout">
+        <div id="transaction_top" class="grid gap-1-5 card">
+            <button class="icon-button" onclick="history.back()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div id="transaction_detail__icon"></div>
+            <div class="grid gap-0-5">
+                <div id="transaction_detail__type"></div>
+                <div id="transaction_detail__amount"></div>
+            </div>
+            <time id="transaction_detail__time"></time>
+            <sm-button id="transaction_action_button" variant="primary"></sm-button>
+        </div>
     </article>
-    <template id="activity_template">
-        <a class="activity-card interact">
+    <template id="request_template">
+        <a class="activity-card activity-card--request interact">
             <div class="activity-card__icon"></div>
             <div class="activity-card__title"></div>
             <time class="activity-card__time"></time>
+            <h4 class="activity-card__amount"></h4>
+            <span class="activity-card__status"></span>
         </a>
     </template>
     <template id="response_template">
@@ -487,14 +505,19 @@
             })
         });
 
-        let lastPage
+        const pagesData = {
+            openedPages: []
+        }
+
+        let responseLoader
+        let requestLoader
         async function showPage(targetPage, options = {}) {
             const { firstLoad, hashChange } = options
             let pageId
             let searchParams
             let params
             if (targetPage === '') {
-                pageId = 'homepage'
+                pageId = 'dashboard'
             }else {
                 if(targetPage.includes('/')){
                     if (targetPage.includes('?')) {
@@ -525,6 +548,9 @@
                         getRef('generated_flo_id').value = floID
                         getRef('generated_private_key').value = privKey
                     break;
+                    case 'transaction': 
+                        const {requestId} = params
+                    break;
                 }
                 document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
                 getRef(pageId)?.classList.remove('hide-completely')
@@ -540,7 +566,6 @@
                         duration: 300,
                         easing: 'ease'
                     })
-                lastPage = pageId
             }else if(appSubPages.includes(pageId)){
                 switch (pageId) {
                     case 'dashboard': 
@@ -553,8 +578,21 @@
                         .catch(error => notify(error, 'error'))
                     break;
                     case 'notifications': 
-                        renderResponses()
-                    break
+                        if(pagesData.openedPages.includes(pageId)){
+                            responseLoader.reset()
+                        }else{
+                            responseLoader = new LazyLoader('#all_responses_list', getArrayOfObj(bank_app.viewAllResponses()).reverse(), render.responseCard, {batchSize: 10})
+                            responseLoader.init()
+                        }
+                    break;
+                    case 'transactions': 
+                        if(pagesData.openedPages.includes(pageId)){
+                            requestLoader.reset()
+                        }else{
+                            requestLoader = new LazyLoader('#all_requests_list', getRequests(), render.requestCard, {batchSize: 10})
+                            requestLoader.init()
+                        }
+                    break;
                 }
                 if(getRef('homepage').classList.contains('hide-completely')){
                     document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
@@ -579,13 +617,85 @@
                     easing: 'ease'
                 })
             }
+            pagesData.lastPage = pageId
+            if(!pagesData.openedPages.includes(pageId)){
+                pagesData.openedPages.push(pageId)
+            }
         }
-        </script>
+        // class based lazy loading
+        class LazyLoader{
+            constructor(container, arrayOfElements, renderFn, options = {}){
+                const {batchSize = 10} = options
+                this.arrayOfElements = arrayOfElements
+                this.renderFn = renderFn
+                this.intersectionObserver
+                
+                this.batchSize = batchSize
+                
+                this.lazyContainer = document.querySelector(container)
+                
+                this.render = this.render.bind(this)
+                this.init = this.init.bind(this)
+                this.clear = this.clear.bind(this)
+            }
+            init(){
+                this.intersectionObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if(entry.isIntersecting){
+                            observer.disconnect() 
+                            this.render({lazyLoad: true})
+                        }
+                    })
+                },{
+                    threshold: 0.3
+                })
+                this.mutationObserver = new MutationObserver(mutationList => {
+                    mutationList.forEach(mutation => {
+                        if (mutation.type === 'childList') {
+                            if (mutation.addedNodes.length) {
+                                this.intersectionObserver.observe(this.lazyContainer.lastElementChild)
+                            }
+                        }
+                    })
+                })
+                this.mutationObserver.observe(this.lazyContainer, {
+                    childList: true,
+                })
+                this.render()
+                console.log(this.arrayOfElements.length)
+            }
+            render(options = {}) {
+                let {lazyLoad = false} = options
+                const frag = document.createDocumentFragment();
+                if(lazyLoad){
+                    this.updateStartIndex = this.updateEndIndex
+                    this.updateEndIndex = this.arrayOfElements.length > this.updateEndIndex + this.batchSize ? this.updateEndIndex + this.batchSize : this.arrayOfElements.length
+                }else{
+                    this.intersectionObserver.disconnect()
+                    this.lazyContainer.innerHTML = ``;
+                    this.updateStartIndex = 0
+                    this.updateEndIndex = this.arrayOfElements.length > this.batchSize ? this.batchSize : this.arrayOfElements.length
+                }
+                for (let index = this.updateStartIndex; index < this.updateEndIndex; index++) {
+                    frag.append(this.renderFn(this.arrayOfElements[index]))
+                }
+                this.lazyContainer.append(frag)
+            }
+            clear(){
+                this.intersectionObserver.disconnect()
+                this.mutationObserver.disconnect()
+                this.lazyContainer.innerHTML = ``;
+            }
+            reset(){
+                this.render()
+            }
+        }
+    </script>
     <script id="ui_functions">
         const render = {
-            activityCard(activityDetails = {}){
+            requestCard(activityDetails = {}){
                 const {requestID, amount, rtype, timestamp, status} = activityDetails
-                const card = getRef('activity_template').content.cloneNode(true).firstElementChild
+                const card = getRef('request_template').content.cloneNode(true).firstElementChild
                 let icon 
                 let action = ''
                 switch(rtype){
@@ -603,22 +713,29 @@
                         icon = `
                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
                         `
-                        action = 'Get loan of'
+                        action = 'Get loan'
                     break
                     case 'closeLoan':
                         icon = ``
-                        action = 'Repay loan of'
+                        action = 'Repay loan'
                     break
                 }
                 card.setAttribute('href', `#/transaction?requestID=${requestID}`)
                 card.querySelector('.activity-card__icon').innerHTML = icon
-                card.querySelector('.activity-card__title').textContent = `${action} ${amount} (${status})`
+                card.querySelector('.activity-card__title').textContent = action
                 card.querySelector('.activity-card__time').textContent = getFormatedTime(timestamp, true)
+                card.querySelector('.activity-card__amount').textContent = `₹${amount}`
+                card.querySelector('.activity-card__status').classList.add(status)
+                card.querySelector('.activity-card__status').textContent = status
                 return card
             },
             responseCard(responseDetails){
-                const {requestID, reason = 'none', rtype, status = 'pending', timestamp} = responseDetails
-                const {amount = undefined, index = undefined} = bank_app.viewAllRequests()[requestID]
+                const {id, requestID, reason = 'none', rtype, status = 'pending'} = responseDetails
+                let {amount = undefined, index = undefined} = bank_app.viewAllRequests()[requestID]
+                if(!amount){
+                    amount = bank_app.accounts[index].amount
+                }
+                const timestamp = id.split('_')[0]
                 const card = getRef('response_template').content.cloneNode(true).firstElementChild
                 let icon 
                 let action = ''
@@ -627,7 +744,7 @@
                         action = 'deposit'
                     break
                     case 'closeDeposit':
-                        action = 'withdraw'
+                        action = 'withdrawal'
                     break
                     case 'openLoan':
                         action = 'loan'
@@ -684,59 +801,22 @@
                 }
             })
         }
-        let updateStartIndex = 0
-        let updateEndIndex = 0
-        const intersectionObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if(entry.isIntersecting){
-                    observer.disconnect() 
-                    renderFilteredUpdates({lazyLoad: true})
-                }
-            })
-        },{
-            threshold: 0.3
-        })
-        function renderResponses(options = {}) {
-            let {lazyLoad = false} = options
-            const frag = document.createDocumentFragment();
-            const allResponses = bank_app.viewAllResponses()
-            const updates = []
-            for (key in allResponses) {    
-                updates.push({id: key, ...allResponses[key]});
+        function getArrayOfObj(obj) {
+            const arrayOfObj = []
+            for (key in obj) {    
+                arrayOfObj.push({id: key, ...obj[key]});
             }
-            if(lazyLoad){
-                updateStartIndex = updateEndIndex
-                updateEndIndex = updates.length > updateEndIndex + 10 ? updateEndIndex + 10 : updates.length
-            }else{
-                intersectionObserver.disconnect()
-                getRef('all_responses_list').innerHTML = ``;
-                updateStartIndex = 0
-                updateEndIndex = updates.length > 10 ? 10 : updates.length
-            }
-            for (let index = updateStartIndex; index < updateEndIndex; index++) {
-                const {id} = updates[index]
-                const responseDetails = {
-                    ...updates[index],
-                    responseID: id,
-                    timestamp: id.split('_')[0],
-                }
-                frag.append(render.responseCard(responseDetails))
-            }
-            getRef('all_responses_list').append(frag)
-            if(updateEndIndex !== updates.length && getRef('all_responses_list').lastElementChild){
-                intersectionObserver.observe(getRef('all_responses_list').lastElementChild)
-            }
+            return arrayOfObj
         }
-        function renderRecentTransactions() {
-            const activityFrag = document.createDocumentFragment()
+        function getRequests() {
             const transactions = bank_app.viewAllRequests()
             const responses = bank_app.viewAllResponses()
-            let index = 0
+            const requests = []
             for (const key in transactions) {
-                if(index > 5){
-                    break
+                let {amount, rtype, index} = transactions[key]
+                if(!amount){
+                    amount = bank_app.accounts[index].amount
                 }
-                const {amount, rtype} = transactions[key]
                 const transactionDetails = {
                     amount,
                     rtype,
@@ -744,9 +824,16 @@
                     timestamp: key.split('_')[0],
                     status: requestResponsePairs[key] ? responses[requestResponsePairs[key]].status : 'pending'
                 }
-                activityFrag.append(render.activityCard(transactionDetails))
-                index++
+                requests.push(transactionDetails)
             }
+            return requests.reverse()
+        }
+        function renderRecentTransactions() {
+            const activityFrag = document.createDocumentFragment()
+            const recentRequests = getRequests().splice(0, 5)
+            recentRequests.forEach(request => {
+                activityFrag.append(render.requestCard(request))
+            })
             getRef('recent_transactions_container').innerHTML = ''
             getRef('recent_transactions_container').append(activityFrag)
         }

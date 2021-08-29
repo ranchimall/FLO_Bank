@@ -25,15 +25,16 @@ body {
         --foreground-color: rgb(250, 252, 255);
         --danger-color: rgb(255, 75, 75);
         --green: #1cad59;
+        --yellow: #f3a600;
         scrollbar-width: thin;
     }
-
+    
     color: rgba(var(--text-color), 1);
     background: rgba(var(--background-color), 1);
 }
 
 body[data-theme='dark'] {
-
+    
     &,
     * {
         --accent-color: rgb(170, 190, 255);
@@ -44,6 +45,7 @@ body[data-theme='dark'] {
         --foreground-color: rgb(20, 20, 20);
         --danger-color: rgb(255, 106, 106);
         --green: #00E676;
+        --yellow: #ffd13a;
     }
 }
 
@@ -471,6 +473,8 @@ details {
     border-radius: 0.5rem;
     color: inherit;
     transition: transform 0.3s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
     &--active{
         .icon{
             fill: var(--accent-color);
@@ -525,16 +529,18 @@ details {
 }
 #recent_transactions_container{
     display: grid;
-    gap: 1rem;
     margin: 1.5rem 0;
+    padding-bottom: 5rem;
 }
 .activity-card{
     display: grid;
-    gap: 0.8rem;
-    align-items: center;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding: 1rem 0;
+    gap: 0.4rem 1rem;
+    border-radius: 0.5rem;
+    align-items: flex-start;
     color: inherit;
     cursor: pointer;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     &__icon{
         display: flex;
         align-content: center;
@@ -559,33 +565,74 @@ details {
         color: rgba(var(--text-color), 0.8);
     }
 }
-#all_responses_list{
-    padding: 1.5rem 1.5rem 5rem 1.5rem;
+#notifications,
+#transactions{
+    padding-bottom: 5rem;
+    .activity-card{
+        padding: 1rem 1.5rem;
+    }
+}
+.activity-card--request{
+    grid-template-areas: 'icon . amount' 'icon time .';
+    .activity-card__icon{
+        grid-area: icon;
+    }
+    .activity-card__time{
+        grid-area: time;
+    }
+    .activity-card__amount{
+        grid-area: amount;
+        text-align: end;
+    }
+    .activity-card__status:not(:empty){
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.7rem;
+        border-radius: 0.2rem;
+        padding: 0.3rem 0.4rem;
+        font-weight: 500;
+        color: rgba($color: #000000, $alpha: 0.7);
+        &.success{
+            color: var(--green);
+            background-color: rgb(0, 230, 118, 0.1);
+        }
+        &.failed{
+            color: var(--danger-color);
+            background-color: rgb(255, 75, 75, 0.1);
+        }
+        &.pending{
+            color: var(--yellow);
+            background-color: rgba(255, 252, 75, 0.1);
+        }
+    }
 }
 .activity-card--response{
-    align-items: flex-start;
-    gap: 0.2rem 0.8rem;
-    border-radius: 0.5rem;
-    grid-template-areas: 'icon . time' 'icon . time';
+    grid-template-areas: 'icon . time' 'icon description description';
     .activity-card__icon{
         grid-area: icon;
     }
     .activity-card__description{
+        grid-area: description;
         font-size: 0.8rem;
         color: rgba(var(--text-color), 0.8);
     }
     .activity-card__time{
         grid-area: time;
     }
-    .success{
-        .icon{
-            fill: var(--green);
-        }
+}
+.success{
+    .icon{
+        fill: var(--green);
     }
-    .failed{
-        .icon{
-            fill: var(--danger-color);
-        }
+}
+.pending{
+    .icon{
+        fill: var(--yellow);
+    }
+}
+.failed{
+    .icon{
+        fill: var(--danger-color);
     }
 }
 #user_section{
@@ -639,7 +686,7 @@ details {
     }
     .nav-item{
         &--active{
-            // background-color: var(--accent-color--light);
+            background-color: var(--accent-color--light);
         }
         &:not(:last-of-type){
             margin-bottom: 0.5rem;
@@ -694,7 +741,8 @@ details {
             background: rgba(var(--text-color), 0.5);
         }
     }
-    .nav-item{
+    .nav-item,
+    .interact{
         transition: background-color 0.3s, transform 0.3s;
         &:hover{
             background-color: var(--accent-color--light);

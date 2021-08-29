@@ -29,6 +29,7 @@ body * {
   --foreground-color: rgb(250, 252, 255);
   --danger-color: rgb(255, 75, 75);
   --green: #1cad59;
+  --yellow: #f3a600;
   scrollbar-width: thin;
 }
 
@@ -42,6 +43,7 @@ body[data-theme=dark] * {
   --foreground-color: rgb(20, 20, 20);
   --danger-color: rgb(255, 106, 106);
   --green: #00E676;
+  --yellow: #ffd13a;
 }
 
 p {
@@ -522,6 +524,11 @@ details[open] > summary .icon {
   transition: -webkit-transform 0.3s;
   transition: transform 0.3s;
   transition: transform 0.3s, -webkit-transform 0.3s;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .nav-item--active .icon {
   fill: var(--accent-color);
@@ -592,19 +599,21 @@ details[open] > summary .icon {
 
 #recent_transactions_container {
   display: grid;
-  gap: 1rem;
   margin: 1.5rem 0;
+  padding-bottom: 5rem;
 }
 
 .activity-card {
   display: grid;
-  gap: 0.8rem;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 1rem 0;
+  gap: 0.4rem 1rem;
+  border-radius: 0.5rem;
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
   color: inherit;
   cursor: pointer;
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 .activity-card__icon {
   display: -webkit-box;
@@ -635,32 +644,74 @@ details[open] > summary .icon {
   color: rgba(var(--text-color), 0.8);
 }
 
-#all_responses_list {
-  padding: 1.5rem 1.5rem 5rem 1.5rem;
+#notifications,
+#transactions {
+  padding-bottom: 5rem;
+}
+#notifications .activity-card,
+#transactions .activity-card {
+  padding: 1rem 1.5rem;
+}
+
+.activity-card--request {
+  grid-template-areas: "icon . amount" "icon time .";
+}
+.activity-card--request .activity-card__icon {
+  grid-area: icon;
+}
+.activity-card--request .activity-card__time {
+  grid-area: time;
+}
+.activity-card--request .activity-card__amount {
+  grid-area: amount;
+  text-align: end;
+}
+.activity-card--request .activity-card__status:not(:empty) {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  border-radius: 0.2rem;
+  padding: 0.3rem 0.4rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.7);
+}
+.activity-card--request .activity-card__status:not(:empty).success {
+  color: var(--green);
+  background-color: rgba(0, 230, 118, 0.1);
+}
+.activity-card--request .activity-card__status:not(:empty).failed {
+  color: var(--danger-color);
+  background-color: rgba(255, 75, 75, 0.1);
+}
+.activity-card--request .activity-card__status:not(:empty).pending {
+  color: var(--yellow);
+  background-color: rgba(255, 252, 75, 0.1);
 }
 
 .activity-card--response {
-  -webkit-box-align: start;
-      -ms-flex-align: start;
-          align-items: flex-start;
-  gap: 0.2rem 0.8rem;
-  border-radius: 0.5rem;
-  grid-template-areas: "icon . time" "icon . time";
+  grid-template-areas: "icon . time" "icon description description";
 }
 .activity-card--response .activity-card__icon {
   grid-area: icon;
 }
 .activity-card--response .activity-card__description {
+  grid-area: description;
   font-size: 0.8rem;
   color: rgba(var(--text-color), 0.8);
 }
 .activity-card--response .activity-card__time {
   grid-area: time;
 }
-.activity-card--response .success .icon {
+
+.success .icon {
   fill: var(--green);
 }
-.activity-card--response .failed .icon {
+
+.pending .icon {
+  fill: var(--yellow);
+}
+
+.failed .icon {
   fill: var(--danger-color);
 }
 
@@ -730,6 +781,9 @@ details[open] > summary .icon {
     height: 80%;
   }
 
+  .nav-item--active {
+    background-color: var(--accent-color--light);
+  }
   .nav-item:not(:last-of-type) {
     margin-bottom: 0.5rem;
   }
@@ -784,13 +838,15 @@ details[open] > summary .icon {
     background: rgba(var(--text-color), 0.5);
   }
 
-  .nav-item {
+  .nav-item,
+.interact {
     -webkit-transition: background-color 0.3s, -webkit-transform 0.3s;
     transition: background-color 0.3s, -webkit-transform 0.3s;
     transition: background-color 0.3s, transform 0.3s;
     transition: background-color 0.3s, transform 0.3s, -webkit-transform 0.3s;
   }
-  .nav-item:hover {
+  .nav-item:hover,
+.interact:hover {
     background-color: var(--accent-color--light);
   }
 }

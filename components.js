@@ -1630,7 +1630,6 @@ smCopy.innerHTML = `
     }
 }
 </style>
-</style>
 <section class="copy">
     <p class="copy-content"></p>
     <button part="button" class="copy-button" title="copy">
