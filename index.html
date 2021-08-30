@@ -212,20 +212,23 @@
         </section>
     </article>
     <article id="transaction" class="page hide-completely page-layout">
-        <div id="transaction_top" class="grid gap-1-5 card">
-            <button class="icon-button" onclick="history.back()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-                </svg>
-            </button>
-            <div id="transaction_detail__icon"></div>
-            <div class="grid gap-0-5">
-                <div id="transaction_detail__type"></div>
-                <div id="transaction_detail__amount"></div>
+        <button class="icon-button justify-self-start" onclick="history.back()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+        <section>
+            <div id="transaction_top" class="grid gap-1-5">
+                <div id="transaction_detail__icon"></div>
+                <div id="transaction_detail__status" class="status-tag flex align-center"></div>
+                <div class="grid gap-0-5">
+                    <div id="transaction_detail__type"></div>
+                    <h3 id="transaction_detail__amount"></h3>
+                </div>
+                <time id="transaction_detail__time"></time>
+                <sm-button id="transaction_action_button" variant="primary"></sm-button>
             </div>
-            <time id="transaction_detail__time"></time>
-            <sm-button id="transaction_action_button" variant="primary"></sm-button>
-        </div>
+        </section>
     </article>
     <template id="request_template">
         <a class="activity-card activity-card--request interact">
@@ -233,7 +236,7 @@
             <div class="activity-card__title"></div>
             <time class="activity-card__time"></time>
             <h4 class="activity-card__amount"></h4>
-            <span class="activity-card__status"></span>
+            <span class="activity-card__status status-tag"></span>
         </a>
     </template>
     <template id="response_template">
@@ -549,7 +552,7 @@
                         getRef('generated_private_key').value = privKey
                     break;
                     case 'transaction': 
-                        const {requestId} = params
+                        showTransactionDetails(params)
                     break;
                 }
                 document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
@@ -808,23 +811,26 @@
             }
             return arrayOfObj
         }
+        function getRequestDetails(requestID) {
+            let {amount, rtype, index} = bank_app.viewAllRequests()[requestID]
+            if(!amount){
+                amount = bank_app.accounts[index].amount
+            }
+            const transactionDetails = {
+                amount,
+                rtype,
+                requestID: requestID,
+                timestamp: requestID.split('_')[0],
+                status: requestResponsePairs[requestID] ? bank_app.viewAllResponses()[requestResponsePairs[requestID]].status : 'pending'
+            }
+            return transactionDetails
+        }
         function getRequests() {
             const transactions = bank_app.viewAllRequests()
             const responses = bank_app.viewAllResponses()
             const requests = []
             for (const key in transactions) {
-                let {amount, rtype, index} = transactions[key]
-                if(!amount){
-                    amount = bank_app.accounts[index].amount
-                }
-                const transactionDetails = {
-                    amount,
-                    rtype,
-                    requestID: key,
-                    timestamp: key.split('_')[0],
-                    status: requestResponsePairs[key] ? responses[requestResponsePairs[key]].status : 'pending'
-                }
-                requests.push(transactionDetails)
+                requests.push(getRequestDetails(key))
             }
             return requests.reverse()
         }
@@ -836,6 +842,69 @@
             })
             getRef('recent_transactions_container').innerHTML = ''
             getRef('recent_transactions_container').append(activityFrag)
+        }
+        function showTransactionDetails(params){
+            const {requestID} = params
+            const {amount, rtype, timestamp, status} = getRequestDetails(requestID)
+            let type = ''
+            let icon = ''
+            if(rtype === 'openDeposit' || rtype === 'closeDeposit'){
+                type = 'deposit'
+                icon = `
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><rect fill="none" height="24" width="24"/><g><path d="M19.83,7.5l-2.27-2.27c0.07-0.42,0.18-0.81,0.32-1.15C17.96,3.9,18,3.71,18,3.5C18,2.67,17.33,2,16.5,2 c-1.64,0-3.09,0.79-4,2l-5,0C4.46,4,2,6.46,2,9.5S4.5,21,4.5,21l5.5,0v-2h2v2l5.5,0l1.68-5.59L22,14.47V7.5H19.83z M13,9H8V7h5V9z M16,11c-0.55,0-1-0.45-1-1c0-0.55,0.45-1,1-1s1,0.45,1,1C17,10.55,16.55,11,16,11z"/></g></svg>
+                `
+            }else{
+                type = 'Loan'
+                icon = `
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
+                `
+            }
+            let statusIcon = ''
+            switch(status){
+                case 'success':
+                    statusIcon = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    `
+                break;
+                case 'pending':
+                    statusIcon = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                    </svg>
+                    `
+                break;
+                case 'failed':
+                    statusIcon = `
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    `
+                break;
+            }
+            getRef('transaction_detail__icon').innerHTML = icon
+            getRef('transaction_detail__status').innerHTML = `${statusIcon} ${status === 'success' ? 'completed' : status}`
+            getRef('transaction_detail__status').className = `status-tag flex align-center ${status}`
+            getRef('transaction_detail__type').textContent = type
+            getRef('transaction_detail__amount').textContent = amount
+            getRef('transaction_detail__time').textContent = getFormatedTime(timestamp)
+            getRef('transaction_action_button').classList.remove('hide-completely')
+
+            switch(rtype){
+                case 'openDeposit':
+                    getRef('transaction_action_button').textContent = 'Withdraw'
+                break
+                case 'closeDeposit':
+                    getRef('transaction_action_button').classList.add('hide-completely')
+                break
+                case 'openLoan':
+                    getRef('transaction_action_button').textContent = 'Repay'
+                break
+                case 'closeLoan':
+                    getRef('transaction_action_button').classList.add('hide-completely')
+                break
+            }
         }
     </script>
     <script id="onLoadStartUp">
