@@ -454,6 +454,13 @@ details {
         color: rgba(var(--text-color), 0.8);
     }
 }
+#loading{
+    place-content: center;
+    text-align: center;
+    sm-spinner{
+        margin-bottom: 1.5rem;
+    }
+}
 #homepage{
     height: 100%;
     display: grid;
@@ -547,10 +554,11 @@ details {
         justify-content: center;
         padding: 0.5rem;
         border-radius: 0.8rem;
-        background-color: rgba(var(--text-color), 0.06);
+        background-color: var(--accent-color--light);
         .icon{
             height: 1.3rem;
             width: 1.3rem;
+            fill: var(--accent-color);
         }
     }
     &__title{
@@ -636,7 +644,47 @@ details {
     }
 }
 #user_section{
+    overflow-y: auto;
     padding: 1.5rem;
+    h4{
+        margin-bottom: 1rem;
+    }
+}
+#account_chart_container{
+    display: flex;
+    padding: 1.5rem;
+    height: 16rem;
+    margin: 1.5rem 0;
+}
+.balance-card{
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: 'icon .' 'icon .';
+    padding: 1rem 0;
+    align-items: center;
+    gap: 0.3rem 1rem;
+    border-radius: 0.5rem;
+    &__icon{
+        grid-area: icon;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        padding: 0.5rem;
+        border-radius: 0.8rem;
+        background-color: var(--accent-color--light);
+        .icon{
+            height: 1.3rem;
+            width: 1.3rem;
+            fill: var(--accent-color);
+        }
+    }
+    &__token{
+        font-size: 0.8rem;
+    }
+    &__amount{
+        font-size: 1rem;
+        font-weight: 700;
+    }
 }
 #transaction{
     gap: 1.5rem 0;

@@ -36,6 +36,7 @@
         }
     </script>
     <script src="components.js" defer></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js" integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body onload="onLoadStartUp()">
@@ -111,7 +112,7 @@
             <theme-toggle></theme-toggle>
         </header>
         <nav id="main_nav">
-            <a href="#/dashboard" class="nav-item nav-item--active">
+            <a href="#/homepage/dashboard" class="nav-item nav-item--active">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                   </svg>
@@ -119,7 +120,7 @@
                     Dashboard
                 </span>
             </a>
-            <a href="#/notifications" class="nav-item">
+            <a href="#/homepage/notifications" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                   </svg>
@@ -127,7 +128,7 @@
                     Notifications
                 </span>
             </a>
-            <a href="#/transactions" class="nav-item">
+            <a href="#/homepage/transactions" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path d="M5 12a1 1 0 102 0V6.414l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L5 6.414V12zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
                   </svg>
@@ -135,7 +136,7 @@
                     Transactions
                 </span>
             </a>
-            <a href="#/settings" class="nav-item">
+            <a href="#/homepage/settings" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                   </svg>
@@ -162,7 +163,7 @@
                         </button>
                         <button class="quick-action">
                             <div class="quick-action__icon">
-                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
+                                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.65,8.5H10.42a5.18,5.18,0,0,0-4,1.95L3.75,13.74a5,5,0,0,0-.68,5.31l0,0h0a5.07,5.07,0,0,0,4.5,2.73h7.88A5.08,5.08,0,0,0,20,19.05h0a5.39,5.39,0,0,0,.43-1.2,4.91,4.91,0,0,0-1-4.06l-2.66-3.34A5.17,5.17,0,0,0,12.65,8.5Z"/><path d="M9.71,6.59h3.94A2.94,2.94,0,0,0,16,5.39h0a1.13,1.13,0,0,0-.23-1.57,1.11,1.11,0,0,0-.95-.18h0a1.2,1.2,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.18,1.18,0,0,1-1,.16L8.2,3.35a1.13,1.13,0,0,0-1.36.84A1.17,1.17,0,0,0,7,5H7A3.18,3.18,0,0,0,9.71,6.59Z"/></svg>
                             </div>
                             <span class="quick-action__title">Get loan</span>
                         </button>
@@ -176,7 +177,7 @@
                               </svg>
                               Recent transactions
                         </h4>
-                        <a href="#/transactions" class="button">See all</a>
+                        <a href="#/homepage/transactions" class="button">See all</a>
                     </div>
                     <div id="recent_transactions_container" class="observe-empty-state"></div>
                     <p class="empty-state">No transactions so far. Confirmed transactions will be shown here.</p>
@@ -199,13 +200,36 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
                 </svg>
+                Account summary
+                <button class="button justify-right" onclick="refreshBalance()">
+                    Refresh
+                </button>
+            </h4>
+            <div id="account_chart_container">
+                <canvas id="account_summary_chart"></canvas>
+            </div>
+            <h4 class="flex align-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
                 My balance
+                <button class="button justify-right" onclick="refreshBalance()">
+                    Refresh
+                </button>
             </h4>
             <div class="balance-card">
+                <div class="balance-card__icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 5a1 1 0 100 2h1a2 2 0 011.732 1H7a1 1 0 100 2h2.732A2 2 0 018 11H7a1 1 0 00-.707 1.707l3 3a1 1 0 001.414-1.414l-1.483-1.484A4.008 4.008 0 0011.874 10H13a1 1 0 100-2h-1.126a3.976 3.976 0 00-.41-1H13a1 1 0 100-2H7z" clip-rule="evenodd" />
+                    </svg>
+                </div>
                 <div class="balance-card__token">Rupee</div>
                 <div id="rupee_balance" class="balance-card__amount"></div>
             </div>
             <div class="balance-card">
+                <div class="balance-card__icon">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M16.36,15.39c1.83,0,4.26-2.49,4.36-4.74-5.65-.19-4.91.47-7.28,2.39,2.19-2.4,1.42-7.79-1.43-10V6.17c2.33,1.49,2.21,5.14,0,7.15-2.23-2-2.27-5.69,0-7.15V3c-2.83,2.26-3.62,7.66-1.44,10-2.36-1.93-1.63-2.58-7.28-2.39.1,2.26,2.55,4.73,4.36,4.74,0,0-1.93.22-2.74-2.62,2.38-.37,4.29-.14,6.28,2-.79-.11-4.89,1.13-4.38,3.26.53.06,3,.3,3.58-.83-.17.18-1.25.5-1.53.05.38-1.39,2.32-2,2.32-2-1,1.82-.48,4.63.82,5.72,1.31-1.08,1.8-3.95.82-5.72,0,0,1.95.6,2.32,2-.29.46-1.36.12-1.53-.05.58,1.14,3.06.88,3.58.83.49-2.17-3.58-3.36-4.38-3.26,2-2.17,3.92-2.39,6.28-2C18.3,15.62,16.36,15.39,16.36,15.39ZM12,19.46c-.91-.79-.5-3,0-3.59C12.5,16.45,12.91,18.66,12,19.46Z"/></svg>
+                </div>
                 <div class="balance-card__token">FLO</div>
                 <div id="flo_balance" class="balance-card__amount"></div>
             </div>
@@ -511,26 +535,34 @@
         });
 
         const pagesData = {
-            openedPages: []
+            openedPages: [],
+            openedSubPages: [],
         }
 
         let responseLoader
         let requestLoader
+        let accountChart
         async function showPage(targetPage, options = {}) {
             const { firstLoad, hashChange } = options
             let pageId
+            let subPageId
             let searchParams
             let params
             if (targetPage === '') {
-                pageId = 'dashboard'
+                pageId = 'homepage'
+                subPageId = 'dashboard'
             }else {
                 if(targetPage.includes('/')){
                     if (targetPage.includes('?')) {
                         const splitAddress = targetPage.split('?')
                         searchParams = splitAddress.pop()
-                        pageId = splitAddress.pop().split('/').pop()
-                    } else {
-                        pageId = targetPage.split('/').pop()
+                        const pages = splitAddress.pop().split('/')
+                        pageId = pages[1]
+                        subPageId = pages[2]
+                    }else{
+                        const pages = targetPage.split('/')
+                        pageId = pages[1]
+                        subPageId = pages[2]
                     }
                 }else{
                     pageId = targetPage
@@ -541,7 +573,7 @@
                 const urlSearchParams = new URLSearchParams('?' + searchParams);
                 params = Object.fromEntries(urlSearchParams.entries());
             }
-            if (appPages.includes(pageId)){
+            if(pagesData.lastPage !== pageId){
                 switch (pageId) {
                     case 'sign_in': 
                     setTimeout(() => {
@@ -571,19 +603,19 @@
                         duration: 300,
                         easing: 'ease'
                     })
-            }else if(appSubPages.includes(pageId)){
-                switch (pageId) {
+            }
+            if(subPageId){
+                switch (subPageId) {
                     case 'dashboard': 
                         renderRecentTransactions()
-                        Promise.all([bank_app.tokenAPI.getBalance(myFloID), floBlockchainAPI.getBalance(myFloID)])
-                        .then(([rupeeBalance, floBalance]) => {
-                            getRef('rupee_balance').textContent = rupeeBalance 
-                            getRef('flo_balance').textContent = floBalance
-                        })
-                        .catch(error => notify(error, 'error'))
+                        refreshBalance()
+                        if(accountChart){
+                            accountChart.destroy()
+                        }
+                        accountChart = renderChart()
                     break;
                     case 'notifications': 
-                        if(pagesData.openedPages.includes(pageId)){
+                        if(pagesData.openedSubPages.includes(subPageId)){
                             responseLoader.reset()
                         }else{
                             responseLoader = new LazyLoader('#all_responses_list', getArrayOfObj(bank_app.viewAllResponses()).reverse(), render.responseCard, {batchSize: 10})
@@ -591,7 +623,7 @@
                         }
                     break;
                     case 'transactions': 
-                        if(pagesData.openedPages.includes(pageId)){
+                        if(pagesData.openedSubPages.includes(subPageId)){
                             requestLoader.reset()
                         }else{
                             requestLoader = new LazyLoader('#all_requests_list', getRequests(), render.requestCard, {batchSize: 10})
@@ -599,15 +631,12 @@
                         }
                     break;
                 }
-                if(getRef('homepage').classList.contains('hide-completely')){
-                    document.querySelector('.page:not(.hide-completely)')?.classList.add('hide-completely')
-                    getRef('homepage').classList.remove('hide-completely')
-                }
+                console.log(pageId, subPageId)
                 document.querySelector('.sub-page:not(.hide-completely)')?.classList.add('hide-completely')
-                getRef(pageId)?.classList.remove('hide-completely')
+                getRef(subPageId)?.classList.remove('hide-completely')
                 getRef('main_nav').querySelector('.nav-item--active')?.classList.remove('nav-item--active')
-                getRef('main_nav').querySelector(`.nav-item[href="#/${pageId}"]`).classList.add('nav-item--active')
-                getRef(pageId)?.animate([
+                getRef('main_nav').querySelector(`.nav-item[href="${window.location.hash}`).classList.add('nav-item--active')
+                getRef(subPageId)?.animate([
                     {
                         opacity: 0,
                         transform: 'translateY(1rem)'
@@ -625,6 +654,9 @@
             pagesData.lastPage = pageId
             if(!pagesData.openedPages.includes(pageId)){
                 pagesData.openedPages.push(pageId)
+            }
+            if(subPageId && !pagesData.openedSubPages.includes(subPageId)){
+                pagesData.openedSubPages.push(subPageId)
             }
         }
         // class based lazy loading
@@ -711,17 +743,21 @@
                         action = 'deposit'
                     break
                     case 'closeDeposit':
-                        icon = ``
+                        icon = `
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19.08,2.5H4.92A1.5,1.5,0,0,0,3.42,4V9.62a1.5,1.5,0,0,0,1.5,1.5H7v9a.87.87,0,0,0,.86.87h8.26a.87.87,0,0,0,.86-.87v-9h2.09a1.5,1.5,0,0,0,1.5-1.5V4A1.5,1.5,0,0,0,19.08,2.5ZM12,17.68a2.18,2.18,0,1,1,2.18-2.17A2.18,2.18,0,0,1,12,17.68Zm7.58-8.06a.5.5,0,0,1-.5.5H17V7.24h.76a.43.43,0,0,0,0-.86H6.25a.43.43,0,0,0,0,.86H7v2.88H4.92a.5.5,0,0,1-.5-.5V4a.5.5,0,0,1,.5-.5H19.08a.5.5,0,0,1,.5.5Z"/></svg>
+                        `
                         action = 'withdraw'
                     break
                     case 'openLoan':
                         icon = `
-                           <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.65,8.5H10.42a5.18,5.18,0,0,0-4,1.95L3.75,13.74a5,5,0,0,0-.68,5.31l0,0h0a5.07,5.07,0,0,0,4.5,2.73h7.88A5.08,5.08,0,0,0,20,19.05h0a5.39,5.39,0,0,0,.43-1.2,4.91,4.91,0,0,0-1-4.06l-2.66-3.34A5.17,5.17,0,0,0,12.65,8.5Z"/><path d="M9.71,6.59h3.94A2.94,2.94,0,0,0,16,5.39h0a1.13,1.13,0,0,0-.23-1.57,1.11,1.11,0,0,0-.95-.18h0a1.2,1.2,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.18,1.18,0,0,1-1,.16L8.2,3.35a1.13,1.13,0,0,0-1.36.84A1.17,1.17,0,0,0,7,5H7A3.18,3.18,0,0,0,9.71,6.59Z"/></svg>
                         `
                         action = 'Get loan'
                     break
                     case 'closeLoan':
-                        icon = ``
+                        icon = `
+                            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.42,9.17h0a1,1,0,0,0-1.57.2A7.54,7.54,0,0,0,4.19,11a1,1,0,0,0,1,1.24h0a1,1,0,0,0,.94-.7,5.61,5.61,0,0,1,.49-1.16A1,1,0,0,0,6.42,9.17Zm-1.26,5h0a1,1,0,0,0-1,1.25A8,8,0,0,0,4.84,17a1,1,0,0,0,1.57.19h0a1,1,0,0,0,.17-1.15A6.17,6.17,0,0,1,6.1,14.9,1,1,0,0,0,5.16,14.19Zm2.86,6a7.85,7.85,0,0,0,1.59.66,1,1,0,0,0,1.25-1v0a1,1,0,0,0-.7-.94A6.08,6.08,0,0,1,9,18.45a1,1,0,0,0-1.17.17l0,0A1,1,0,0,0,8,20.21ZM12.86,5V3.73a.64.64,0,0,0-1.09-.45l-3,3a.63.63,0,0,0,0,.9l3,3a.64.64,0,0,0,1.08-.46v-2a.36.36,0,0,1,.43-.35A6,6,0,0,1,13.54,19a1,1,0,0,0-.68.94h0a1,1,0,0,0,1.24,1,8,8,0,0,0-.95-15.56A.34.34,0,0,1,12.86,5Z"/></svg>
+                        `
                         action = 'Repay loan'
                     break
                 }
@@ -755,7 +791,7 @@
                         action = 'loan'
                     break
                     case 'closeLoan':
-                        action = 'repaying loan'
+                        action = 'loan repayment'
                     break
                 }
                 if(status === 'success'){
@@ -806,6 +842,14 @@
                 }
             })
         }
+        function refreshBalance() {
+            Promise.all([bank_app.tokenAPI.getBalance(myFloID), floBlockchainAPI.getBalance(myFloID)])
+            .then(([rupeeBalance, floBalance]) => {
+                getRef('rupee_balance').textContent = rupeeBalance 
+                getRef('flo_balance').textContent = floBalance
+            })
+            .catch(error => notify(error, 'error'))
+        }
         function getArrayOfObj(obj) {
             const arrayOfObj = []
             for (key in obj) {    
@@ -819,6 +863,7 @@
                 amount = bank_app.accounts[index].amount
             }
             const transactionDetails = {
+                index,
                 amount,
                 rtype,
                 requestID: requestID,
@@ -847,7 +892,9 @@
         }
         function showTransactionDetails(params){
             const {requestID} = params
-            const {amount, rtype, timestamp, status} = getRequestDetails(requestID)
+            const {amount, rtype, timestamp, status, index} = getRequestDetails(requestID)
+            const {status: accountStatus} = bank_app.accounts[index]
+
             let type = ''
             let icon = ''
             if(rtype === 'openDeposit' || rtype === 'closeDeposit'){
@@ -858,7 +905,7 @@
             }else{
                 type = 'Loan'
                 icon = `
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.61,8.68H8.39L3.37,15a5.18,5.18,0,0,0,.19,4.27h0A5.06,5.06,0,0,0,8.06,22h7.88a5.06,5.06,0,0,0,4.5-2.77h0A5.18,5.18,0,0,0,20.63,15Z"/><path d="M8.35,6.77h7.26l.88-1.2a1.12,1.12,0,0,0-1.18-1.75h0a1.16,1.16,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.14,1.14,0,0,1-1,.16l-.22-.06A1.13,1.13,0,0,0,7.43,5.19Z"/></svg>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.65,8.5H10.42a5.18,5.18,0,0,0-4,1.95L3.75,13.74a5,5,0,0,0-.68,5.31l0,0h0a5.07,5.07,0,0,0,4.5,2.73h7.88A5.08,5.08,0,0,0,20,19.05h0a5.39,5.39,0,0,0,.43-1.2,4.91,4.91,0,0,0-1-4.06l-2.66-3.34A5.17,5.17,0,0,0,12.65,8.5Z"/><path d="M9.71,6.59h3.94A2.94,2.94,0,0,0,16,5.39h0a1.13,1.13,0,0,0-.23-1.57,1.11,1.11,0,0,0-.95-.18h0a1.2,1.2,0,0,1-.92-.18l-.28-.21a3.64,3.64,0,0,0-4.22,0h0a1.18,1.18,0,0,1-1,.16L8.2,3.35a1.13,1.13,0,0,0-1.36.84A1.17,1.17,0,0,0,7,5H7A3.18,3.18,0,0,0,9.71,6.59Z"/></svg>
                 `
             }
             let statusIcon = ''
@@ -893,21 +940,60 @@
             getRef('transaction_detail__time').textContent = getFormatedTime(timestamp)
             getRef('transaction_action_button').classList.remove('hide-completely')
 
+            if(accountStatus === 'active'){
+                getRef('transaction_action_button').classList.remove('hide-completely')
+            }else{
+                getRef('transaction_action_button').classList.add('hide-completely')
+            }
+
             switch(rtype){
                 case 'openDeposit':
                     getRef('transaction_action_button').textContent = 'Withdraw'
                 break
-                case 'closeDeposit':
-                    getRef('transaction_action_button').classList.add('hide-completely')
-                break
                 case 'openLoan':
                     getRef('transaction_action_button').textContent = 'Repay'
                 break
-                case 'closeLoan':
-                    getRef('transaction_action_button').classList.add('hide-completely')
-                break
             }
         }
+
+        function renderChart(params) {
+            const ctx = getRef('account_summary_chart').getContext('2d');
+            const {depositTotal, loanTotal} = bank_app.getUserDetails(myFloID)
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Deposit', 'loan'],
+                    datasets: [{
+                        label: 'Account summary',
+                        data: [depositTotal, loanTotal],
+                        backgroundColor: [
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 99, 132)',
+                        ],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    },
+                    plugins: {
+                        legend:{
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
     </script>
     <script id="onLoadStartUp">
         const requestResponsePairs = {}
