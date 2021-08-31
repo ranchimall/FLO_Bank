@@ -67,7 +67,8 @@
             <h1 class="h2">Sign In</h1>
             <p>Welcome back, glad to see you again</p>
             <sm-form>
-                <sm-input id="private_key_field" type="password" placeholder="FLO private key" required></sm-input>
+                <sm-input id="private_key_field" type="password" placeholder="FLO private key" error-text="Private key is invalid"
+                data-private-key required></sm-input>
                 <sm-button id="sign_in_button" variant="primary" disabled>Sign In</sm-button>
             </sm-form>
             <p>
@@ -523,7 +524,7 @@
         window.addEventListener('hashchange', e => showPage(window.location.hash))
         window.addEventListener("load", () => {
             document.body.classList.remove('hide-completely')
-            // document.querySelectorAll('sm-input[data-flo-id]').forEach(input => input.customValidation = validateAddr)
+            document.querySelectorAll('sm-input[data-private-key]').forEach(input => input.customValidation = floCrypto.getPubKeyHex)
             document.addEventListener('keyup', (e) => {
                 if (e.code === 'Escape') {
                     hidePopup()
@@ -568,7 +569,7 @@
                     pageId = targetPage
                 }
             }
-            if(typeof myFloID === "undefined" && !(pageId === 'sign_up' || pageId === 'sign_in')) return
+            if(typeof myFloID === "undefined" && !(['sign_up', 'sign_in', 'loading'].includes(pageId))) return
             if (searchParams) {
                 const urlSearchParams = new URLSearchParams('?' + searchParams);
                 params = Object.fromEntries(urlSearchParams.entries());
@@ -631,11 +632,10 @@
                         }
                     break;
                 }
-                console.log(pageId, subPageId)
                 document.querySelector('.sub-page:not(.hide-completely)')?.classList.add('hide-completely')
                 getRef(subPageId)?.classList.remove('hide-completely')
                 getRef('main_nav').querySelector('.nav-item--active')?.classList.remove('nav-item--active')
-                getRef('main_nav').querySelector(`.nav-item[href="${window.location.hash}`).classList.add('nav-item--active')
+                getRef('main_nav').querySelector(`.nav-item[href="#/${pageId}/${subPageId ? subPageId : ''}"]`).classList.add('nav-item--active')
                 getRef(subPageId)?.animate([
                     {
                         opacity: 0,
@@ -826,10 +826,12 @@
                 getRef('sign_in_button').onclick = () => {
                     resolve(getRef('private_key_field').value.trim())
                     getRef('private_key_field').value = ''
+                    showPage('loading')
                 }
                 getRef('sign_up_button').onclick = () => {
                     resolve(getRef('generated_private_key').value.trim())
                     getRef('generated_private_key').value = ''
+                    showPage('loading')
                 }
             })
         }
