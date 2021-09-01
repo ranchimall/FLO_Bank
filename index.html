@@ -630,10 +630,6 @@
                     case 'dashboard': 
                         renderRecentTransactions()
                         refreshBalance()
-                        if(accountChart){
-                            accountChart.destroy()
-                        }
-                        accountChart = renderChart()
                     break;
                     case 'notifications': 
                         if(pagesData.openedSubPages.includes(subPageId)){
@@ -1030,6 +1026,15 @@
             });
         }
 
+        const chartObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting){
+                    accountChart = renderChart()
+                }else if(!entry.isIntersecting && accountChart){
+                    accountChart.destroy()
+                }
+            })
+        })
     </script>
     <script id="onLoadStartUp">
         const requestResponsePairs = {}
@@ -1053,6 +1058,7 @@
                 bank_app.launchApp(DummyCallBack, DummyCallBack)
                 .then(result => {
                     console.log(result)
+                    chartObserver.observe(getRef('account_chart_container'))
                     // create pairs of requestIDs and their respective responses for efficient lookup
                     const allResponses =  bank_app.viewAllResponses()
                     for(const key in allResponses){
