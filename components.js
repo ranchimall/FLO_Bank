@@ -1342,10 +1342,12 @@ spinner.innerHTML = `
 }
 :host{
     --accent-color: #4d2588;
+    --height: 1.6rem;
+    --width: 1.6rem;
 }
 .loader {
-    height: 1.6rem;
-    width: 1.6rem;
+    height: var(--height);
+    width: var(--weight);
     stroke-width: 8;
     overflow: visible;
     stroke: var(--accent-color);

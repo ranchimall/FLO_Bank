@@ -655,11 +655,11 @@ details[open] > summary .icon {
 }
 
 #notifications,
-#transactions {
+#history {
   padding-bottom: 5rem;
 }
 #notifications .activity-card,
-#transactions .activity-card {
+#history .activity-card {
   padding: 1rem 1.5rem;
 }
 
@@ -719,6 +719,9 @@ details[open] > summary .icon {
   padding: 0.3rem 0.4rem;
   font-weight: 500;
   color: rgba(0, 0, 0, 0.7);
+}
+.status-tag:not(:empty) .icon {
+  margin-right: 0.3rem;
 }
 .status-tag:not(:empty).success, .status-tag:not(:empty).active {
   color: var(--green);
@@ -871,42 +874,68 @@ details[open] > summary .icon {
   font-weight: 700;
 }
 
-#transaction {
+#transaction,
+#account {
+  grid-template-rows: auto 1fr;
   gap: 1.5rem 0;
   padding: 1.5rem 0;
   -ms-flex-line-pack: start;
       align-content: flex-start;
 }
 
-#transaction_top {
-  position: relative;
-  -ms-flex-line-pack: start;
-      align-content: flex-start;
+#transaction section,
+#account_details {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
 }
 
-#transaction_detail__icon {
+#transaction_top,
+#account_top {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  justify-items: flex-start;
+  position: relative;
+}
+
+#transaction_detail__icon,
+#account_detail__icon {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   background-color: var(--accent-color);
   border-radius: 40%;
-  padding: 1rem;
-  aspect-ratio: 1/1;
+  padding: 0.8rem;
+  justify-self: flex-start;
+  -ms-flex-item-align: start;
+      align-self: flex-start;
 }
-#transaction_detail__icon .icon {
-  height: 2rem;
-  width: 2rem;
+#transaction_detail__icon .icon,
+#account_detail__icon .icon {
+  height: 1.5rem;
+  width: 1.5rem;
   fill: rgba(var(--background-color), 1);
 }
 
-#transaction_detail__amount {
+#transaction_detail__amount,
+#account_detail__amount {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   font-size: 1.8rem;
   font-weight: 700;
 }
-#transaction_detail__amount::before {
+#transaction_detail__amount::before,
+#account_detail__amount::before {
   font-weight: 500;
   font-size: 1rem;
   -ms-flex-item-align: start;
@@ -914,12 +943,92 @@ details[open] > summary .icon {
   content: "₹";
 }
 
-#transaction_detail__time {
+#transaction_detail__time,
+#account_detail__time {
   font-size: 0.8rem;
   color: rgba(var(--text-color), 0.8);
   margin-right: 1rem;
 }
 
+#account_process {
+  display: grid;
+  -ms-flex-line-pack: start;
+      align-content: flex-start;
+  gap: 2rem;
+}
+
+#account_process__type {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(var(--text-color), 0.8);
+}
+
+#account_process__amount {
+  font-size: 1.5rem;
+}
+
+.account-step {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "step-icon step-title" "step-icon step-description";
+  gap: 0.3rem 0.8rem;
+}
+.account-step sm-spinner {
+  --height: 1rem;
+  --width: 1rem;
+}
+.account-step:not(:last-of-type)::after {
+  position: relative;
+  content: "";
+  height: 3rem;
+  width: 0.1rem;
+  margin: 0.5rem 0 1rem 0;
+  margin-left: 0.7rem;
+  background-color: var(--green);
+}
+.account-step .step__icon {
+  grid-area: step-icon;
+}
+.account-step .icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+.account-step:not(.loading) .step__title {
+  grid-area: step-title;
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.2rem 0;
+}
+.account-step .step__description {
+  grid-area: step-description;
+  font-size: 0.8rem;
+}
+
+@-webkit-keyframes slide-down {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(-1rem);
+            transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: none;
+            transform: none;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(-1rem);
+            transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: none;
+            transform: none;
+  }
+}
 @media screen and (max-width: 640px) {
   sm-button {
     --padding: 1rem;
@@ -953,22 +1062,9 @@ details[open] > summary .icon {
     margin-top: 0.3rem;
   }
 
-  #transaction_top {
-    text-align: center;
-  }
-
-  #transaction_detail__status {
-    justify-self: center;
-  }
-
-  #transaction_detail__icon {
-    justify-self: center;
-  }
-
-  #transaction_detail__amount {
-    -webkit-box-pack: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+  #transaction_action_button,
+#account_action_button {
+    margin-top: auto;
   }
 }
 @media screen and (min-width: 640px) {
@@ -978,7 +1074,7 @@ details[open] > summary .icon {
   }
 
   .page-layout {
-    grid-template-columns: 1fr 80vw 1fr;
+    grid-template-columns: 1fr 90vw 1fr;
   }
 
   #homepage {
@@ -1023,13 +1119,12 @@ details[open] > summary .icon {
     background-color: rgba(var(--background-color), 1);
   }
 
-  #transaction_top {
+  #transaction_top,
+#account_top {
     overflow: hidden;
     padding: 1.8rem;
     border-radius: 0.5rem;
-    background-color: var(--foreground-color);
-    -webkit-box-shadow: 0 1rem 1.5rem -0.8rem rgba(0, 0, 0, 0.1);
-            box-shadow: 0 1rem 1.5rem -0.8rem rgba(0, 0, 0, 0.1);
+    border: solid thin rgba(var(--text-color), 0.2);
   }
 
   #transaction_detail__status {
@@ -1050,6 +1145,10 @@ details[open] > summary .icon {
   }
 }
 @media screen and (min-width: 1024px) {
+  .page-layout {
+    grid-template-columns: 1fr 80vw 1fr;
+  }
+
   .card {
     padding: 2rem;
   }
@@ -1068,9 +1167,15 @@ details[open] > summary .icon {
     margin-left: 0.5rem;
   }
 
-  #transaction section {
+  #transaction section,
+#account_details {
     display: grid;
     grid-template-columns: 18rem minmax(0, 1fr);
+  }
+}
+@media screen and (min-width: 1920px) {
+  .page-layout {
+    grid-template-columns: 1fr 70vw 1fr;
   }
 }
 @media (any-hover: hover) {
