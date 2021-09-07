@@ -579,6 +579,7 @@ details[open] > summary .icon {
 }
 
 .quick-action {
+  color: inherit;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -722,21 +723,34 @@ details[open] > summary .icon {
 .status-tag:not(:empty) .icon {
   margin-right: 0.3rem;
 }
-.status-tag:not(:empty).success, .status-tag:not(:empty).active {
+.status-tag:not(:empty).active {
   color: var(--green);
   background-color: rgba(0, 230, 118, 0.1);
+}
+.status-tag:not(:empty).closed {
+  color: rgba(var(--text-color), 0.7);
+  background-color: rgba(var(--text-color), 0.06);
+}
+.status-tag:not(:empty).success {
+  color: var(--green);
+  background-color: rgba(0, 230, 118, 0.1);
+}
+.status-tag:not(:empty).success .icon {
+  fill: var(--green);
 }
 .status-tag:not(:empty).failed {
   color: var(--danger-color);
   background-color: rgba(255, 75, 75, 0.1);
 }
+.status-tag:not(:empty).failed .icon {
+  fill: var(--danger-color);
+}
 .status-tag:not(:empty).pending {
   color: var(--yellow);
   background-color: rgba(255, 252, 75, 0.1);
 }
-.status-tag:not(:empty).closed {
-  color: rgba(var(--text-color), 0.7);
-  background-color: rgba(var(--text-color), 0.06);
+.status-tag:not(:empty).pending .icon {
+  fill: var(--yellow);
 }
 
 .activity-card--response {
@@ -758,12 +772,12 @@ details[open] > summary .icon {
   fill: var(--green);
 }
 
-.pending .icon {
-  fill: var(--yellow);
-}
-
 .failed .icon {
   fill: var(--danger-color);
+}
+
+.pending .icon {
+  fill: var(--yellow);
 }
 
 #user_section {
@@ -950,7 +964,6 @@ details[open] > summary .icon {
 .account-step {
   opacity: 0;
   grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: "step-icon step-title" ". step-description";
   gap: 0.3rem 0.8rem;
   -webkit-animation: slide-down 0.3s forwards;
           animation: slide-down 0.3s forwards;
@@ -971,31 +984,24 @@ details[open] > summary .icon {
   --height: 1rem;
   --width: 1rem;
 }
-.account-step:not(:last-of-type)::after {
+.account-step:not(:last-of-type) .step__line {
   position: relative;
-  content: "";
   height: 3rem;
   width: 0.1rem;
   margin: 0.5rem 0 1rem 0;
-  margin-left: 0.7rem;
+  justify-self: center;
   background-color: var(--green);
-}
-.account-step .step__icon {
-  grid-area: step-icon;
 }
 .account-step .icon {
   height: 1.5rem;
   width: 1.5rem;
 }
 .account-step:not(.loading) .step__title {
-  text-transform: capitalize;
-  grid-area: step-title;
   font-weight: 500;
   font-size: 0.9rem;
   padding: 0.2rem 0;
 }
 .account-step .step__description {
-  grid-area: step-description;
   font-size: 0.8rem;
 }
 
@@ -1020,6 +1026,104 @@ details[open] > summary .icon {
   }
   to {
     opacity: 1;
+    -webkit-transform: none;
+            transform: none;
+  }
+}
+#deposit,
+#loan {
+  padding: 1.5rem 0;
+  grid-template-rows: auto 1fr;
+}
+#deposit sm-form,
+#loan sm-form {
+  justify-self: center;
+  margin-top: 3rem;
+  width: min(24rem, 100%);
+}
+#deposit sm-form::part(form),
+#loan sm-form::part(form) {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+#deposit__icon .icon,
+#loan__icon .icon {
+  height: 1.8rem;
+  width: 1.8rem;
+  fill: var(--accent-color);
+}
+
+#get_deposit_amount,
+#get_loan_amount {
+  --font-size: 1.5rem;
+  margin-top: 1rem;
+}
+
+#result {
+  place-content: center;
+}
+#result section {
+  text-align: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+#result__icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  border-radius: 50%;
+  padding: 1rem;
+  margin: -5rem 0 1.5rem 0;
+  -webkit-animation: pop-in 1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          animation: pop-in 1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#result__icon .icon {
+  height: 1.8rem;
+  width: 1.8rem;
+}
+#result__description {
+  margin: 0.5rem 0;
+}
+#result__back_button {
+  margin-top: 3rem;
+}
+
+@-webkit-keyframes pop-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(0.4) translateY(6rem);
+            transform: scale(0.4) translateY(6rem);
+  }
+  40% {
+    opacity: 1;
+    -webkit-transform: scale(0.4) translateY(0);
+            transform: scale(0.4) translateY(0);
+  }
+  100% {
+    -webkit-transform: none;
+            transform: none;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(0.4) translateY(6rem);
+            transform: scale(0.4) translateY(6rem);
+  }
+  40% {
+    opacity: 1;
+    -webkit-transform: scale(0.4) translateY(0);
+            transform: scale(0.4) translateY(0);
+  }
+  100% {
     -webkit-transform: none;
             transform: none;
   }
@@ -1058,7 +1162,8 @@ details[open] > summary .icon {
   }
 
   #transaction_action_button,
-#account_action_button {
+#account_action_button,
+#deposit_button {
     margin-top: auto;
   }
 

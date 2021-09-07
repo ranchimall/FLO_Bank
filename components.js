@@ -115,7 +115,7 @@ customElements.define('sm-button',
         set disabled(value) {
             if (value) {
                 this.setAttribute('disabled', '')
-            }else {
+            } else {
                 this.removeAttribute('disabled')
             }
         }
@@ -164,80 +164,80 @@ smForm.innerHTML = `
         width: 100%;
     }
     </style>
-	<form onsubmit="return false">
+	<form part="form" onsubmit="return false">
 		<slot></slot>
 	</form>
 `
 
 customElements.define('sm-form', class extends HTMLElement {
-	constructor() {
-		super()
-		this.attachShadow({
-			mode: 'open'
-		}).append(smForm.content.cloneNode(true))
+    constructor() {
+        super()
+        this.attachShadow({
+            mode: 'open'
+        }).append(smForm.content.cloneNode(true))
 
-		this.form = this.shadowRoot.querySelector('form')
-		this.formElements
-		this.requiredElements
-		this.submitButton
-		this.resetButton
-		this.allRequiredValid = false
+        this.form = this.shadowRoot.querySelector('form')
+        this.formElements
+        this.requiredElements
+        this.submitButton
+        this.resetButton
+        this.allRequiredValid = false
 
-		this.debounce = this.debounce.bind(this)
-		this.handleInput = this.handleInput.bind(this)
-		this.handleKeydown = this.handleKeydown.bind(this)
-		this.reset = this.reset.bind(this)
-	}
-	debounce(callback, wait) {
-		let timeoutId = null;
-		return (...args) => {
-			window.clearTimeout(timeoutId);
-			timeoutId = window.setTimeout(() => {
-				callback.apply(null, args);
-			}, wait);
-		};
-	}
-	handleInput(e) {
-		this.allRequiredValid = this.requiredElements.every(elem => elem.isValid)
-		if (!this.submitButton) return;
-		if (this.allRequiredValid) {
-			this.submitButton.disabled = false;
-		}
-		else {
-			this.submitButton.disabled = true;
-		}
-	}
-	handleKeydown(e) {
-		if (e.key === 'Enter' && e.target.tagName !== 'SM-TEXTAREA' ) {
-			if (this.allRequiredValid) {
-				this.submitButton.click()
-			}
-			else {
-			    this.requiredElements.find(elem => !elem.isValid).vibrate()
-			}
-		}
-	}
-	reset() {
-		this.formElements.forEach(elem => elem.reset())
-	}
-	connectedCallback() {
-		const slot = this.shadowRoot.querySelector('slot')
-		slot.addEventListener('slotchange', e => {
-			this.formElements = [...this.querySelectorAll('sm-input, sm-textarea, sm-checkbox, tags-input, file-input, sm-switch, sm-radio')]
-			this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'))
-			this.submitButton = e.target.assignedElements().find(elem => elem.getAttribute('variant') === 'primary' || elem.getAttribute('type') === 'submit');
-			this.resetButton = e.target.assignedElements().find(elem => elem.getAttribute('type') === 'reset');
-			if (this.resetButton) {
-				this.resetButton.addEventListener('click', this.reset)
-			}
-		})
-		this.addEventListener('input', this.debounce(this.handleInput, 100))
-		this.addEventListener('keydown', this.debounce(this.handleKeydown, 100))
-	}
-	disconnectedCallback() {
-		this.removeEventListener('input', this.debounce(this.handleInput, 100))
-		this.removeEventListener('keydown', this.debounce(this.handleKeydown, 100))
-	}
+        this.debounce = this.debounce.bind(this)
+        this.handleInput = this.handleInput.bind(this)
+        this.handleKeydown = this.handleKeydown.bind(this)
+        this.reset = this.reset.bind(this)
+    }
+    debounce(callback, wait) {
+        let timeoutId = null;
+        return (...args) => {
+            window.clearTimeout(timeoutId);
+            timeoutId = window.setTimeout(() => {
+                callback.apply(null, args);
+            }, wait);
+        };
+    }
+    handleInput(e) {
+        this.allRequiredValid = this.requiredElements.every(elem => elem.isValid)
+        if (!this.submitButton) return;
+        if (this.allRequiredValid) {
+            this.submitButton.disabled = false;
+        }
+        else {
+            this.submitButton.disabled = true;
+        }
+    }
+    handleKeydown(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'SM-TEXTAREA') {
+            if (this.allRequiredValid) {
+                this.submitButton.click()
+            }
+            else {
+                this.requiredElements.find(elem => !elem.isValid).vibrate()
+            }
+        }
+    }
+    reset() {
+        this.formElements.forEach(elem => elem.reset())
+    }
+    connectedCallback() {
+        const slot = this.shadowRoot.querySelector('slot')
+        slot.addEventListener('slotchange', e => {
+            this.formElements = [...this.querySelectorAll('sm-input, sm-textarea, sm-checkbox, tags-input, file-input, sm-switch, sm-radio')]
+            this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'))
+            this.submitButton = e.target.assignedElements().find(elem => elem.getAttribute('variant') === 'primary' || elem.getAttribute('type') === 'submit');
+            this.resetButton = e.target.assignedElements().find(elem => elem.getAttribute('type') === 'reset');
+            if (this.resetButton) {
+                this.resetButton.addEventListener('click', this.reset)
+            }
+        })
+        this.addEventListener('input', this.debounce(this.handleInput, 100))
+        this.addEventListener('keydown', this.debounce(this.handleKeydown, 100))
+    }
+    disconnectedCallback() {
+        this.removeEventListener('input', this.debounce(this.handleInput, 100))
+        this.removeEventListener('keydown', this.debounce(this.handleKeydown, 100))
+    }
 })
 
 const smInput = document.createElement('template')
@@ -488,7 +488,7 @@ customElements.define('sm-input',
             this.isRequired = false
             this.validationFunction
             this.reflectedAttributes = ['value', 'required', 'disabled', 'type', 'inputmode', 'readonly', 'min', 'max', 'pattern', 'minlength', 'maxlength', 'step']
-        
+
             this.reset = this.reset.bind(this)
             this.focusIn = this.focusIn.bind(this)
             this.focusOut = this.focusOut.bind(this)
@@ -545,7 +545,7 @@ customElements.define('sm-input',
             }
         }
         set customValidation(val) {
-            
+
             this.validationFunction = val
         }
         set errorText(val) {
@@ -578,19 +578,19 @@ customElements.define('sm-input',
                 return (_isValid && _customValid)
             }
         }
-        reset(){
+        reset() {
             this.value = ''
         }
 
-        focusIn(){
+        focusIn() {
             this.input.focus()
         }
 
-        focusOut(){
+        focusOut() {
             this.input.blur()
         }
 
-        fireEvent(){
+        fireEvent() {
             let event = new Event('input', {
                 bubbles: true,
                 cancelable: true,
@@ -599,7 +599,7 @@ customElements.define('sm-input',
             this.dispatchEvent(event);
         }
 
-        checkInput(e){
+        checkInput(e) {
             if (!this.hasAttribute('readonly')) {
                 if (this.input.value.trim() !== '') {
                     this.clearBtn.classList.remove('hide')
@@ -643,7 +643,7 @@ customElements.define('sm-input',
             this.input.addEventListener('input', this.checkInput)
             this.clearBtn.addEventListener('click', this.reset)
         }
-        
+
         attributeChangedCallback(name, oldValue, newValue) {
             if (oldValue !== newValue) {
                 if (this.reflectedAttributes.includes(name)) {
@@ -680,7 +680,7 @@ customElements.define('sm-input',
                     }
                     else {
                         this.feedbackText.textContent = ''
-                        this.setAttribute('aria-required', 'false')    
+                        this.setAttribute('aria-required', 'false')
                     }
                 }
                 else if (name === 'readonly') {
@@ -1175,7 +1175,7 @@ customElements.define('sm-popup', class extends HTMLElement {
     }
 
     show(options = {}) {
-        const {pinned = false, popupStack = undefined} = options
+        const { pinned = false, popupStack = undefined } = options
         if (popupStack)
             this.popupStack = popupStack
         if (this.popupStack && !this.hasAttribute('open')) {
@@ -1311,8 +1311,8 @@ customElements.define('sm-popup', class extends HTMLElement {
             }
         });
         resizeObserver.observe(this)
-        
-        
+
+
         this.popupHeader.addEventListener('touchstart', (e) => { this.handleTouchStart(e) }, { passive: true })
         this.popupHeader.addEventListener('touchmove', (e) => { this.handleTouchMove(e) }, { passive: true })
         this.popupHeader.addEventListener('touchend', (e) => { this.handleTouchEnd(e) }, { passive: true })
@@ -1487,7 +1487,7 @@ class ThemeToggle extends HTMLElement {
         document.body.dataset.theme = 'light'
         this.setAttribute('aria-checked', 'false')
     }
-    
+
     nightlight() {
         this.hasTheme = 'dark'
         document.body.dataset.theme = 'dark'
@@ -1509,7 +1509,7 @@ class ThemeToggle extends HTMLElement {
                 this.setAttribute('checked', '')
             }
             else {
-                this.removeAttribute('checked')   
+                this.removeAttribute('checked')
             }
         }
     }
@@ -1549,7 +1549,7 @@ class ThemeToggle extends HTMLElement {
         this.addEventListener("keydown", this.handleKeyDown);
         document.addEventListener('themechange', this.handleThemeChange)
     }
-    
+
     disconnectedCallback() {
         this.removeEventListener("click", this.toggleState);
         this.removeEventListener("keydown", this.handleKeyDown);
@@ -1648,7 +1648,7 @@ customElements.define('sm-copy',
             this.attachShadow({
                 mode: 'open'
             }).append(smCopy.content.cloneNode(true))
-            
+
             this.copyContent = this.shadowRoot.querySelector('.copy-content')
             this.copyButton = this.shadowRoot.querySelector('.copy-button')
 
