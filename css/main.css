@@ -91,11 +91,11 @@ button,
 }
 
 .button {
-  padding: 0.4rem 0.6rem;
+  padding: 0.6rem 1rem;
   border-radius: 0.3rem;
   font-weight: 500;
   font-size: 0.8rem;
-  border: solid thin rgba(var(--text-color), 0.5);
+  background-color: rgba(var(--text-color), 0.06);
 }
 
 button:disabled {
@@ -146,11 +146,6 @@ ul {
 
 .hide-completely {
   display: none !important;
-}
-
-.no-transformations {
-  -webkit-transform: none !important;
-          transform: none !important;
 }
 
 .overflow-ellipsis {
@@ -316,15 +311,6 @@ ul {
   width: 100%;
 }
 
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  -webkit-transform: scale(0);
-          transform: scale(0);
-  background: rgba(var(--text-color), 0.16);
-  pointer-events: none;
-}
-
 .interact {
   position: relative;
   cursor: pointer;
@@ -369,29 +355,24 @@ ul {
   fill: var(--accent-color);
 }
 
-#confirmation_popup,
-#prompt_popup {
+#confirmation_popup {
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
 }
-#confirmation_popup h4,
-#prompt_popup h4 {
+#confirmation_popup h4 {
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
-#confirmation_popup sm-button,
-#prompt_popup sm-button {
+#confirmation_popup sm-button {
   margin: 0;
 }
-#confirmation_popup .flex,
-#prompt_popup .flex {
+#confirmation_popup .flex {
   padding: 0;
   margin-top: 1rem;
 }
-#confirmation_popup .flex sm-button:first-of-type,
-#prompt_popup .flex sm-button:first-of-type {
+#confirmation_popup .flex sm-button:first-of-type {
   margin-right: 0.6rem;
   margin-left: auto;
 }
@@ -607,10 +588,41 @@ details[open] > summary .icon {
   font-weight: 500;
 }
 
-#recent_transactions_container {
-  display: grid;
-  margin: 1.5rem 0;
-  padding-bottom: 5rem;
+strip-select {
+  --gap: 0;
+  background-color: rgba(var(--text-color), 0.06);
+  border-radius: 0.3rem;
+}
+
+#accounts_empty_state {
+  margin-top: 3rem;
+  justify-items: center;
+  text-align: center;
+}
+#accounts_empty_state .empty-state__icon {
+  -webkit-filter: drop-shadow(0 0.5rem 0.3rem rgba(0, 0, 0, 0.1));
+          filter: drop-shadow(0 0.5rem 0.3rem rgba(0, 0, 0, 0.1));
+  height: 12rem;
+  width: 12rem;
+  padding: 3rem;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+  background-color: rgba(var(--text-color), 0.06);
+}
+
+strip-option {
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  font-size: 0.7rem;
+  --active-option-color: rgba(var(--background-color), 1);
+  --active-option-backgroud-color: var(--accent-color);
+}
+strip-option:first-of-type {
+  --border-radius: 0.3rem 0 0 0.3rem;
+}
+strip-option:last-of-type {
+  --border-radius: 0 0.3rem 0.3rem 0;
 }
 
 .activity-card {
@@ -663,12 +675,11 @@ details[open] > summary .icon {
   padding: 1rem 1.5rem;
 }
 
-#user_accounts {
+#user_accounts:not(:empty) {
   margin-top: 1.5rem;
   display: grid;
   gap: 1rem;
   padding-bottom: 5rem;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
 }
 
 .activity-card--account {
@@ -677,24 +688,25 @@ details[open] > summary .icon {
       -ms-user-select: none;
           user-select: none;
   gap: 1.5rem;
-  padding: 1.5rem;
-  background-color: var(--foreground-color);
+  padding: 1rem 1.5rem;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   border: solid thin rgba(var(--text-color), 0.2);
-  grid-template-columns: minmax(0, 1fr);
 }
 .activity-card--account .activity-card__icon {
   padding: 0;
-  margin-bottom: 0.5rem;
   background-color: transparent;
 }
 .activity-card--account .activity-card__type {
+  text-transform: capitalize;
   font-size: 0.9rem;
-  color: rgba(var(--text-color), 0.6);
+  color: rgba(var(--text-color), 0.8);
   font-weight: 500;
 }
 .activity-card--account .activity-card__amount {
   margin-top: 0.3rem;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
 }
 
 .activity-card--request {
@@ -887,6 +899,10 @@ details[open] > summary .icon {
   font-weight: 700;
 }
 
+.page__header button {
+  padding: 0.5rem 0;
+}
+
 #transaction,
 #account {
   grid-template-rows: auto 1fr;
@@ -898,13 +914,9 @@ details[open] > summary .icon {
 
 #transaction section,
 #account_details {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  display: grid;
+  gap: 2rem;
+  grid-template-rows: auto 1fr;
 }
 
 #transaction_top,
@@ -948,10 +960,8 @@ details[open] > summary .icon {
   font-weight: 700;
 }
 
-#transaction_detail__time {
-  font-size: 0.8rem;
-  color: rgba(var(--text-color), 0.8);
-  margin-right: 1rem;
+#transaction__cta {
+  margin-top: 2rem;
 }
 
 #account_process {
@@ -1075,6 +1085,7 @@ details[open] > summary .icon {
           align-items: center;
 }
 #result__icon {
+  position: relative;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -1083,6 +1094,12 @@ details[open] > summary .icon {
   margin: -5rem 0 1.5rem 0;
   -webkit-animation: pop-in 1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
           animation: pop-in 1s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#result__icon.pending {
+  background-color: rgba(255, 252, 75, 0.1);
+}
+#result__icon.failed {
+  background-color: rgba(255, 75, 75, 0.1);
 }
 #result__icon .icon {
   height: 1.8rem;
@@ -1128,6 +1145,14 @@ details[open] > summary .icon {
             transform: none;
   }
 }
+#settings {
+  padding: 0 1.5rem;
+}
+#settings sm-copy {
+  font-size: 0.9rem;
+  margin: 0.3rem 0 1.5rem 0;
+}
+
 @media screen and (max-width: 640px) {
   sm-button {
     --padding: 1rem;
@@ -1167,13 +1192,13 @@ details[open] > summary .icon {
     margin-top: auto;
   }
 
-  #account_process {
-    margin-top: 3rem;
+  #transaction_top,
+#account_top {
+    margin-top: 1rem;
   }
 }
 @media screen and (min-width: 640px) {
-  #confirmation_popup,
-#prompt_popup {
+  #confirmation_popup {
     --width: 24rem;
   }
 
@@ -1225,15 +1250,16 @@ details[open] > summary .icon {
 
   #transaction_top,
 #account_top,
-#account_process {
+#account_process,
+#transaction__steps {
     overflow: hidden;
     padding: 1.8rem;
     border-radius: 0.5rem;
-    border: solid thin rgba(var(--text-color), 0.2);
-  }
-
-  #transaction_detail__status {
-    justify-self: flex-start;
+    background-color: var(--foreground-color);
+    -webkit-box-shadow: 0 0 0.1rem rgba(0, 0, 0, 0.1), 0 1rem 1.5rem -0.8rem rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 0.1rem rgba(0, 0, 0, 0.1), 0 1rem 1.5rem -0.8rem rgba(0, 0, 0, 0.1);
+    -ms-flex-item-align: start;
+        align-self: flex-start;
   }
 
   #transaction_detail__icon {
@@ -1255,7 +1281,7 @@ details[open] > summary .icon {
   }
 
   .card {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 
   #homepage {
@@ -1274,8 +1300,6 @@ details[open] > summary .icon {
 
   #transaction section,
 #account_details {
-    display: grid;
-    gap: 1.5rem;
     grid-template-columns: 18rem minmax(0, 1fr);
   }
 }
