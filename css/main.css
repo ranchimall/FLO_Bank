@@ -88,6 +88,7 @@ button,
   transition: -webkit-transform 0.3s;
   transition: transform 0.3s;
   transition: transform 0.3s, -webkit-transform 0.3s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .button {
@@ -116,7 +117,7 @@ a:any-link:focus-visible {
 
 sm-button {
   --border-radius: 0.5rem;
-  --padding: 0.8rem 1rem;
+  --padding: 0.7rem 1rem;
 }
 sm-button[variant=primary] .icon {
   fill: rgba(var(--background-color), 1);
@@ -350,6 +351,9 @@ ul {
   padding: 0.6rem;
   border-radius: 0.8rem;
   background-color: var(--accent-color--light);
+  height: -webkit-max-content;
+  height: -moz-max-content;
+  height: max-content;
 }
 .icon-button .icon {
   fill: var(--accent-color);
@@ -595,6 +599,7 @@ strip-select {
 }
 
 .empty-state {
+  padding: 0 1.5rem;
   margin: 3rem 0;
   justify-items: center;
   text-align: center;
@@ -803,6 +808,14 @@ strip-option:last-of-type {
 }
 #user_section h4 {
   margin-bottom: 1rem;
+}
+
+#user_section__header {
+  position: sticky;
+  top: 0;
+  background-color: inherit;
+  padding-top: 1.5rem;
+  z-index: 2;
 }
 
 #account_chart_container {
@@ -1153,9 +1166,15 @@ strip-option:last-of-type {
   margin: 0.3rem 0 1.5rem 0;
 }
 
+#sign_out_button {
+  color: rgba(var(--background-color), 1);
+  --padding: 0.8rem 1.6rem;
+  --background: var(--danger-color);
+}
+
 @media screen and (max-width: 640px) {
   sm-button {
-    --padding: 1rem;
+    --padding: 0.9rem 1.6rem;
   }
 
   #dashboard {
@@ -1282,6 +1301,9 @@ strip-option:last-of-type {
     right: 0;
     top: 0;
     bottom: 0;
+    padding-top: 0;
+    -webkit-box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
+            box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
   }
   #user_section:not(.reveal) {
     -webkit-transform: translateX(100%);

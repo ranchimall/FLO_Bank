@@ -42,7 +42,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
-<body onload="onLoadStartUp()">
+<body onload="onLoadStartUp()" class="hide-completely">
     <sm-notifications id="notification_drawer"></sm-notifications>
     <audio id="notification_sound">
         <source src="https://rmservices.duckdns.org/files/notification-sound.mp3" type="audio/mpeg">
@@ -338,17 +338,19 @@
             <div id="settings" class="sub-page hide-completely">
                 <h5>My FLO ID</h5>
                 <sm-copy id="user_flo_id"></sm-copy>
-                <sm-button onclick="signOut()">Sign out</sm-button>
+                <sm-button id="sign_out_button" onclick="signOut()">Sign out</sm-button>
             </div>
         </section>
         <section id="user_section">
-            <button class="icon-button hide-on-desktop justify-self-start" onclick="toggleUserSection()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clip-rule="evenodd" />
-                </svg>
-            </button>
+            <div id="user_section__header" class=" hide-on-desktop">
+                <button class="icon-button justify-self-start" onclick="toggleUserSection()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
             <div>
                 <h4 class="flex align-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"

@@ -83,6 +83,7 @@ button,
   color: inherit;
   cursor: pointer;
   transition: transform 0.3s;
+  -webkit-tap-highlight-color: transparent;
 }
 .button {
   padding: 0.6rem 1rem;
@@ -102,7 +103,7 @@ a:any-link:focus-visible {
 
 sm-button {
   --border-radius: 0.5rem;
-  --padding: 0.8rem 1rem;
+  --padding: 0.7rem 1rem;
   &[variant="primary"] {
     .icon {
       fill: rgba(var(--background-color), 1);
@@ -322,6 +323,7 @@ ul {
   padding: 0.6rem;
   border-radius: 0.8rem;
   background-color: var(--accent-color--light);
+  height: max-content;
   .icon {
     fill: var(--accent-color);
   }
@@ -525,6 +527,7 @@ strip-select {
   border-radius: 0.3rem;
 }
 .empty-state {
+  padding: 0 1.5rem;
   margin: 3rem 0;
   justify-items: center;
   text-align: center;
@@ -713,6 +716,14 @@ strip-option {
     margin-bottom: 1rem;
   }
 }
+#user_section__header {
+  position: sticky;
+  top: 0;
+  background-color: inherit;
+  padding-top: 1.5rem;
+  z-index: 2;
+}
+
 #account_chart_container {
   display: flex;
   flex-direction: column;
@@ -969,9 +980,14 @@ strip-option {
     margin: 0.3rem 0 1.5rem 0;
   }
 }
+#sign_out_button {
+  color: rgba(var(--background-color), 1);
+  --padding: 0.8rem 1.6rem;
+  --background: var(--danger-color);
+}
 @media screen and (max-width: 640px) {
   sm-button {
-    --padding: 1rem;
+    --padding: 0.9rem 1.6rem;
   }
   #dashboard {
     padding: 0 1.5rem;
@@ -1074,6 +1090,8 @@ strip-option {
     right: 0;
     top: 0;
     bottom: 0;
+    padding-top: 0;
+    box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
     &:not(.reveal) {
       transform: translateX(100%);
     }
