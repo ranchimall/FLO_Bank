@@ -19,7 +19,7 @@
 
             //Required for blockchain API operators
             apiURL: {
-                FLO: ['https://livenet.flocha.in/', 'https://flosight.duckdns.org/'],
+                FLO: ['https://flosight.duckdns.org/', 'https://livenet.flocha.in/'],
                 FLO_TEST: ['https://testnet-flosight.duckdns.org/', 'https://testnet.flocha.in/']
             },
             tokenURL: "https://ranchimallflo.duckdns.org/",
@@ -359,7 +359,7 @@
                         <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     Account summary
-                    <button class="button justify-right" onclick="refreshBalance()">
+                    <button id="refresh_balance_button" class="button justify-right" onclick="refreshBalance(this)">
                         Refresh
                     </button>
                 </h4>
@@ -1205,13 +1205,27 @@
                     }
                 })
         }
-        function refreshBalance() {
+        function refreshBalance(button) {
+            if (button) {
+                button.classList.add('loading')
+                button.innerHTML = `<sm-spinner></sm-spinner>`
+            }
             Promise.all([bank_app.tokenAPI.getBalance(myFloID), floBlockchainAPI.getBalance(myFloID)])
                 .then(([rupeeBalance, floBalance]) => {
                     getRef('rupee_balance').textContent = rupeeBalance.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
                     getRef('flo_balance').textContent = floBalance
+                    if (button) {
+                        button.classList.remove('loading')
+                        button.textContent = `Refresh`
+                    }
                 })
-                .catch(error => notify(error, 'error'))
+                .catch(error => {
+                    notify(error, 'error')
+                    if (button) {
+                        button.classList.remove('loading')
+                        button.textContent = `Refresh`
+                    }
+                })
             updateChart()
         }
         function getRequestDetails(requestID) {
@@ -1458,7 +1472,7 @@
         }
 
         document.querySelector('theme-toggle').addEventListener('themechange', e => {
-            if (accountChart) {
+            if (isChartVisible) {
                 accountChart.data.datasets[0].backgroundColor = selectGraphColors()
                 accountChart.update()
             }
@@ -1499,13 +1513,16 @@
             });
         }
 
+        let isChartVisible = false
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    refreshBalance()
                     accountChart = renderChart()
+                    refreshBalance()
+                    isChartVisible = true
                 } else if (!entry.isIntersecting && accountChart) {
                     accountChart.destroy()
+                    isChartVisible = false
                 }
             })
         })
