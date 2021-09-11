@@ -105,7 +105,7 @@
                 </div>
             </div>
             <theme-toggle></theme-toggle>
-            <button class="icon-button">
+            <button class="icon-button hide-on-desktop" onclick="toggleUserSection()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
@@ -165,7 +165,7 @@
                         Quick actions
                     </h4>
                     <div id="quick_actions_container">
-                        <a class="quick-action" href="#/deposit">
+                        <a class="quick-action interact" href="#/deposit">
                             <div class="quick-action__icon">
                                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24"
                                     height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
@@ -178,7 +178,7 @@
                             </div>
                             <span class="quick-action__title">Make deposit</span>
                         </a>
-                        <a class="quick-action" href="#/loan">
+                        <a class="quick-action interact" href="#/loan">
                             <div class="quick-action__icon">
                                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                                     <path
@@ -210,24 +210,29 @@
                     <div id="user_accounts" class="observe-empty-state"></div>
                     <div id="accounts_empty_state" class="empty-state grid justify-center gap-0-5">
                         <div class="empty-state__icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                            <svg id="e3240b06-2be0-4689-aadf-44984a5d5a54" data-name="Layer 1"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
                                 <defs>
                                     <style>
-                                        .a {
+                                        .ad976bc5-45c3-4329-9289-b3bb4b32c7ff {
                                             fill: #d1d3d4;
                                         }
 
-                                        .b {
+                                        .bade4f7d-ece0-4151-a3cd-59e211a8d8fa {
                                             fill: #fff;
                                         }
                                     </style>
                                 </defs>
-                                <path class="a" d="M173.83,179.28V220c24.71.41,42.29-17.71,40.7-40.7Z" />
-                                <path class="b"
+                                <path class="ad976bc5-45c3-4329-9289-b3bb4b32c7ff"
+                                    d="M173.83,179.28V220c24.71.41,42.29-17.71,40.7-40.7Z" />
+                                <path class="bade4f7d-ece0-4151-a3cd-59e211a8d8fa"
                                     d="M208.86,202.38c-11.52,12.13-30.77,5.3-29.21-18.46V28.82A8.82,8.82,0,0,0,170.83,20H34.2a8.82,8.82,0,0,0-8.83,8.82V182.16A37.85,37.85,0,0,0,63.22,220H177.57C197.23,220.07,208.6,203.64,208.86,202.38Z" />
-                                <rect class="a" x="55.11" y="99.42" width="57.57" height="17.17" rx="1" />
-                                <rect class="a" x="48.51" y="51.85" width="24.32" height="23.05" rx="4.41" />
-                                <rect class="a" x="94.96" y="51.85" width="24.32" height="23.05" rx="4.41" />
+                                <rect class="ad976bc5-45c3-4329-9289-b3bb4b32c7ff" x="55.11" y="99.42" width="57.57"
+                                    height="17.17" rx="1" />
+                                <rect class="ad976bc5-45c3-4329-9289-b3bb4b32c7ff" x="48.51" y="51.85" width="24.32"
+                                    height="23.05" rx="4.41" />
+                                <rect class="ad976bc5-45c3-4329-9289-b3bb4b32c7ff" x="94.96" y="51.85" width="24.32"
+                                    height="23.05" rx="4.41" />
                             </svg>
                         </div>
                         <h4>Nothing to see here</h4>
@@ -237,11 +242,98 @@
             </div>
             <div id="notifications" class="sub-page hide-completely">
                 <div id="all_responses_list" class="observe-empty-state grid"></div>
-                <p class="empty-state">No notifications so far.</p>
+                <div class="empty-state grid gap-0-5 grid justify-center">
+                    <div class="empty-state__icon">
+                        <svg id="b3445710-a136-46cb-89f8-80c618c8ee4b" data-name="Layer 1"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                            <defs>
+                                <style>
+                                    .ba1765ac-ba03-4b43-bc6d-a927946baed1 {
+                                        fill: #a7a9ac;
+                                    }
+
+                                    .fd8419ec-6395-4382-ade3-030128d6647f {
+                                        fill: #fff;
+                                    }
+
+                                    .bd62f727-fb5f-4aa4-8437-767b19d7f96b {
+                                        fill: #939598;
+                                    }
+
+                                    .b0b51b44-10fd-4a78-9380-afb1145bc97a {
+                                        fill: #bcbec0;
+                                    }
+                                </style>
+                            </defs>
+                            <circle class="ba1765ac-ba03-4b43-bc6d-a927946baed1" cx="117.85" cy="205.85" r="14.15" />
+                            <rect class="ba1765ac-ba03-4b43-bc6d-a927946baed1" x="107.02" y="30.19" width="21.66"
+                                height="27.48" rx="10.55" />
+                            <path class="fd8419ec-6395-4382-ade3-030128d6647f"
+                                d="M192.3,201.34h0a4.63,4.63,0,0,1-4.63,4.63H48a4.62,4.62,0,0,1-4.62-4.63h0a4.52,4.52,0,0,1,.46-2h0a118.3,118.3,0,0,0,11.76-51.42V109.06a62.23,62.23,0,1,1,124.45,0v38.85a118.17,118.17,0,0,0,11.77,51.42h0A4.66,4.66,0,0,1,192.3,201.34Z" />
+                            <path class="bd62f727-fb5f-4aa4-8437-767b19d7f96b"
+                                d="M94.38,119.93a17.07,17.07,0,0,1-14-7.29,3,3,0,0,1,4.92-3.44,11,11,0,0,0,18.22-.14,3,3,0,1,1,5,3.36A17,17,0,0,1,94.38,119.93Z" />
+                            <path class="bd62f727-fb5f-4aa4-8437-767b19d7f96b"
+                                d="M141.19,119.93a17.09,17.09,0,0,1-14-7.29,3,3,0,0,1,4.92-3.44,11,11,0,0,0,18.22-.14,3,3,0,1,1,5,3.36A17,17,0,0,1,141.19,119.93Z" />
+                            <path class="bd62f727-fb5f-4aa4-8437-767b19d7f96b"
+                                d="M131.62,159.83c0,8.62-6.24,2.42-14.86,2.42s-16.36,6.2-16.36-2.42a15.61,15.61,0,0,1,31.22,0Z" />
+                            <path class="ba1765ac-ba03-4b43-bc6d-a927946baed1"
+                                d="M188.57,78.49l-19.31,9a1.33,1.33,0,0,1-2.06-.75c-.37-1-2.88-5.59-2.82-6.63-.32,0,4.24-16.84,4.3-17.38-1.42.09-9.66,6.08-10.39,3.15-.17-1.42-4.11-5.93-1.46-6.78l17.91-8.38a1.33,1.33,0,0,1,2.06.75c.34,1.07,3.21,6.19,3.12,7.26.28.21-4,16-4.13,16.63,1.4-.09,10.8-6.59,11.36-3.6C187.37,73.19,191.19,77.65,188.57,78.49Z" />
+                            <path class="b0b51b44-10fd-4a78-9380-afb1145bc97a"
+                                d="M208.17,35.86c-.83,0-11.74,9.92-12.3,7.77-.36-.6-2.48-3.14-2.57-3.79-.2,0,.59-11,.56-11.35-.91.2-5.21,5-6.08,3.23-.29-.86-3.29-3.19-1.74-4,.49-.16,10.56-8.12,10.87-7.66,1,.52,3,3.63,3.46,4.61.22.17-.58,10.4-.54,10.86.94-.2,5.75-5.43,6.63-3.63C206.77,32.71,209.69,35,208.17,35.86Z" />
+                        </svg>
+                    </div>
+                    <h4>No notifications</h4>
+                    <p>Updates related to your transaction requests will appear here.</h4>
+                </div>
+            </div>
             </div>
             <div id="history" class="sub-page hide-completely">
                 <div id="all_requests_list" class="observe-empty-state grid"></div>
-                <p class="empty-state">No notifications so far.</p>
+                <div class="empty-state grid gap-0-5 grid justify-center">
+                    <div class="empty-state__icon">
+                        <svg id="f48c82be-af69-47e0-88db-b765bedc1d13" data-name="Layer 1"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                            <defs>
+                                <style>
+                                    .f350e6a5-c7dc-4782-943e-3cb25ce4b759 {
+                                        fill: #fff;
+                                    }
+
+                                    .f86405e4-51cc-4320-a543-8a998346e13c {
+                                        fill: #bcbec0;
+                                    }
+
+                                    .f3dcc940-fef8-4413-a78b-ff0070d212b8 {
+                                        fill: #e6e7e8;
+                                    }
+                                </style>
+                            </defs>
+                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="40.29" y="48.6" width="163.27"
+                                height="34.57" rx="4" />
+                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="56.73" cy="65.89" r="9.38" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="74.14" y="56.51" width="37.09"
+                                height="8.28" rx="1.92" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="74.14" y="66.98" width="73.47"
+                                height="8.28" rx="1.92" />
+                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="20" y="103.69" width="163.27"
+                                height="34.57" rx="4" />
+                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="36.45" cy="120.98" r="9.38" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="53.85" y="111.6" width="37.09"
+                                height="8.28" rx="1.92" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="53.85" y="122.07" width="73.47"
+                                height="8.28" rx="1.92" />
+                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="56.73" y="156.82" width="163.27"
+                                height="34.57" rx="4" />
+                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="73.18" cy="174.11" r="9.38" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="90.59" y="164.73" width="37.09"
+                                height="8.28" rx="1.92" />
+                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="90.59" y="175.2" width="73.47"
+                                height="8.28" rx="1.92" />
+                        </svg>
+                    </div>
+                    <h4>No history to show</h4>
+                    <p>You transaction activities will appear here.</h4>
+                </div>
             </div>
             <div id="settings" class="sub-page hide-completely">
                 <h5>My FLO ID</h5>
@@ -250,6 +342,13 @@
             </div>
         </section>
         <section id="user_section">
+            <button class="icon-button hide-on-desktop justify-self-start" onclick="toggleUserSection()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
             <div>
                 <h4 class="flex align-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
@@ -801,6 +900,7 @@
             if (subPageId) {
                 getRef('all_responses_list').innerHTML = ''
                 getRef('all_requests_list').innerHTML = ''
+                getRef('user_accounts').innerHTML = ''
                 switch (subPageId) {
                     case 'dashboard':
                         if (pagesData.openedSubPages.includes(subPageId)) {
@@ -1400,8 +1500,8 @@
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    accountChart = renderChart()
                     refreshBalance()
+                    accountChart = renderChart()
                 } else if (!entry.isIntersecting && accountChart) {
                     accountChart.destroy()
                 }
@@ -1463,6 +1563,10 @@
                         window.location.hash = `#/result?type=loan&amount=${amount}&status=failed&reason=${err}`
                     })
             }
+        }
+
+        function toggleUserSection() {
+            getRef('user_section').classList.toggle('reveal')
         }
     </script>
     <script id="onLoadStartUp">

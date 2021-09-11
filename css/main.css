@@ -594,12 +594,12 @@ strip-select {
   border-radius: 0.3rem;
 }
 
-#accounts_empty_state {
-  margin-top: 3rem;
+.empty-state {
+  margin: 3rem 0;
   justify-items: center;
   text-align: center;
 }
-#accounts_empty_state .empty-state__icon {
+.empty-state .empty-state__icon {
   -webkit-filter: drop-shadow(0 0.5rem 0.3rem rgba(0, 0, 0, 0.1));
           filter: drop-shadow(0 0.5rem 0.3rem rgba(0, 0, 0, 0.1));
   height: 12rem;
@@ -1196,6 +1196,10 @@ strip-option:last-of-type {
 #account_top {
     margin-top: 1rem;
   }
+
+  #user_section {
+    left: 0;
+  }
 }
 @media screen and (min-width: 640px) {
   #confirmation_popup {
@@ -1270,9 +1274,18 @@ strip-option:last-of-type {
   #user_section {
     position: fixed;
     background-color: rgba(var(--background-color), 1);
+    -webkit-transition: -webkit-transform 0.3s;
+    transition: -webkit-transform 0.3s;
+    transition: transform 0.3s;
+    transition: transform 0.3s, -webkit-transform 0.3s;
     z-index: 2;
-    -webkit-transform: translateX(-100%);
-            transform: translateX(-100%);
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+  #user_section:not(.reveal) {
+    -webkit-transform: translateX(100%);
+            transform: translateX(100%);
   }
 }
 @media screen and (min-width: 1024px) {
@@ -1301,6 +1314,10 @@ strip-option:last-of-type {
   #transaction section,
 #account_details {
     grid-template-columns: 18rem minmax(0, 1fr);
+  }
+
+  .hide-on-desktop {
+    display: none;
   }
 }
 @media screen and (min-width: 1920px) {
