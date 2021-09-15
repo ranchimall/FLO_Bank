@@ -1436,7 +1436,7 @@
         }
 
         function renderAccountProgress(index) {
-            const { type, status, openTime, closeTime = 0, amount, netAmt } = bank_app.getUserDetails(myFloID).accounts[index]
+            const { type, status, openTime, closeTime = undefined, amount, netAmt } = bank_app.getUserDetails(myFloID).accounts[index]
             getRef('account_process__steps').innerHTML = ''
             getRef('account_process__steps').append(render.accountProgressStep('success', type === "deposit" ? 'Deposited' : 'Got loan', getFormattedTime(openTime)))
             const { isPending, pendingRequest } = getAccountStatus(index)
@@ -1444,14 +1444,14 @@
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent withdrawal request', getFormattedTime(pendingRequest.split('_')[0])))
                     getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for withdrawal confirmation', `Once your request is processed, your withdrawn amount will reflect in your balance.<br>meanwhile you can go back and continue using the app.`))
-                } else {
+                } else if (closeTime) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Withdrawal complete', getFormattedTime(closeTime)))
                 }
             } else {
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent repay request', getFormattedTime(pendingRequest.split('_')[0])))
                     getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for repayment confirmation', `Once your request is processed, your loan will be closed,`))
-                } else {
+                } else if (closeTime) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Repayment complete', getFormattedTime(closeTime)))
                 }
             }
@@ -1502,7 +1502,7 @@
                     bank_app.withdrawDeposit(parseInt(index))
                         .then(res => {
                             getRef('account_process__steps').lastElementChild.remove()
-                            renderAccountProgress()
+                            renderAccountProgress(index)
                         })
                         .catch(err => {
                             getRef('account_process__steps')
@@ -1514,7 +1514,7 @@
                     bank_app.repayLoan(parseInt(index))
                         .then(res => {
                             getRef('account_process__steps').lastElementChild.remove()
-                            renderAccountProgress()
+                            renderAccountProgress(index)
                         })
                         .catch(err => {
                             getRef('account_process__steps')
@@ -1535,7 +1535,7 @@
 
         function updateChart() {
             const { depositTotal, loanTotal } = bank_app.getUserDetails(myFloID)
-            if (accountChart) {
+            if (accountChart && isChartVisible) {
                 accountChart.data.datasets[0].data = [depositTotal, loanTotal]
                 accountChart.update()
             }
