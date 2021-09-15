@@ -92,7 +92,7 @@
         <sm-spinner></sm-spinner>
         <h4>Loading RanchiMall Bank</h4>
     </article>
-    <article id="homepage" class="page hide-completely">
+    <article id="home" class="page hide-completely">
         <header id="main_header">
             <div id="logo">
                 <svg id="main_logo" viewBox="0 0 27.25 32">
@@ -107,14 +107,13 @@
             <theme-toggle></theme-toggle>
             <button class="icon-button hide-on-desktop" onclick="toggleUserSection()">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z"
+                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                         clip-rule="evenodd" />
                 </svg>
             </button>
         </header>
         <nav id="main_nav">
-            <a href="#/homepage/dashboard" class="nav-item nav-item--active">
+            <a href="#/home/dashboard" class="nav-item nav-item--active user-option">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path
                         d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
@@ -123,7 +122,16 @@
                     Dashboard
                 </span>
             </a>
-            <a href="#/homepage/notifications" class="nav-item">
+            <a href="#/home/admin" class="nav-item nav-item--active admin-option">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                        d="M5 4a1 1 0 00-2 0v7.268a2 2 0 000 3.464V16a1 1 0 102 0v-1.268a2 2 0 000-3.464V4zM11 4a1 1 0 10-2 0v1.268a2 2 0 000 3.464V16a1 1 0 102 0V8.732a2 2 0 000-3.464V4zM16 3a1 1 0 011 1v7.268a2 2 0 010 3.464V16a1 1 0 11-2 0v-1.268a2 2 0 010-3.464V4a1 1 0 011-1z" />
+                </svg>
+                <span class="nav-item__title">
+                    Admin
+                </span>
+            </a>
+            <a href="#/home/notifications" class="nav-item user-option">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path
                         d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
@@ -132,7 +140,7 @@
                     Notifications
                 </span>
             </a>
-            <a href="#/homepage/history" class="nav-item">
+            <a href="#/home/history" class="nav-item user-option">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path
                         d="M5 12a1 1 0 102 0V6.414l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L5 6.414V12zM15 8a1 1 0 10-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L15 13.586V8z" />
@@ -141,7 +149,7 @@
                     History
                 </span>
             </a>
-            <a href="#/homepage/settings" class="nav-item">
+            <a href="#/home/settings" class="nav-item">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd"
                         d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
@@ -286,49 +294,48 @@
                     <p>Updates related to your transaction requests will appear here.</h4>
                 </div>
             </div>
-            </div>
             <div id="history" class="sub-page hide-completely">
                 <div id="all_requests_list" class="observe-empty-state grid"></div>
                 <div class="empty-state grid gap-0-5 grid justify-center">
                     <div class="empty-state__icon">
-                        <svg id="f48c82be-af69-47e0-88db-b765bedc1d13" data-name="Layer 1"
+                        <svg id="bb7dac0d-c86d-4eae-9345-05ead570be6d" data-name="Layer 1"
                             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
                             <defs>
                                 <style>
-                                    .f350e6a5-c7dc-4782-943e-3cb25ce4b759 {
+                                    .e4b4c873-5e79-4c66-a530-269f7775150b {
                                         fill: #fff;
                                     }
 
-                                    .f86405e4-51cc-4320-a543-8a998346e13c {
+                                    .f8c35eef-c260-42fc-be6f-7c8afb0beeeb {
                                         fill: #bcbec0;
                                     }
 
-                                    .f3dcc940-fef8-4413-a78b-ff0070d212b8 {
+                                    .ee8c2e6d-b8f3-4b81-80ab-31d470d121b9 {
                                         fill: #e6e7e8;
                                     }
                                 </style>
                             </defs>
-                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="40.29" y="48.6" width="163.27"
-                                height="34.57" rx="4" />
-                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="56.73" cy="65.89" r="9.38" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="74.14" y="56.51" width="37.09"
-                                height="8.28" rx="1.92" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="74.14" y="66.98" width="73.47"
-                                height="8.28" rx="1.92" />
-                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="20" y="103.69" width="163.27"
-                                height="34.57" rx="4" />
-                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="36.45" cy="120.98" r="9.38" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="53.85" y="111.6" width="37.09"
-                                height="8.28" rx="1.92" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="53.85" y="122.07" width="73.47"
-                                height="8.28" rx="1.92" />
-                            <rect class="f350e6a5-c7dc-4782-943e-3cb25ce4b759" x="56.73" y="156.82" width="163.27"
-                                height="34.57" rx="4" />
-                            <circle class="f86405e4-51cc-4320-a543-8a998346e13c" cx="73.18" cy="174.11" r="9.38" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="90.59" y="164.73" width="37.09"
-                                height="8.28" rx="1.92" />
-                            <rect class="f3dcc940-fef8-4413-a78b-ff0070d212b8" x="90.59" y="175.2" width="73.47"
-                                height="8.28" rx="1.92" />
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="34.76" y="40.75" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="57.21" cy="61.46" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="75.4" y="51.37" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="75.4" y="62.79" width="80.09"
+                                height="9.03" rx="1.92" />
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="10" y="99.29" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="32.45" cy="120" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="50.64" y="109.91" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="50.64" y="121.33" width="80.09"
+                                height="9.03" rx="1.92" />
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="52.47" y="157.83" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="74.93" cy="178.54" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="93.12" y="168.46" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="93.12" y="179.87" width="80.09"
+                                height="9.03" rx="1.92" />
                         </svg>
                     </div>
                     <h4>No history to show</h4>
@@ -339,6 +346,17 @@
                 <h5>My FLO ID</h5>
                 <sm-copy id="user_flo_id"></sm-copy>
                 <sm-button id="sign_out_button" onclick="signOut()">Sign out</sm-button>
+            </div>
+            <div id="admin" class="sub-page hide-completely">
+                <h4>Requests</h4>
+                <strip-select id="admin_request_selector">
+                    <strip-option value="all" selected>All</strip-option>
+                    <strip-option value="openDeposit">Deposit</strip-option>
+                    <strip-option value="closeDeposit">Withdraw</strip-option>
+                    <strip-option value="openLoan">Loan</strip-option>
+                    <strip-option value="closeLoan">Repay</strip-option>
+                </strip-select>
+                <div id="admin_requests_container"></div>
             </div>
         </section>
         <section id="user_section">
@@ -351,7 +369,7 @@
                     </svg>
                 </button>
             </div>
-            <div>
+            <div class="user-option">
                 <h4 class="flex align-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
                         fill="currentColor">
@@ -432,7 +450,7 @@
         </section>
     </article>
     <article id="deposit" class="page hide-completely page-layout">
-        <a class="button icon-button justify-self-start" href="#/homepage/dashboard">
+        <a class="button icon-button justify-self-start" href="#/home/dashboard">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                     d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -461,7 +479,7 @@
         </sm-form>
     </article>
     <article id="loan" class="page hide-completely page-layout">
-        <a class="button icon-button justify-self-start" href="#/homepage/dashboard">
+        <a class="button icon-button justify-self-start" href="#/home/dashboard">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd"
                     d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -545,6 +563,15 @@
             </div>
         </section>
     </article>
+    <template id="admin_request_template">
+        <li class="activity-card activity-card--admin">
+            <div class="activity-card__icon"></div>
+            <div class="activity-card__title"></div>
+            <h4 class="activity-card__amount"></h4>
+            <time class="activity-card__time"></time>
+            <button class="activity-card__action">Process</button>
+        </li>
+    </template>
     <template id="request_template">
         <a class="activity-card activity-card--request interact">
             <div class="activity-card__icon"></div>
@@ -822,6 +849,7 @@
         let requestLoader
         let accountLoader
         let accountChart
+        let adminRequestsLoader
         async function showPage(targetPage, options = {}) {
             const { firstLoad, hashChange } = options
             let pageId
@@ -829,8 +857,8 @@
             let searchParams
             let params
             if (targetPage === '') {
-                pageId = 'homepage'
-                subPageId = 'dashboard'
+                pageId = 'home'
+                subPageId = floGlobals.adminID === myFloID ? 'admin' : 'dashboard'
             } else {
                 if (targetPage.includes('/')) {
                     if (targetPage.includes('?')) {
@@ -908,15 +936,23 @@
                         if (pagesData.openedSubPages.includes(subPageId)) {
                             accountLoader.reset()
                         } else {
-                            accountLoader = new LazyLoader('#user_accounts', getAccounts(), render.accountCard, { batchSize: 10 })
+                            accountLoader = new LazyLoader('#user_accounts', getAccounts, render.accountCard, { batchSize: 10 })
                             accountLoader.init()
                         }
                         break;
+                    case 'admin':
+                        if (pagesData.openedSubPages.includes(subPageId)) {
+                            adminRequestsLoader.reset()
+                        } else {
+                            adminRequestsLoader = new LazyLoader('#admin_requests_container', getAdminRequests, render.adminRequestCard, { batchSize: 10 })
+                            adminRequestsLoader.init()
+                        }
+                        break
                     case 'notifications':
                         if (pagesData.openedSubPages.includes(subPageId)) {
                             responseLoader.reset()
                         } else {
-                            responseLoader = new LazyLoader('#all_responses_list', utils.getArrayOfObj(bank_app.viewAllResponses()).reverse(), render.responseCard, { batchSize: 10 })
+                            responseLoader = new LazyLoader('#all_responses_list', getResponses, render.responseCard, { batchSize: 10 })
                             responseLoader.init()
                         }
                         break;
@@ -924,14 +960,14 @@
                         if (pagesData.openedSubPages.includes(subPageId)) {
                             requestLoader.reset()
                         } else {
-                            requestLoader = new LazyLoader('#all_requests_list', getRequests(), render.requestCard, { batchSize: 10 })
+                            requestLoader = new LazyLoader('#all_requests_list', getRequests, render.requestCard, { batchSize: 10 })
                             requestLoader.init()
                         }
                         break;
                 }
                 document.querySelector('.sub-page:not(.hide-completely)')?.classList.add('hide-completely')
                 getRef(subPageId)?.classList.remove('hide-completely')
-                getRef('main_nav').querySelector('.nav-item--active')?.classList.remove('nav-item--active')
+                getRef('main_nav').querySelectorAll('.nav-item--active').forEach(item => item.classList.remove('nav-item--active'))
                 getRef('main_nav').querySelector(`.nav-item[href="#/${pageId}/${subPageId ? subPageId : ''}"]`).classList.add('nav-item--active')
                 getRef(subPageId)?.animate([
                     {
@@ -958,9 +994,11 @@
         }
         // class based lazy loading
         class LazyLoader {
-            constructor(container, arrayOfElements, renderFn, options = {}) {
+            constructor(container, elementsToRender, renderFn, options = {}) {
                 const { batchSize = 10 } = options
-                this.arrayOfElements = arrayOfElements
+
+                this.elementsToRender = elementsToRender
+                this.arrayOfElements = (typeof elementsToRender === 'function') ? this.elementsToRender() : elementsToRender || []
                 this.renderFn = renderFn
                 this.intersectionObserver
 
@@ -998,8 +1036,8 @@
                 })
                 this.render()
             }
-            update(arrayOfElements) {
-                this.arrayOfElements = arrayOfElements
+            update(elementsToRender) {
+                this.arrayOfElements = (typeof elementsToRender === 'function') ? this.elementsToRender() : elementsToRender || []
                 this.render()
             }
             render(options = {}) {
@@ -1025,6 +1063,7 @@
                 this.lazyContainer.innerHTML = ``;
             }
             reset() {
+                this.arrayOfElements = (typeof this.elementsToRender === 'function') ? this.elementsToRender() : this.elementsToRender || []
                 this.render()
             }
         }
@@ -1089,6 +1128,33 @@
             }
         }
         const render = {
+            adminRequestCard(activityDetails = {}) {
+                const { requestID, amount, rtype, timestamp, status } = activityDetails
+                const card = getRef('admin_request_template').content.cloneNode(true).firstElementChild
+                const icon = utils.getRelatedIcon(rtype)
+                let action = ''
+                switch (rtype) {
+                    case 'openDeposit':
+                        action = 'deposit'
+                        break
+                    case 'closeDeposit':
+                        action = 'withdraw'
+                        break
+                    case 'openLoan':
+                        action = 'Get loan'
+                        break
+                    case 'closeLoan':
+                        action = 'Repay loan'
+                        break
+                }
+                card.dataset.type = rtype
+                card.dataset.reqId = requestID
+                card.querySelector('.activity-card__icon').innerHTML = icon
+                card.querySelector('.activity-card__title').textContent = action
+                card.querySelector('.activity-card__time').textContent = getFormattedTime(timestamp)
+                card.querySelector('.activity-card__amount').textContent = amount.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
+                return card
+            },
             requestCard(activityDetails = {}) {
                 const { requestID, amount, rtype, timestamp, status } = activityDetails
                 const card = getRef('request_template').content.cloneNode(true).firstElementChild
@@ -1229,7 +1295,7 @@
             updateChart()
         }
         function getRequestDetails(requestID) {
-            let { amount, rtype, index } = bank_app.viewAllRequests()[requestID]
+            let { amount, rtype, index, status: reqStatus } = bank_app.viewAllRequests()[requestID]
             if (!amount && bank_app.getUserDetails(myFloID).accounts[index]) {
                 amount = bank_app.getUserDetails(myFloID).accounts[index].amount
             }
@@ -1240,14 +1306,17 @@
                     rtype,
                     requestID: requestID,
                     timestamp: requestID.split('_')[0],
-                    status: requestResponsePairs[requestID] ? bank_app.viewAllResponses()[requestResponsePairs[requestID]].status : 'pending'
+                }
+                if (reqStatus === 'completed') {
+                    transactionDetails.status = 'completed'
+                } else {
+                    transactionDetails.status = requestResponsePairs[requestID] ? bank_app.viewAllResponses()[requestResponsePairs[requestID]].status : 'pending'
                 }
                 return transactionDetails
             }
         }
         function getRequests() {
             const transactions = bank_app.viewAllRequests()
-            const responses = bank_app.viewAllResponses()
             const requests = []
             for (const key in transactions) {
                 const details = getRequestDetails(key)
@@ -1255,6 +1324,9 @@
                     requests.push(details)
             }
             return requests.reverse()
+        }
+        function getResponses() {
+            return utils.getArrayOfObj(bank_app.viewAllResponses()).reverse()
         }
         function showTransactionDetails(params) {
             const { requestID } = params
@@ -1518,11 +1590,17 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     accountChart = renderChart()
-                    refreshBalance()
                     isChartVisible = true
                 } else if (!entry.isIntersecting && accountChart) {
                     accountChart.destroy()
                     isChartVisible = false
+                }
+            })
+        })
+        const userSectionObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    refreshBalance()
                 }
             })
         })
@@ -1587,6 +1665,52 @@
         function toggleUserSection() {
             getRef('user_section').classList.toggle('reveal')
         }
+
+        function getAdminRequests() {
+            const allRequests = getRequests().filter(({ status }) => status !== 'completed')
+            const typeOfRequest = getRef('admin_request_selector').value
+            if (typeOfRequest !== 'all') {
+                return allRequests.filter(({ rtype }) => rtype === typeOfRequest)
+            } else {
+                return allRequests
+            }
+        }
+        getRef('admin_request_selector').addEventListener('change', e => {
+            adminRequestsLoader.update(getAdminRequests)
+        })
+
+        getRef('admin_requests_container').addEventListener('click', async e => {
+            if (e.target.closest('button')) {
+                const target = e.target.closest('button')
+                const request = e.target.closest('.activity-card')
+                const reqID = request.dataset.reqId
+                try {
+                    switch (request.dataset.type) {
+                        case 'openDeposit':
+                            await bank_app.verifyDeposit(reqID)
+                            notify('Deposit approved', 'success')
+                            break
+                        case 'closeDeposit':
+                            await bank_app.closeDeposit(reqID)
+                            notify('Withdrawal approved', 'success')
+                            break
+                        case 'openLoan':
+                            await bank_app.sendLoan(reqID)
+                            notify('Loan approved', 'success')
+                            break
+                        case 'closeLoan':
+                            await bank_app.closeLoan(reqID)
+                            notify('Loan repayment approved', 'success')
+                            break
+                    }
+                    request.remove()
+                }
+                catch (err) {
+                    notify(err, 'error')
+
+                }
+            }
+        })
     </script>
     <script id="onLoadStartUp">
         const requestResponsePairs = {}
@@ -1608,24 +1732,43 @@
                 getRef('user_flo_id').value = myFloID
                 // alert(`Welcome FLO_ID: ${myFloID}`);
                 //App functions....
-                bank_app.launchApp(DummyCallBack, DummyCallBack)
+                bank_app.launchApp(reqCallback, DummyCallBack)
                     .then(result => {
                         console.log(result)
-                        // create pairs of requestIDs and their respective responses for efficient lookup
-                        const allResponses = bank_app.viewAllResponses()
-                        for (const key in allResponses) {
-                            const { requestID } = allResponses[key]
-                            requestResponsePairs[requestID] = key
+                        if (floGlobals.adminID === myFloID) {
+                            console.log('Logged in as admin')
+                            document.querySelectorAll('.admin-option').forEach(option => option.classList.remove('hide-completely'))
+                            document.querySelectorAll('.user-option').forEach(option => option.classList.add('hide-completely'))
+                        } else {
+                            // create pairs of requestIDs and their respective responses for efficient lookup
+                            const allResponses = bank_app.viewAllResponses()
+                            for (const key in allResponses) {
+                                const { requestID } = allResponses[key]
+                                requestResponsePairs[requestID] = key
+                            }
+                            chartObserver.observe(getRef('account_chart_container'))
+                            document.querySelectorAll('.admin-option').forEach(option => option.classList.add('hide-completely'))
+                            document.querySelectorAll('.user-option').forEach(option => option.classList.remove('hide-completely'))
                         }
                         if (window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')) {
                             window.location.hash = ''
                         } else {
                             showPage(window.location.hash)
                         }
-                        chartObserver.observe(getRef('account_chart_container'))
+                        userSectionObserver.observe(getRef('user_section'))
                     })
                     .catch(error => console.error(error))
             }).catch(error => console.error(error));
+        }
+
+        const reqCallback = (d, e) => {
+            console.log(d)
+            if (floGlobals.adminID === myFloID) {
+                if (adminRequestsLoader) {
+                    adminRequestsLoader.reset()
+                    notify('New request arrived')
+                }
+            }
         }
 
         const DummyCallBack = (d, e) => {
@@ -11299,7 +11442,7 @@
             tokenAPI: {
                 fetch_api: function (apicall) {
                     return new Promise((resolve, reject) => {
-                        console.log(floGlobals.tokenURL + apicall);
+                        // console.log(floGlobals.tokenURL + apicall);
                         fetch(floGlobals.tokenURL + apicall).then(response => {
                             if (response.ok)
                                 response.json().then(data => resolve(data));

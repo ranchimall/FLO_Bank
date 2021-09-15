@@ -1431,17 +1431,19 @@ themeToggle.innerHTML = `
         height: 100%;
         width: 100%;
         fill: rgba(var(--text-color), 1);
-        transition: transform 0.6s;
+        transition: transform 0.3s, opacity 0.1s;
     }
     
     .theme-switcher__checkbox {
         display: none;
     }
     :host([checked]) .moon-icon {
-        transform: scale(0) rotate(90deg);
+        transform: translateY(50%);
+        opacity: 0;
     }
     :host(:not([checked])) .sun-icon {
-        transform: scale(0) rotate(-90deg);
+        transform: translateY(50%);
+        opacity: 0;
     }
     </style>
     <label class="theme-toggle" title="Change theme" tabindex="0">
@@ -1759,6 +1761,9 @@ stripSelect.innerHTML = `
         fill: rgba(var(--text-color), .8);
     }
     @media (hover: none){
+        ::-webkit-scrollbar {
+            height: 0;
+        }
         .nav-button{
             display: none;
         }
@@ -1961,7 +1966,7 @@ stripOption.innerHTML = `
         --border-radius: 2rem;
         --background-color: inherit;
         --active-option-color: inherit;
-        --active-option-backgroud-color: rgba(var(--text-color), .2);
+        --active-option-background-color: rgba(var(--text-color), .2);
     }
     .strip-option{
         display: flex;
@@ -1975,7 +1980,7 @@ stripOption.innerHTML = `
     }
     :host([active]) .strip-option{
         color: var(--active-option-color);
-        background-color: var(--active-option-backgroud-color);
+        background-color: var(--active-option-background-color);
     }
     :host(:focus-within){
         outline: none;
