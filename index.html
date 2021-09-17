@@ -6,6 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RanchiMall Bank</title>
+
+    <script src="components.js" defer></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"
+        integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="css/main.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -36,10 +41,6 @@
             application: "test_bank",
         }
     </script>
-    <script src="components.js" defer></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"
-        integrity="sha512-Wt1bJGtlnMtGP0dqNFH1xlkLBNpEodaiQ8ZN5JLA5wpc1sUlk/O5uuOMNgvzddzkpvZ9GLyYNa8w2s7rqiTk5Q=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body onload="onLoadStartUp()" class="hide-completely">
@@ -163,6 +164,7 @@
         <section id="subpage_container">
             <div id="dashboard" class="sub-page">
                 <section>
+                    <section id="pending_transaction"></section>
                     <h4 class="flex align-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
                             fill="currentColor">
@@ -475,7 +477,9 @@
             <sm-input id="get_deposit_amount" type="number" min="1" step="0.01"
                 error-text="Amount should be at least ₹1" placeholder="₹Amount" required>
             </sm-input>
-            <sm-button id="deposit_button" variant="primary" disabled onclick="initDeposit()">Deposit</sm-button>
+            <div id="deposit_button_wrapper" class="loader-button-wrapper">
+                <sm-button id="deposit_button" variant="primary" disabled onclick="initDeposit()">Deposit</sm-button>
+            </div>
         </sm-form>
     </article>
     <article id="loan" class="page hide-completely page-layout">
@@ -487,7 +491,7 @@
             </svg>
         </a>
         <sm-form>
-            <div id="deposit__icon">
+            <div id="loan__icon">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
                         d="M12.65,8.5H10.42a5.18,5.18,0,0,0-4,1.95L3.75,13.74a5,5,0,0,0-.68,5.31l0,0h0a5.07,5.07,0,0,0,4.5,2.73h7.88A5.08,5.08,0,0,0,20,19.05h0a5.39,5.39,0,0,0,.43-1.2,4.91,4.91,0,0,0-1-4.06l-2.66-3.34A5.17,5.17,0,0,0,12.65,8.5Z" />
@@ -502,7 +506,9 @@
             <sm-input id="get_loan_amount" type="number" min="1" step="0.01" error-text="Amount should be at least ₹1"
                 placeholder="₹Amount" required>
             </sm-input>
-            <sm-button id="loan_button" variant="primary" disabled onclick="initLoan()">Request loan</sm-button>
+            <div id="loan_button_wrapper" class="loader-button-wrapper">
+                <sm-button id="loan_button" variant="primary" disabled onclick="initLoan()">Request loan</sm-button>
+            </div>
         </sm-form>
     </article>
     <article id="result" class="page hide-completely page-layout">
@@ -606,6 +612,25 @@
             <div class="step__line"></div>
             <p class="step__description"></p>
         </div>
+    </template>
+    <template id="pending_transaction_template">
+        <details open>
+            <summary>
+                <h4>Pending transaction</h4>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path d="M12 13.172l4.95-4.95 1.414 1.414L12 16 5.636 9.636 7.05 8.222z" />
+                </svg>
+            </summary>
+            <a id="pending_request" class="activity-card activity-card--pending interact">
+                <div class="activity-card__icon pending"></div>
+                <div class="activity-card__title"></div>
+                <p class="activity-card__description">
+                    You won't be able to do deposit or get a loan till process is completed.
+                </p>
+                <h4 class="activity-card__amount"></h4>
+            </a>
+        </details>
     </template>
     <script id="ui_utils">
         // Global variables
@@ -896,11 +921,14 @@
                         break;
                     case 'deposit':
                         const { I_s } = bank_app.getRates()
-                        getRef('deposit_interest_rate').textContent = `Make a deposit at ${I_s * 100}% rate of interest`
+                        getRef('deposit_interest_rate').textContent = `Make a deposit at ${I_s * 100}%.p.a`
+                        // checks if there is transaction pending, if so then shows warning
+                        checkIfAllowed('deposit')
                         break;
                     case 'loan':
                         const { I_b } = bank_app.getRates()
-                        getRef('loan_interest_rate').textContent = `Get a loan at ${I_b * 100}% rate of interest`
+                        getRef('loan_interest_rate').textContent = `Get a loan at ${I_b * 100}%.p.a`
+                        checkIfAllowed('loan')
                         break;
                     case 'transaction':
                         showTransactionDetails(params)
@@ -939,6 +967,7 @@
                             accountLoader = new LazyLoader('#user_accounts', getAccounts, render.accountCard, { batchSize: 10 })
                             accountLoader.init()
                         }
+                        checkPendingTransaction()
                         break;
                     case 'admin':
                         if (pagesData.openedSubPages.includes(subPageId)) {
@@ -1125,6 +1154,15 @@
                         break;
                 }
                 return icon
+            },
+            getLastTransaction() {
+                const allRequests = bank_app.viewAllRequests()
+                let key
+                for (key in allRequests);
+                return {
+                    uid: key,
+                    isPending: !requestResponsePairs.has(key)
+                }
             }
         }
         const render = {
@@ -1226,7 +1264,7 @@
                 card.setAttribute('href', `#/account?index=${index}`)
                 card.querySelector('.activity-card__icon').innerHTML = icon
                 card.querySelector('.activity-card__type').textContent = type
-                card.querySelector('.activity-card__time').textContent = getFormattedTime(parseInt(status === 'active' ? openTime : closeTime))
+                card.querySelector('.activity-card__time').textContent = getFormattedTime(parseInt(status === 'active' ? openTime : closeTime), true)
                 card.querySelector('.activity-card__amount').textContent = netAmt.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
                 return card
             },
@@ -1259,7 +1297,7 @@
             })
         }
         function signOut() {
-            getConfirmation('Sign out?', 'You are about to sign out of the app, continue?')
+            getConfirmation('Sign out?', 'You are about to sign out of the app, continue?', 'Stay', 'Leave')
                 .then(async (res) => {
                     if (res) {
                         await floDapps.clearCredentials()
@@ -1304,13 +1342,17 @@
                     index,
                     amount,
                     rtype,
-                    requestID: requestID,
+                    requestID,
                     timestamp: requestID.split('_')[0],
                 }
                 if (reqStatus === 'completed') {
                     transactionDetails.status = 'completed'
                 } else {
-                    transactionDetails.status = requestResponsePairs[requestID] ? bank_app.viewAllResponses()[requestResponsePairs[requestID]].status : 'pending'
+                    if (requestResponsePairs.has(requestID)) {
+                        transactionDetails.status = bank_app.viewAllResponses()[requestResponsePairs.get(requestID)].status
+                    } else {
+                        transactionDetails.status = 'pending'
+                    }
                 }
                 return transactionDetails
             }
@@ -1321,9 +1363,9 @@
             for (const key in transactions) {
                 const details = getRequestDetails(key)
                 if (details)
-                    requests.push(details)
+                    requests.unshift(details)
             }
-            return requests.reverse()
+            return requests
         }
         function getResponses() {
             return utils.getArrayOfObj(bank_app.viewAllResponses()).reverse()
@@ -1356,8 +1398,8 @@
             getRef('transaction__steps').innerHTML = ''
             getRef('transaction__steps').append(render.accountProgressStep('success', `Sent ${type} request`, getFormattedTime(timestamp)))
 
-            if (requestResponsePairs[requestID]) {
-                const { status, reason } = bank_app.viewAllResponses()[requestResponsePairs[requestID]]
+            if (requestResponsePairs.has(requestID)) {
+                const { status, reason } = bank_app.viewAllResponses()[requestResponsePairs.get(requestID)]
                 // Check if response is positive or not
                 if (status === 'success') {
                     let action
@@ -1491,17 +1533,17 @@
             const { type, netAmt } = bank_app.getUserDetails(myFloID).accounts[index]
             let ans
             if (type === 'deposit') {
-                ans = await getConfirmation('Withdraw deposit?', 'Are you sure to withdraw this deposit now?')
+                ans = await getConfirmation('Withdraw deposit?', 'Are you sure to withdraw this deposit now?', 'No', 'Yes')
             } else {
-                ans = await getConfirmation('Repay loan?', 'Make sure you have required amount to repay the loan!')
+                ans = await getConfirmation('Repay loan?', 'Make sure you have required amount to repay the loan!', 'No', 'Yes')
             }
             if (ans) {
+                getRef('account_action_button').classList.add('hide-completely')
                 const actionToDo = type === 'deposit' ? 'withdraw' : 'Repay'
                 getRef('account_process__steps').append(render.accountProgressStep('loading', `Sending ${actionToDo} request`))
                 if (type === 'deposit') {
                     bank_app.withdrawDeposit(parseInt(index))
                         .then(res => {
-                            getRef('account_process__steps').lastElementChild.remove()
                             renderAccountProgress(index)
                         })
                         .catch(err => {
@@ -1513,7 +1555,6 @@
                 } else {
                     bank_app.repayLoan(parseInt(index))
                         .then(res => {
-                            getRef('account_process__steps').lastElementChild.remove()
                             renderAccountProgress(index)
                         })
                         .catch(err => {
@@ -1625,20 +1666,30 @@
             getRef('result__icon').innerHTML = utils.getRelatedIcon(status)
             getRef('result__icon').className = status
             getRef('result__back_button').href = `#/${type}`
-            if (status === 'pending') {
-                getRef('result__title').textContent = `Sent ${type} request`
-                getRef('result__description').textContent = `Waiting for ${type} confirmation. Meanwhile you can go back and continue using app.`
-            } else if (status === 'failed') {
-                getRef('result__title').textContent = `Failed to send ${type} request`
-                getRef('result__description').textContent = reason
+            debugger
+            switch (status) {
+                case 'pending':
+                    getRef('result__title').textContent = `Sent ${type} request`
+                    getRef('result__description').textContent = `Waiting for ${type} confirmation. Meanwhile you can go back and continue using app.`
+                    break
+                case 'failed':
+                    getRef('result__title').textContent = `Failed to send ${type} request`
+                    getRef('result__description').textContent = reason
+                    break
+                case 'loading':
+                    getRef('result__icon').innerHTML = '<sm-spinner></sm-spinner>'
+                    getRef('result__title').textContent = `Sending ${type} request`
+                    getRef('result__description').textContent = ''
+                    break
             }
             getRef(`get_${type}_amount`).value = ''
         }
 
         async function initDeposit() {
             const amount = parseFloat(getRef('get_deposit_amount').value)
-            const confirm = await getConfirmation(`Confirm deposit of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`)
+            const confirm = await getConfirmation(`Confirm deposit of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
             if (confirm) {
+                showProcess('deposit')
                 bank_app.makeDeposit(amount)
                     .then(() => {
                         window.location.hash = `#/result?type=deposit&amount=${amount}&status=pending`
@@ -1646,12 +1697,16 @@
                     .catch(err => {
                         window.location.hash = `#/result?type=deposit&amount=${amount}&status=failed&reason=${err}`
                     })
+                    .finally(() => {
+                        hideProcess('deposit')
+                    })
             }
         }
         async function initLoan() {
             const amount = parseFloat(getRef('get_loan_amount').value)
-            const confirm = await getConfirmation(`Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`)
+            const confirm = await getConfirmation(`Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
             if (confirm) {
+                showInitProcess('loan')
                 bank_app.requestLoan(amount)
                     .then(() => {
                         window.location.hash = `#/result?type=loan&amount=${amount}&status=pending`
@@ -1659,7 +1714,19 @@
                     .catch(err => {
                         window.location.hash = `#/result?type=loan&amount=${amount}&status=failed&reason=${err}`
                     })
+                    .finally(() => {
+                        hideProcess('loan')
+                    })
             }
+        }
+
+        function showProcess(type) {
+            getRef(`${type}_button_wrapper`).children[0].classList.add('clip')
+            getRef(`${type}_button_wrapper`).append(document.createElement('sm-spinner'))
+        }
+        function hideProcess(type) {
+            getRef(`${type}_button_wrapper`).children[0].classList.remove('clip')
+            getRef(`${type}_button_wrapper`).children[1].remove()
         }
 
         function toggleUserSection() {
@@ -1711,11 +1778,71 @@
                 }
             }
         })
+
+        function checkPendingTransaction() {
+            const { isPending, uid } = utils.getLastTransaction()
+            if (uid) {
+                const { amount, rtype } = getRequestDetails(uid)
+                getRef('pending_transaction').innerHTML = ''
+                if (isPending && (rtype === 'openDeposit' || rtype === 'openLoan')) {
+                    const card = getRef('pending_transaction_template').content.cloneNode(true)
+                    const action = rtype === 'openDeposit' ? 'Deposit' : 'Loan'
+                    card.querySelector('.activity-card').setAttribute('href', `#/transaction?requestID=${uid}`)
+                    card.querySelector('.activity-card__icon').innerHTML = utils.getRelatedIcon('pending')
+                    card.querySelector('.activity-card__title').textContent = `${action} in process`
+                    card.querySelector('.activity-card__amount').textContent = amount.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
+                    getRef('pending_transaction').append(card)
+                    getRef('quick_actions_container').querySelectorAll('a').forEach(elem => {
+                        elem.classList.add('disabled')
+                    })
+                } else {
+                    getRef('quick_actions_container').querySelectorAll('a').forEach(elem => {
+                        elem.classList.remove('disabled')
+                    })
+                }
+            }
+        }
+
+        function checkIfAllowed(type) {
+            const { isPending, uid } = utils.getLastTransaction()
+            getRef(`${type}_button`).nextElementSibling?.remove()
+            // check if there is a last transaction
+            if (uid) {
+                const { amount, rtype } = getRequestDetails(uid)
+                if (isPending && (rtype === 'openDeposit' || rtype === 'openLoan')) {
+                    const action = rtype === 'openDeposit' ? 'Deposit' : 'Loan'
+                    getRef(`${type}_button`).classList.add('hide-completely')
+                    getRef(`${type}_button`).after(createElement('strong', {
+                        textContent: `${action} in process. You can't ${type === 'deposit' ? 'deposit' : 'request loan'} until that's completed.`,
+                        attributes: { 'style': 'background-color: khaki; color: rgba(0,0,0,0.7); padding: 1rem; border-radius: 0.5rem' }
+                    }))
+                }
+            } else {
+                getRef(`${type}_button`).classList.remove('hide-completely')
+            }
+        }
+        let requestResponsePairs
+        class ReqResp {
+            constructor() {
+                this._mappedRequests = new Map()
+            }
+            get mappedRequests() {
+                return this._mappedRequests
+            }
+            updateMap() {
+                const allResponses = bank_app.viewAllResponses()
+                for (const key in allResponses) {
+                    // stores requests as requests => response relation
+                    this._mappedRequests.set(allResponses[key].requestID, key)
+                }
+            }
+        }
+        const requestResponse = new ReqResp()
     </script>
     <script id="onLoadStartUp">
-        const requestResponsePairs = {}
+        let isStartUpComplete
         function onLoadStartUp() {
-
+            isStartUpComplete = false
             //floDapps.addStartUpFunction('Sample', Promised Function)
             //floDapps.setAppObjectStores({sampleObs1:{}, sampleObs2:{options{autoIncrement:true, keyPath:'SampleKey'}, Indexes:{sampleIndex:{}}}})
             floDapps.setCustomPrivKeyInput(getSignedIn)
@@ -1732,20 +1859,18 @@
                 getRef('user_flo_id').value = myFloID
                 // alert(`Welcome FLO_ID: ${myFloID}`);
                 //App functions....
-                bank_app.launchApp(reqCallback, DummyCallBack)
+                bank_app.launchApp(reqCallback, responseCallback)
                     .then(result => {
+                        isStartUpComplete = true
                         console.log(result)
+                        // create pairs of requestIDs and their respective responses for efficient lookup
+                        requestResponse.updateMap()
+                        requestResponsePairs = requestResponse.mappedRequests
                         if (floGlobals.adminID === myFloID) {
                             console.log('Logged in as admin')
                             document.querySelectorAll('.admin-option').forEach(option => option.classList.remove('hide-completely'))
                             document.querySelectorAll('.user-option').forEach(option => option.classList.add('hide-completely'))
                         } else {
-                            // create pairs of requestIDs and their respective responses for efficient lookup
-                            const allResponses = bank_app.viewAllResponses()
-                            for (const key in allResponses) {
-                                const { requestID } = allResponses[key]
-                                requestResponsePairs[requestID] = key
-                            }
                             chartObserver.observe(getRef('account_chart_container'))
                             document.querySelectorAll('.admin-option').forEach(option => option.classList.add('hide-completely'))
                             document.querySelectorAll('.user-option').forEach(option => option.classList.remove('hide-completely'))
@@ -1763,17 +1888,29 @@
 
         const reqCallback = (d, e) => {
             console.log(d)
+            if (isStartUpComplete) {
+                requestResponse.updateMap()
+            }
             if (floGlobals.adminID === myFloID) {
                 if (adminRequestsLoader) {
                     adminRequestsLoader.reset()
                     notify('New request arrived')
                 }
+            } else {
+                // checkPendingTransaction()
             }
         }
 
-        const DummyCallBack = (d, e) => {
+        const responseCallback = (d, e) => {
             if (e) console.error("DummyCallback", e);
-            console.log("DummyCallback", d);
+            console.log("response", d);
+            if (floGlobals.adminID === myFloID) {
+            } else {
+                checkPendingTransaction()
+            }
+            if (isStartUpComplete) {
+                requestResponse.updateMap()
+            }
         }
     </script>
     <script id="init_lib" version="1.0.1">
@@ -11397,7 +11534,8 @@
                             acc[d[0]] = d[1];
                             break;
                         default:
-                            console.warn("Unknown parse data", d);
+                            // console.warn("Unknown parse data", d);
+                            console.warn("Unknown parse data");
                     }
                 });
                 console.debug(time, txid, acc);

@@ -6,7 +6,7 @@
 }
 
 :root {
-  font-size: clamp(1rem, 1.2vmax, 3rem);
+  font-size: clamp(1rem, 1.2vmax, 1.2rem);
 }
 
 html,
@@ -48,7 +48,8 @@ body[data-theme="dark"] {
   }
 }
 
-p {
+p,
+strong {
   font-size: 0.9rem;
   max-width: 70ch;
   line-height: 1.7;
@@ -375,7 +376,7 @@ button:active,
 
   h4 {
     text-transform: capitalize;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 600;
   }
 
@@ -388,6 +389,8 @@ button:active,
 }
 details {
   summary {
+    display: flex;
+    justify-content: space-between;
     user-select: none;
     cursor: pointer;
   }
@@ -506,6 +509,10 @@ details {
   display: flex;
   flex-direction: column;
   align-items: center;
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
   &__icon {
     padding: 1rem;
     border-radius: 1rem;
@@ -625,6 +632,7 @@ strip-option {
   }
 }
 .activity-card--request,
+.activity-card--pending,
 .activity-card--admin {
   grid-template-areas: "icon . amount" "icon time .";
   .activity-card__icon {
@@ -636,6 +644,18 @@ strip-option {
   .activity-card__amount {
     grid-area: amount;
     text-align: end;
+  }
+}
+#pending_transaction:not(:empty) {
+  margin-bottom: 2rem;
+}
+.activity-card--pending:not(:empty) {
+  padding: 1rem;
+  margin-top: 0.8rem;
+  border: solid 0.1rem var(--accent-color);
+  .activity-card__description {
+    font-size: 0.8rem;
+    color: rgba(var(--text-color), 0.8);
   }
 }
 .status-tag:not(:empty) {
@@ -944,6 +964,25 @@ strip-option {
   --font-size: 1.5rem;
   margin-top: 1rem;
 }
+.loader-button-wrapper {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  sm-button {
+    width: 100%;
+    z-index: 1;
+    transition: clip-path 0.3s;
+    clip-path: circle(100%);
+    &.clip {
+      pointer-events: none;
+      clip-path: circle(0);
+    }
+  }
+  sm-spinner {
+    position: absolute;
+  }
+}
 #result {
   place-content: center;
   section {
@@ -1036,7 +1075,7 @@ strip-option {
   }
   #transaction_action_button,
   #account_action_button,
-  #deposit_button {
+  .loader-button-wrapper {
     margin-top: auto;
   }
   #transaction_top,
@@ -1091,6 +1130,7 @@ strip-option {
   #user_section {
     grid-area: user-section;
     background-color: rgba(var(--background-color), 1);
+    width: min(24rem, 100%);
   }
   #transaction_top,
   #account_top,
@@ -1149,6 +1189,9 @@ strip-option {
   }
   .hide-on-desktop {
     display: none;
+  }
+  .activity-card--pending:not(:empty) {
+    padding: 1.5rem;
   }
 }
 @media screen and (min-width: 1920px) {

@@ -7,7 +7,7 @@
 }
 
 :root {
-  font-size: clamp(1rem, 1.2vmax, 3rem);
+  font-size: clamp(1rem, 1.2vmax, 1.2rem);
 }
 
 html,
@@ -46,13 +46,15 @@ body[data-theme=dark] * {
   --yellow: #ffd13a;
 }
 
-p {
+p,
+strong {
   font-size: 0.9rem;
   max-width: 70ch;
   line-height: 1.7;
   color: rgba(var(--text-color), 0.8);
 }
-p:not(:last-of-type) {
+p:not(:last-of-type),
+strong:not(:last-of-type) {
   margin-bottom: 1.5rem;
 }
 
@@ -409,7 +411,7 @@ button:active,
 }
 #logo h4 {
   text-transform: capitalize;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 #logo #main_logo {
@@ -420,6 +422,12 @@ button:active,
 }
 
 details summary {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   -webkit-user-select: none;
      -moz-user-select: none;
       -ms-user-select: none;
@@ -576,6 +584,10 @@ details[open] > summary .icon {
       -ms-flex-align: center;
           align-items: center;
 }
+.quick-action.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
 .quick-action__icon {
   padding: 1rem;
   border-radius: 1rem;
@@ -716,21 +728,39 @@ strip-option:last-of-type {
 }
 
 .activity-card--request,
+.activity-card--pending,
 .activity-card--admin {
   grid-template-areas: "icon . amount" "icon time .";
 }
 .activity-card--request .activity-card__icon,
+.activity-card--pending .activity-card__icon,
 .activity-card--admin .activity-card__icon {
   grid-area: icon;
 }
 .activity-card--request .activity-card__time,
+.activity-card--pending .activity-card__time,
 .activity-card--admin .activity-card__time {
   grid-area: time;
 }
 .activity-card--request .activity-card__amount,
+.activity-card--pending .activity-card__amount,
 .activity-card--admin .activity-card__amount {
   grid-area: amount;
   text-align: end;
+}
+
+#pending_transaction:not(:empty) {
+  margin-bottom: 2rem;
+}
+
+.activity-card--pending:not(:empty) {
+  padding: 1rem;
+  margin-top: 0.8rem;
+  border: solid 0.1rem var(--accent-color);
+}
+.activity-card--pending:not(:empty) .activity-card__description {
+  font-size: 0.8rem;
+  color: rgba(var(--text-color), 0.8);
 }
 
 .status-tag:not(:empty) {
@@ -1104,6 +1134,37 @@ strip-option:last-of-type {
   margin-top: 1rem;
 }
 
+.loader-button-wrapper {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  position: relative;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.loader-button-wrapper sm-button {
+  width: 100%;
+  z-index: 1;
+  -webkit-transition: -webkit-clip-path 0.3s;
+  transition: -webkit-clip-path 0.3s;
+  transition: clip-path 0.3s;
+  transition: clip-path 0.3s, -webkit-clip-path 0.3s;
+  -webkit-clip-path: circle(100%);
+          clip-path: circle(100%);
+}
+.loader-button-wrapper sm-button.clip {
+  pointer-events: none;
+  -webkit-clip-path: circle(0);
+          clip-path: circle(0);
+}
+.loader-button-wrapper sm-spinner {
+  position: absolute;
+}
+
 #result {
   place-content: center;
 }
@@ -1238,7 +1299,7 @@ strip-option:last-of-type {
 
   #transaction_action_button,
 #account_action_button,
-#deposit_button {
+.loader-button-wrapper {
     margin-top: auto;
   }
 
@@ -1300,6 +1361,7 @@ strip-option:last-of-type {
   #user_section {
     grid-area: user-section;
     background-color: rgba(var(--background-color), 1);
+    width: min(24rem, 100%);
   }
 
   #transaction_top,
@@ -1371,6 +1433,10 @@ strip-option:last-of-type {
 
   .hide-on-desktop {
     display: none;
+  }
+
+  .activity-card--pending:not(:empty) {
+    padding: 1.5rem;
   }
 }
 @media screen and (min-width: 1920px) {

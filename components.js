@@ -1,3 +1,4 @@
+/*jshint esversion: 6 */
 const smButton = document.createElement('template')
 smButton.innerHTML = `
 <style>     
@@ -99,53 +100,53 @@ smButton.innerHTML = `
 customElements.define('sm-button',
     class extends HTMLElement {
         constructor() {
-            super()
+            super();
             this.attachShadow({
                 mode: 'open'
-            }).append(smButton.content.cloneNode(true))
+            }).append(smButton.content.cloneNode(true));
         }
         static get observedAttributes() {
             return ['disabled'];
         }
 
         get disabled() {
-            return this.hasAttribute('disabled')
+            return this.hasAttribute('disabled');
         }
 
         set disabled(value) {
             if (value) {
-                this.setAttribute('disabled', '')
+                this.setAttribute('disabled', '');
             } else {
-                this.removeAttribute('disabled')
+                this.removeAttribute('disabled');
             }
         }
 
         handleKeyDown(e) {
             if (!this.hasAttribute('disabled') && (e.key === 'Enter' || e.code === 'Space')) {
-                e.preventDefault()
-                this.click()
+                e.preventDefault();
+                this.click();
             }
         }
 
         connectedCallback() {
             if (!this.hasAttribute('disabled')) {
-                this.setAttribute('tabindex', '0')
+                this.setAttribute('tabindex', '0');
             }
-            this.setAttribute('role', 'button')
-            this.addEventListener('keydown', this.handleKeyDown)
+            this.setAttribute('role', 'button');
+            this.addEventListener('keydown', this.handleKeyDown);
         }
-        attributeChangedCallback(name, oldVal, newVal) {
+        attributeChangedCallback(name) {
             if (name === 'disabled') {
-                this.removeAttribute('tabindex')
-                this.setAttribute('aria-disabled', 'true')
+                this.removeAttribute('tabindex');
+                this.setAttribute('aria-disabled', 'true');
             }
             else {
-                this.setAttribute('tabindex', '0')
-                this.setAttribute('aria-disabled', 'false')
+                this.setAttribute('tabindex', '0');
+                this.setAttribute('aria-disabled', 'false');
             }
         }
     })
-const smForm = document.createElement('template')
+const smForm = document.createElement('template');
 smForm.innerHTML = `
     <style>
     *{
@@ -167,7 +168,7 @@ smForm.innerHTML = `
 	<form part="form" onsubmit="return false">
 		<slot></slot>
 	</form>
-`
+`;
 
 customElements.define('sm-form', class extends HTMLElement {
     constructor() {
@@ -224,19 +225,21 @@ customElements.define('sm-form', class extends HTMLElement {
         const slot = this.shadowRoot.querySelector('slot')
         slot.addEventListener('slotchange', e => {
             this.formElements = [...this.querySelectorAll('sm-input, sm-textarea, sm-checkbox, tags-input, file-input, sm-switch, sm-radio')]
-            this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'))
-            this.submitButton = e.target.assignedElements().find(elem => elem.getAttribute('variant') === 'primary' || elem.getAttribute('type') === 'submit');
-            this.resetButton = e.target.assignedElements().find(elem => elem.getAttribute('type') === 'reset');
+            this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'));
+            // this.submitButton = e.target.assignedElements().find(elem => elem.getAttribute('variant') === 'primary' || elem.getAttribute('type') === 'submit');
+            this.submitButton = this.querySelector('[variant="primary"], [type="submit"]');
+            // this.resetButton = e.target.assignedElements().find(elem => elem.getAttribute('type') === 'reset');
+            this.resetButton = this.querySelector('[type="reset"]');
             if (this.resetButton) {
-                this.resetButton.addEventListener('click', this.reset)
+                this.resetButton.addEventListener('click', this.reset);
             }
         })
-        this.addEventListener('input', this.debounce(this.handleInput, 100))
-        this.addEventListener('keydown', this.debounce(this.handleKeydown, 100))
+        this.addEventListener('input', this.debounce(this.handleInput, 100));
+        this.addEventListener('keydown', this.debounce(this.handleKeydown, 100));
     }
     disconnectedCallback() {
-        this.removeEventListener('input', this.debounce(this.handleInput, 100))
-        this.removeEventListener('keydown', this.debounce(this.handleKeydown, 100))
+        this.removeEventListener('input', this.debounce(this.handleInput, 100));
+        this.removeEventListener('keydown', this.debounce(this.handleKeydown, 100));
     }
 })
 
@@ -472,122 +475,127 @@ customElements.define('sm-input',
     class extends HTMLElement {
 
         constructor() {
-            super()
+            super();
             this.attachShadow({
                 mode: 'open'
-            }).append(smInput.content.cloneNode(true))
+            }).append(smInput.content.cloneNode(true));
 
-            this.inputParent = this.shadowRoot.querySelector('.input')
-            this.input = this.shadowRoot.querySelector('input')
-            this.clearBtn = this.shadowRoot.querySelector('.clear')
-            this.label = this.shadowRoot.querySelector('.label')
-            this.feedbackText = this.shadowRoot.querySelector('.feedback-text')
-            this.outerContainer = this.shadowRoot.querySelector('.outer-container')
-            this._helperText
-            this._errorText
-            this.isRequired = false
-            this.validationFunction
-            this.reflectedAttributes = ['value', 'required', 'disabled', 'type', 'inputmode', 'readonly', 'min', 'max', 'pattern', 'minlength', 'maxlength', 'step']
+            this.inputParent = this.shadowRoot.querySelector('.input');
+            this.input = this.shadowRoot.querySelector('input');
+            this.clearBtn = this.shadowRoot.querySelector('.clear');
+            this.label = this.shadowRoot.querySelector('.label');
+            this.feedbackText = this.shadowRoot.querySelector('.feedback-text');
+            this.outerContainer = this.shadowRoot.querySelector('.outer-container');
+            this._helperText = '';
+            this._errorText = '';
+            this.isRequired = false;
+            this.validationFunction = undefined;
+            this.reflectedAttributes = ['value', 'required', 'disabled', 'type', 'inputmode', 'readonly', 'min', 'max', 'pattern', 'minlength', 'maxlength', 'step'];
 
-            this.reset = this.reset.bind(this)
-            this.focusIn = this.focusIn.bind(this)
-            this.focusOut = this.focusOut.bind(this)
-            this.fireEvent = this.fireEvent.bind(this)
-            this.checkInput = this.checkInput.bind(this)
-            this.vibrate = this.vibrate.bind(this)
+            this.reset = this.reset.bind(this);
+            this.focusIn = this.focusIn.bind(this);
+            this.focusOut = this.focusOut.bind(this);
+            this.fireEvent = this.fireEvent.bind(this);
+            this.checkInput = this.checkInput.bind(this);
+            this.vibrate = this.vibrate.bind(this);
         }
 
         static get observedAttributes() {
-            return ['value', 'placeholder', 'required', 'disabled', 'type', 'inputmode', 'readonly', 'min', 'max', 'pattern', 'minlength', 'maxlength', 'step', 'helper-text', 'error-text']
+            return ['value', 'placeholder', 'required', 'disabled', 'type', 'inputmode', 'readonly', 'min', 'max', 'pattern', 'minlength', 'maxlength', 'step', 'helper-text', 'error-text'];
         }
 
         get value() {
-            return this.input.value
+            return this.input.value;
         }
 
         set value(val) {
             this.input.value = val;
-            this.checkInput()
-            this.fireEvent()
+            this.checkInput();
+            this.fireEvent();
         }
 
         get placeholder() {
-            return this.getAttribute('placeholder')
+            return this.getAttribute('placeholder');
         }
 
         set placeholder(val) {
-            this.setAttribute('placeholder', val)
+            this.setAttribute('placeholder', val);
         }
 
         get type() {
-            return this.getAttribute('type')
+            return this.getAttribute('type');
         }
 
         set type(val) {
-            this.setAttribute('type', val)
+            this.setAttribute('type', val);
         }
 
         get validity() {
-            return this.input.validity
+            return this.input.validity;
         }
 
+        get disabled() {
+            return this.hasAttribute('disabled');
+        }
         set disabled(value) {
             if (value)
-                this.inputParent.classList.add('disabled')
+                this.inputParent.classList.add('disabled');
             else
-                this.inputParent.classList.remove('disabled')
+                this.inputParent.classList.remove('disabled');
+        }
+        get readOnly() {
+            return this.hasAttribute('readonly');
         }
         set readOnly(value) {
             if (value) {
-                this.setAttribute('readonly', '')
+                this.setAttribute('readonly', '');
             } else {
-                this.removeAttribute('readonly')
+                this.removeAttribute('readonly');
             }
         }
         set customValidation(val) {
-
-            this.validationFunction = val
+            this.validationFunction = val;
         }
         set errorText(val) {
-            this._errorText = val
+            this._errorText = val;
         }
         set helperText(val) {
-            this._helperText = val
+            this._helperText = val;
         }
         get isValid() {
             if (this.input.value !== '') {
-                const _isValid = this.input.checkValidity()
-                let _customValid = true
+                const _isValid = this.input.checkValidity();
+                let _customValid = true;
                 if (this.validationFunction) {
-                    _customValid = Boolean(this.validationFunction(this.input.value))
+                    _customValid = Boolean(this.validationFunction(this.input.value));
                 }
                 if (_isValid && _customValid) {
-                    this.feedbackText.classList.remove('error')
-                    this.feedbackText.classList.add('success')
-                    this.feedbackText.textContent = ''
+                    this.feedbackText.classList.remove('error');
+                    this.feedbackText.classList.add('success');
+                    this.feedbackText.textContent = '';
                 } else {
                     if (this._errorText) {
-                        this.feedbackText.classList.add('error')
-                        this.feedbackText.classList.remove('success')
+                        this.feedbackText.classList.add('error');
+                        this.feedbackText.classList.remove('success');
                         this.feedbackText.innerHTML = `
                             <svg class="status-icon status-icon--error" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-7v2h2v-2h-2zm0-8v6h2V7h-2z"/></svg>
                         ${this._errorText}
-                        `
+                        `;
                     }
                 }
-                return (_isValid && _customValid)
+                return (_isValid && _customValid);
             }
         }
         reset() {
-            this.value = ''
+            this.value = '';
         }
 
         focusIn() {
-            this.input.focus()
+            this.input.focus();
         }
 
         focusOut() {
-            this.input.blur()
+            this.input.blur();
         }
 
         fireEvent() {
@@ -602,25 +610,25 @@ customElements.define('sm-input',
         checkInput(e) {
             if (!this.hasAttribute('readonly')) {
                 if (this.input.value.trim() !== '') {
-                    this.clearBtn.classList.remove('hide')
+                    this.clearBtn.classList.remove('hide');
                 } else {
-                    this.clearBtn.classList.add('hide')
+                    this.clearBtn.classList.add('hide');
                     if (this.isRequired) {
-                        this.feedbackText.textContent = '* required'
+                        this.feedbackText.textContent = '* required';
                     }
                 }
             }
             if (!this.hasAttribute('placeholder') || this.getAttribute('placeholder').trim() === '') return;
             if (this.input.value !== '') {
                 if (this.animate)
-                    this.inputParent.classList.add('animate-label')
+                    this.inputParent.classList.add('animate-label');
                 else
-                    this.label.classList.add('hide')
+                    this.label.classList.add('hide');
             } else {
                 if (this.animate)
-                    this.inputParent.classList.remove('animate-label')
+                    this.inputParent.classList.remove('animate-label');
                 else
-                    this.label.classList.remove('hide')
+                    this.label.classList.remove('hide');
             }
         }
         vibrate() {
@@ -633,25 +641,25 @@ customElements.define('sm-input',
             ], {
                 duration: 300,
                 easing: 'ease'
-            })
+            });
         }
 
 
         connectedCallback() {
-            this.animate = this.hasAttribute('animate')
-            this.setAttribute('role', 'textbox')
-            this.input.addEventListener('input', this.checkInput)
-            this.clearBtn.addEventListener('click', this.reset)
+            this.animate = this.hasAttribute('animate');
+            this.setAttribute('role', 'textbox');
+            this.input.addEventListener('input', this.checkInput);
+            this.clearBtn.addEventListener('click', this.reset);
         }
 
         attributeChangedCallback(name, oldValue, newValue) {
             if (oldValue !== newValue) {
                 if (this.reflectedAttributes.includes(name)) {
                     if (this.hasAttribute(name)) {
-                        this.input.setAttribute(name, this.getAttribute(name) ? this.getAttribute(name) : '')
+                        this.input.setAttribute(name, this.getAttribute(name) ? this.getAttribute(name) : '');
                     }
                     else {
-                        this.input.removeAttribute(name)
+                        this.input.removeAttribute(name);
                     }
                 }
                 if (name === 'placeholder') {
@@ -659,50 +667,50 @@ customElements.define('sm-input',
                     this.setAttribute('aria-label', newValue);
                 }
                 else if (this.hasAttribute('value')) {
-                    this.checkInput()
+                    this.checkInput();
                 }
                 else if (name === 'type') {
                     if (this.hasAttribute('type') && this.getAttribute('type') === 'number') {
-                        this.input.setAttribute('inputmode', 'numeric')
+                        this.input.setAttribute('inputmode', 'numeric');
                     }
                 }
                 else if (name === 'helper-text') {
-                    this._helperText = this.getAttribute('helper-text')
+                    this._helperText = this.getAttribute('helper-text');
                 }
                 else if (name === 'error-text') {
-                    this._errorText = this.getAttribute('error-text')
+                    this._errorText = this.getAttribute('error-text');
                 }
                 else if (name === 'required') {
-                    this.isRequired = this.hasAttribute('required')
+                    this.isRequired = this.hasAttribute('required');
                     if (this.isRequired) {
-                        this.feedbackText.textContent = '* required'
-                        this.setAttribute('aria-required', 'true')
+                        this.feedbackText.textContent = '* required';
+                        this.setAttribute('aria-required', 'true');
                     }
                     else {
-                        this.feedbackText.textContent = ''
-                        this.setAttribute('aria-required', 'false')
+                        this.feedbackText.textContent = '';
+                        this.setAttribute('aria-required', 'false');
                     }
                 }
                 else if (name === 'readonly') {
                     if (this.hasAttribute('readonly')) {
-                        this.inputParent.classList.add('readonly')
+                        this.inputParent.classList.add('readonly');
                     } else {
-                        this.inputParent.classList.remove('readonly')
+                        this.inputParent.classList.remove('readonly');
                     }
                 }
                 else if (name === 'disabled') {
                     if (this.hasAttribute('disabled')) {
-                        this.inputParent.classList.add('disabled')
+                        this.inputParent.classList.add('disabled');
                     }
                     else {
-                        this.inputParent.classList.remove('disabled')
+                        this.inputParent.classList.remove('disabled');
                     }
                 }
             }
         }
         disconnectedCallback() {
-            this.input.removeEventListener('input', this.checkInput)
-            this.clearBtn.removeEventListener('click', this.reset)
+            this.input.removeEventListener('input', this.checkInput);
+            this.clearBtn.removeEventListener('click', this.reset);
         }
     })
 const smNotifications = document.createElement('template')
@@ -849,7 +857,7 @@ smNotifications.innerHTML = `
 
 customElements.define('sm-notifications', class extends HTMLElement {
     constructor() {
-        super()
+        super();
         this.shadow = this.attachShadow({
             mode: 'open'
         }).append(smNotifications.content.cloneNode(true))
@@ -880,27 +888,27 @@ customElements.define('sm-notifications', class extends HTMLElement {
         const { pinned = false, icon = '' } = options
         const notification = document.createElement('div')
         notification.id = this.randString(8)
-        notification.classList.add('notification')
-        let composition = ``
+        notification.classList.add('notification');
+        let composition = ``;
         composition += `
             <div class="icon-container">${icon}</div>
             <p>${message}</p>
-            `
+            `;
         if (pinned) {
-            notification.classList.add('pinned')
+            notification.classList.add('pinned');
             composition += `
                 <button class="close">
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path fill="none" d="M0 0h24v24H0z"/><path d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z"/></svg>
                 </button>
-            `
+            `;
         }
-        notification.innerHTML = composition
-        return notification
+        notification.innerHTML = composition;
+        return notification;
     }
 
     push(message, options = {}) {
-        const notification = this.createNotification(message, options)
-        this.notificationPanel.append(notification)
+        const notification = this.createNotification(message, options);
+        this.notificationPanel.append(notification);
         notification.animate([
             {
                 transform: `translateY(1rem)`,
@@ -910,8 +918,8 @@ customElements.define('sm-notifications', class extends HTMLElement {
                 transform: `none`,
                 opacity: '1'
             },
-        ], this.animationOptions)
-        return notification.id
+        ], this.animationOptions);
+        return notification.id;
     }
 
     removeNotification(notification) {
@@ -925,40 +933,40 @@ customElements.define('sm-notifications', class extends HTMLElement {
                 opacity: '0'
             }
         ], this.animationOptions).onfinish = () => {
-            notification.remove()
-        }
+            notification.remove();
+        };
     }
 
     clearAll() {
         Array.from(this.notificationPanel.children).forEach(child => {
-            this.removeNotification(child)
-        })
+            this.removeNotification(child);
+        });
     }
 
     connectedCallback() {
         this.notificationPanel.addEventListener('click', e => {
-            if (e.target.closest('.close')) (
-                this.removeNotification(e.target.closest('.notification'))
-            )
-        })
+            if (e.target.closest('.close')) {
+                this.removeNotification(e.target.closest('.notification'));
+            }
+        });
 
         const observer = new MutationObserver(mutationList => {
             mutationList.forEach(mutation => {
                 if (mutation.type === 'childList') {
                     if (mutation.addedNodes.length && !mutation.addedNodes[0].classList.contains('pinned')) {
                         setTimeout(() => {
-                            this.removeNotification(mutation.addedNodes[0])
+                            this.removeNotification(mutation.addedNodes[0]);
                         }, 5000);
                     }
                 }
-            })
-        })
+            });
+        });
         observer.observe(this.notificationPanel, {
             childList: true,
-        })
+        });
     }
-})
-const smPopup = document.createElement('template')
+});
+const smPopup = document.createElement('template');
 smPopup.innerHTML = `
 <style>
 *{
@@ -1127,34 +1135,34 @@ smPopup.innerHTML = `
 `;
 customElements.define('sm-popup', class extends HTMLElement {
     constructor() {
-        super()
+        super();
         this.attachShadow({
             mode: 'open'
-        }).append(smPopup.content.cloneNode(true))
+        }).append(smPopup.content.cloneNode(true));
 
-        this.allowClosing = false
-        this.isOpen = false
-        this.pinned = false
-        this.popupStack
-        this.offset
-        this.touchStartY = 0
-        this.touchEndY = 0
-        this.touchStartTime = 0
-        this.touchEndTime = 0
-        this.touchEndAnimataion
+        this.allowClosing = false;
+        this.isOpen = false;
+        this.pinned = false;
+        this.popupStack = undefined;
+        this.offset = 0;
+        this.touchStartY = 0;
+        this.touchEndY = 0;
+        this.touchStartTime = 0;
+        this.touchEndTime = 0;
+        this.touchEndAnimataion = undefined;
 
-        this.popupContainer = this.shadowRoot.querySelector('.popup-container')
-        this.popup = this.shadowRoot.querySelector('.popup')
-        this.popupBodySlot = this.shadowRoot.querySelector('.popup-body slot')
-        this.popupHeader = this.shadowRoot.querySelector('.popup-top')
+        this.popupContainer = this.shadowRoot.querySelector('.popup-container');
+        this.popup = this.shadowRoot.querySelector('.popup');
+        this.popupBodySlot = this.shadowRoot.querySelector('.popup-body slot');
+        this.popupHeader = this.shadowRoot.querySelector('.popup-top');
 
-        this.resumeScrolling = this.resumeScrolling.bind(this)
-        this.show = this.show.bind(this)
-        this.hide = this.hide.bind(this)
-        this.handleTouchStart = this.handleTouchStart.bind(this)
-        this.handleTouchMove = this.handleTouchMove.bind(this)
-        this.handleTouchEnd = this.handleTouchEnd.bind(this)
-        this.movePopup = this.movePopup.bind(this)
+        this.resumeScrolling = this.resumeScrolling.bind(this);
+        this.show = this.show.bind(this);
+        this.hide = this.hide.bind(this);
+        this.handleTouchStart = this.handleTouchStart.bind(this);
+        this.handleTouchMove = this.handleTouchMove.bind(this);
+        this.handleTouchEnd = this.handleTouchEnd.bind(this);
+        this.movePopup = this.movePopup.bind(this);
     }
 
     static get observedAttributes() {
@@ -1162,7 +1170,7 @@ customElements.define('sm-popup', class extends HTMLElement {
     }
 
     get open() {
-        return this.isOpen
+        return this.isOpen;
     }
 
     resumeScrolling() {
@@ -1170,21 +1178,21 @@ customElements.define('sm-popup', class extends HTMLElement {
         window.scrollTo(0, parseInt(scrollY || '0') * -1);
         setTimeout(() => {
             document.body.style.overflow = 'auto';
-            document.body.style.top = 'initial'
+            document.body.style.top = 'initial';
         }, 300);
     }
 
     show(options = {}) {
-        const { pinned = false, popupStack = undefined } = options
+        const { pinned = false, popupStack } = options;
         if (popupStack)
-            this.popupStack = popupStack
+            this.popupStack = popupStack;
         if (this.popupStack && !this.hasAttribute('open')) {
             this.popupStack.push({
                 popup: this,
                 permission: pinned
-            })
+            });
             if (this.popupStack.items.length > 1) {
-                this.popupStack.items[this.popupStack.items.length - 2].popup.classList.add('stacked')
+                this.popupStack.items[this.popupStack.items.length - 2].popup.classList.add('stacked');
             }
             this.dispatchEvent(
                 new CustomEvent("popupopened", {
@@ -1194,38 +1202,38 @@ customElements.define('sm-popup', class extends HTMLElement {
                         popupStack: this.popupStack
                     }
                 })
-            )
-            this.setAttribute('open', '')
-            this.pinned = pinned
-            this.isOpen = true
+            );
+            this.setAttribute('open', '');
+            this.pinned = pinned;
+            this.isOpen = true;
         }
-        this.popupContainer.classList.remove('hide')
+        this.popupContainer.classList.remove('hide');
         this.popup.style.transform = 'none';
         document.body.style.overflow = 'hidden';
-        document.body.style.top = `-${window.scrollY}px`
-        return this.popupStack
+        document.body.style.top = `-${window.scrollY}px`;
+        return this.popupStack;
     }
     hide() {
         if (window.innerWidth < 640)
             this.popup.style.transform = 'translateY(100%)';
         else
             this.popup.style.transform = 'translateY(3rem)';
-        this.popupContainer.classList.add('hide')
-        this.removeAttribute('open')
+        this.popupContainer.classList.add('hide');
+        this.removeAttribute('open');
         if (typeof this.popupStack !== 'undefined') {
-            this.popupStack.pop()
+            this.popupStack.pop();
             if (this.popupStack.items.length) {
-                this.popupStack.items[this.popupStack.items.length - 1].popup.classList.remove('stacked')
+                this.popupStack.items[this.popupStack.items.length - 1].popup.classList.remove('stacked');
             } else {
-                this.resumeScrolling()
+                this.resumeScrolling();
             }
         } else {
-            this.resumeScrolling()
+            this.resumeScrolling();
         }
 
         if (this.forms.length) {
             setTimeout(() => {
-                this.forms.forEach(form => form.reset())
+                this.forms.forEach(form => form.reset());
             }, 300);
         }
         setTimeout(() => {
@@ -1237,101 +1245,101 @@ customElements.define('sm-popup', class extends HTMLElement {
                         popupStack: this.popupStack
                     }
                 })
-            )
-            this.isOpen = false
+            );
+            this.isOpen = false;
         }, 300);
     }
 
     handleTouchStart(e) {
-        this.touchStartY = e.changedTouches[0].clientY
-        this.popup.style.transition = 'transform 0.1s'
-        this.touchStartTime = e.timeStamp
+        this.touchStartY = e.changedTouches[0].clientY;
+        this.popup.style.transition = 'transform 0.1s';
+        this.touchStartTime = e.timeStamp;
     }
 
     handleTouchMove(e) {
         if (this.touchStartY < e.changedTouches[0].clientY) {
             this.offset = e.changedTouches[0].clientY - this.touchStartY;
-            this.touchEndAnimataion = window.requestAnimationFrame(() => this.movePopup())
+            this.touchEndAnimataion = window.requestAnimationFrame(() => this.movePopup());
         }
     }
 
     handleTouchEnd(e) {
-        this.touchEndTime = e.timeStamp
-        cancelAnimationFrame(this.touchEndAnimataion)
-        this.touchEndY = e.changedTouches[0].clientY
-        this.popup.style.transition = 'transform 0.3s'
-        this.threshold = this.popup.getBoundingClientRect().height * 0.3
+        this.touchEndTime = e.timeStamp;
+        cancelAnimationFrame(this.touchEndAnimataion);
+        this.touchEndY = e.changedTouches[0].clientY;
+        this.popup.style.transition = 'transform 0.3s';
+        this.threshold = this.popup.getBoundingClientRect().height * 0.3;
         if (this.touchEndTime - this.touchStartTime > 200) {
             if (this.touchEndY - this.touchStartY > this.threshold) {
                 if (this.pinned) {
-                    this.show()
-                    return
+                    this.show();
+                    return;
                 } else
-                    this.hide()
+                    this.hide();
             } else {
-                this.show()
+                this.show();
             }
         } else {
             if (this.touchEndY > this.touchStartY)
                 if (this.pinned) {
-                    this.show()
-                    return
+                    this.show();
+                    return;
                 }
                 else
-                    this.hide()
+                    this.hide();
         }
     }
 
     movePopup() {
-        this.popup.style.transform = `translateY(${this.offset}px)`
+        this.popup.style.transform = `translateY(${this.offset}px)`;
     }
 
     connectedCallback() {
         this.popupBodySlot.addEventListener('slotchange', () => {
-            this.forms = this.querySelectorAll('sm-form')
-        })
+            this.forms = this.querySelectorAll('sm-form');
+        });
         this.popupContainer.addEventListener('mousedown', e => {
             if (e.target === this.popupContainer && !this.pinned) {
                 if (this.pinned) {
-                    this.show()
+                    this.show();
                 } else
-                    this.hide()
+                    this.hide();
             }
-        })
+        });
 
         const resizeObserver = new ResizeObserver(entries => {
             for (let entry of entries) {
                 if (entry.contentBoxSize) {
                     // Firefox implements `contentBoxSize` as a single content rect, rather than an array
                     const contentBoxSize = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
-                    this.threshold = contentBoxSize.blockSize.height * 0.3
+                    this.threshold = contentBoxSize.blockSize.height * 0.3;
                 } else {
-                    this.threshold = entry.contentRect.height * 0.3
+                    this.threshold = entry.contentRect.height * 0.3;
                 }
             }
         });
-        resizeObserver.observe(this)
+        resizeObserver.observe(this);
 
 
-        this.popupHeader.addEventListener('touchstart', (e) => { this.handleTouchStart(e) }, { passive: true })
-        this.popupHeader.addEventListener('touchmove', (e) => { this.handleTouchMove(e) }, { passive: true })
-        this.popupHeader.addEventListener('touchend', (e) => { this.handleTouchEnd(e) }, { passive: true })
+        this.popupHeader.addEventListener('touchstart', this.handleTouchStart, { passive: true });
+        this.popupHeader.addEventListener('touchmove', this.handleTouchMove, { passive: true });
+        this.popupHeader.addEventListener('touchend', this.handleTouchEnd, { passive: true });
     }
     disconnectedCallback() {
-        this.popupHeader.removeEventListener('touchstart', this.handleTouchStart, { passive: true })
-        this.popupHeader.removeEventListener('touchmove', this.handleTouchMove, { passive: true })
-        this.popupHeader.removeEventListener('touchend', this.handleTouchEnd, { passive: true })
-        resizeObserver.unobserve()
+        this.popupHeader.removeEventListener('touchstart', this.handleTouchStart, { passive: true });
+        this.popupHeader.removeEventListener('touchmove', this.handleTouchMove, { passive: true });
+        this.popupHeader.removeEventListener('touchend', this.handleTouchEnd, { passive: true });
+        resizeObserver.unobserve();
     }
-    attributeChangedCallback(name, oldVal, newVal) {
+    attributeChangedCallback(name) {
         if (name === 'open') {
             if (this.hasAttribute('open')) {
-                this.show()
+                this.show();
             }
         }
     }
-})
-const spinner = document.createElement('template')
+});
+const spinner = document.createElement('template');
 spinner.innerHTML = `
 <style>     
 *{
@@ -1373,18 +1381,18 @@ spinner.innerHTML = `
 </style>
 <svg viewBox="0 0 64 64" class="loader"><circle cx="32" cy="32" r="32" /></svg>
 
-`
+`;
 class SquareLoader extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({
             mode: 'open'
-        }).append(spinner.content.cloneNode(true))
+        }).append(spinner.content.cloneNode(true));
     }
 }
 window.customElements.define('sm-spinner', SquareLoader);
 
-const themeToggle = document.createElement('template')
+const themeToggle = document.createElement('template');
 themeToggle.innerHTML = `
     <style>
     *{
@@ -1458,7 +1466,7 @@ themeToggle.innerHTML = `
             </svg>
         </slot>
     </label>
-`
+`;
 
 class ThemeToggle extends HTMLElement {
     constructor() {
@@ -1466,47 +1474,47 @@ class ThemeToggle extends HTMLElement {
 
         this.attachShadow({
             mode: 'open'
-        }).append(themeToggle.content.cloneNode(true))
+        }).append(themeToggle.content.cloneNode(true));
 
-        this.isChecked = false
-        this.hasTheme = 'light'
+        this.isChecked = false;
+        this.hasTheme = 'light';
 
-        this.toggleState = this.toggleState.bind(this)
-        this.fireEvent = this.fireEvent.bind(this)
-        this.handleThemeChange = this.handleThemeChange.bind(this)
+        this.toggleState = this.toggleState.bind(this);
+        this.fireEvent = this.fireEvent.bind(this);
+        this.handleThemeChange = this.handleThemeChange.bind(this);
     }
     static get observedAttributes() {
         return ['checked'];
     }
 
     daylight() {
-        this.hasTheme = 'light'
-        document.body.dataset.theme = 'light'
-        this.setAttribute('aria-checked', 'false')
+        this.hasTheme = 'light';
+        document.body.dataset.theme = 'light';
+        this.setAttribute('aria-checked', 'false');
     }
 
     nightlight() {
-        this.hasTheme = 'dark'
-        document.body.dataset.theme = 'dark'
-        this.setAttribute('aria-checked', 'true')
+        this.hasTheme = 'dark';
+        document.body.dataset.theme = 'dark';
+        this.setAttribute('aria-checked', 'true');
     }
 
     toggleState() {
-        this.toggleAttribute('checked')
-        this.fireEvent()
+        this.toggleAttribute('checked');
+        this.fireEvent();
     }
     handleKeyDown(e) {
         if (e.code === 'Space') {
-            this.toggleState()
+            this.toggleState();
         }
     }
     handleThemeChange(e) {
         if (e.detail.theme !== this.hasTheme) {
             if (e.detail.theme === 'dark') {
-                this.setAttribute('checked', '')
+                this.setAttribute('checked', '');
             }
             else {
-                this.removeAttribute('checked')
+                this.removeAttribute('checked');
             }
         }
     }
@@ -1520,37 +1528,37 @@ class ThemeToggle extends HTMLElement {
                     theme: this.hasTheme
                 }
             })
-        )
+        );
     }
 
     connectedCallback() {
-        this.setAttribute('role', 'switch')
-        this.setAttribute('aria-label', 'theme toggle')
+        this.setAttribute('role', 'switch');
+        this.setAttribute('aria-label', 'theme toggle');
         if (localStorage.getItem(`${window.location.hostname}-theme`) === "dark") {
             this.nightlight();
-            this.setAttribute('checked', '')
+            this.setAttribute('checked', '');
         } else if (localStorage.getItem(`${window.location.hostname}-theme`) === "light") {
             this.daylight();
-            this.removeAttribute('checked')
+            this.removeAttribute('checked');
         }
         else {
             if (window.matchMedia(`(prefers-color-scheme: dark)`).matches) {
                 this.nightlight();
-                this.setAttribute('checked', '')
+                this.setAttribute('checked', '');
             } else {
                 this.daylight();
-                this.removeAttribute('checked')
+                this.removeAttribute('checked');
             }
         }
         this.addEventListener("click", this.toggleState);
         this.addEventListener("keydown", this.handleKeyDown);
-        document.addEventListener('themechange', this.handleThemeChange)
+        document.addEventListener('themechange', this.handleThemeChange);
     }
 
     disconnectedCallback() {
         this.removeEventListener("click", this.toggleState);
         this.removeEventListener("keydown", this.handleKeyDown);
-        document.removeEventListener('themechange', this.handleThemeChange)
+        document.removeEventListener('themechange', this.handleThemeChange);
     }
 
     attributeChangedCallback(name, oldVal, newVal) {
@@ -1568,7 +1576,7 @@ class ThemeToggle extends HTMLElement {
 
 window.customElements.define('theme-toggle', ThemeToggle);
 
-const smCopy = document.createElement('template')
+const smCopy = document.createElement('template');
 smCopy.innerHTML = `
 <style>     
 *{
@@ -1641,24 +1649,24 @@ smCopy.innerHTML = `
 customElements.define('sm-copy',
     class extends HTMLElement {
         constructor() {
-            super()
+            super();
             this.attachShadow({
                 mode: 'open'
-            }).append(smCopy.content.cloneNode(true))
+            }).append(smCopy.content.cloneNode(true));
 
-            this.copyContent = this.shadowRoot.querySelector('.copy-content')
-            this.copyButton = this.shadowRoot.querySelector('.copy-button')
+            this.copyContent = this.shadowRoot.querySelector('.copy-content');
+            this.copyButton = this.shadowRoot.querySelector('.copy-button');
 
-            this.copy = this.copy.bind(this)
+            this.copy = this.copy.bind(this);
         }
         static get observedAttributes() {
-            return ['value']
+            return ['value'];
         }
         set value(val) {
-            this.setAttribute('value', val)
+            this.setAttribute('value', val);
         }
         get value() {
-            return this.getAttribute('value')
+            return this.getAttribute('value');
         }
         fireEvent() {
             this.dispatchEvent(
@@ -1667,26 +1675,26 @@ customElements.define('sm-copy',
                     bubbles: true,
                     cancelable: true,
                 })
-            )
+            );
         }
         copy() {
             navigator.clipboard.writeText(this.copyContent.textContent)
                 .then(res => this.fireEvent())
-                .catch(err => console.error(err))
+                .catch(err => console.error(err));
         }
         connectedCallback() {
-            this.copyButton.addEventListener('click', this.copy)
+            this.copyButton.addEventListener('click', this.copy);
         }
         attributeChangedCallback(name, oldValue, newValue) {
             if (name === 'value') {
-                this.copyContent.textContent = newValue
+                this.copyContent.textContent = newValue;
             }
         }
         disconnectedCallback() {
-            this.copyButton.removeEventListener('click', this.copy)
+            this.copyButton.removeEventListener('click', this.copy);
         }
-    })
-const stripSelect = document.createElement('template')
+    });
+const stripSelect = document.createElement('template');
 stripSelect.innerHTML = `
 <style>
     *{
@@ -1815,37 +1823,37 @@ stripSelect.innerHTML = `
     <div class="cover cover--right hide"></div>
 </section>
 
-`
+`;
 customElements.define('strip-select', class extends HTMLElement {
     constructor() {
-        super()
+        super();
         this.attachShadow({
             mode: 'open'
-        }).append(stripSelect.content.cloneNode(true))
-        this.stripSelect = this.shadowRoot.querySelector('.strip-select')
-        this.slottedOptions
-        this._value
-        this.scrollDistance
+        }).append(stripSelect.content.cloneNode(true));
+        this.stripSelect = this.shadowRoot.querySelector('.strip-select');
+        this.slottedOptions = undefined;
+        this._value = undefined;
+        this.scrollDistance = 0;
 
-        this.scrollLeft = this.scrollLeft.bind(this)
-        this.scrollRight = this.scrollRight.bind(this)
-        this.fireEvent = this.fireEvent.bind(this)
+        this.scrollLeft = this.scrollLeft.bind(this);
+        this.scrollRight = this.scrollRight.bind(this);
+        this.fireEvent = this.fireEvent.bind(this);
     }
     get value() {
-        return this._value
+        return this._value;
     }
     scrollLeft() {
         this.stripSelect.scrollBy({
             left: -this.scrollDistance,
             behavior: 'smooth'
-        })
+        });
     }
 
     scrollRight() {
         this.stripSelect.scrollBy({
             left: this.scrollDistance,
             behavior: 'smooth'
-        })
+        });
     }
     fireEvent() {
         this.dispatchEvent(
@@ -1856,104 +1864,104 @@ customElements.define('strip-select', class extends HTMLElement {
                     value: this._value
                 }
             })
-        )
+        );
     }
     connectedCallback() {
-        this.setAttribute('role', 'listbox')
+        this.setAttribute('role', 'listbox');
 
-        const slot = this.shadowRoot.querySelector('slot')
-        const coverLeft = this.shadowRoot.querySelector('.cover--left')
-        const coverRight = this.shadowRoot.querySelector('.cover--right')
-        const navButtonLeft = this.shadowRoot.querySelector('.nav-button--left')
-        const navButtonRight = this.shadowRoot.querySelector('.nav-button--right')
+        const slot = this.shadowRoot.querySelector('slot');
+        const coverLeft = this.shadowRoot.querySelector('.cover--left');
+        const coverRight = this.shadowRoot.querySelector('.cover--right');
+        const navButtonLeft = this.shadowRoot.querySelector('.nav-button--left');
+        const navButtonRight = this.shadowRoot.querySelector('.nav-button--right');
         slot.addEventListener('slotchange', e => {
-            const assignedElements = slot.assignedElements()
+            const assignedElements = slot.assignedElements();
             assignedElements.forEach(elem => {
                 if (elem.hasAttribute('selected')) {
-                    elem.setAttribute('active', '')
-                    this._value = elem.value
+                    elem.setAttribute('active', '');
+                    this._value = elem.value;
                 }
-            })
+            });
             if (!this.hasAttribute('multiline')) {
                 if (assignedElements.length > 0) {
-                    firstOptionObserver.observe(slot.assignedElements()[0])
-                    lastOptionObserver.observe(slot.assignedElements()[slot.assignedElements().length - 1])
+                    firstOptionObserver.observe(slot.assignedElements()[0]);
+                    lastOptionObserver.observe(slot.assignedElements()[slot.assignedElements().length - 1]);
                 }
                 else {
-                    navButtonLeft.classList.add('hide')
-                    navButtonRight.classList.add('hide')
-                    coverLeft.classList.add('hide')
-                    coverRight.classList.add('hide')
-                    firstOptionObserver.disconnect()
-                    lastOptionObserver.disconnect()
+                    navButtonLeft.classList.add('hide');
+                    navButtonRight.classList.add('hide');
+                    coverLeft.classList.add('hide');
+                    coverRight.classList.add('hide');
+                    firstOptionObserver.disconnect();
+                    lastOptionObserver.disconnect();
                 }
             }
-        })
+        });
         const resObs = new ResizeObserver(entries => {
             entries.forEach(entry => {
                 if (entry.contentBoxSize) {
                     // Firefox implements `contentBoxSize` as a single content rect, rather than an array
                     const contentBoxSize = Array.isArray(entry.contentBoxSize) ? entry.contentBoxSize[0] : entry.contentBoxSize;
 
-                    this.scrollDistance = contentBoxSize.inlineSize * 0.6
+                    this.scrollDistance = contentBoxSize.inlineSize * 0.6;
                 } else {
-                    this.scrollDistance = entry.contentRect.width * 0.6
+                    this.scrollDistance = entry.contentRect.width * 0.6;
                 }
-            })
-        })
-        resObs.observe(this)
+            });
+        });
+        resObs.observe(this);
         this.stripSelect.addEventListener('option-clicked', e => {
             if (this._value !== e.target.value) {
-                this._value = e.target.value
-                slot.assignedElements().forEach(elem => elem.removeAttribute('active'))
-                e.target.setAttribute('active', '')
-                e.target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" })
-                this.fireEvent()
+                this._value = e.target.value;
+                slot.assignedElements().forEach(elem => elem.removeAttribute('active'));
+                e.target.setAttribute('active', '');
+                e.target.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                this.fireEvent();
             }
-        })
+        });
         const firstOptionObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    navButtonLeft.classList.add('hide')
-                    coverLeft.classList.add('hide')
+                    navButtonLeft.classList.add('hide');
+                    coverLeft.classList.add('hide');
                 }
                 else {
-                    navButtonLeft.classList.remove('hide')
-                    coverLeft.classList.remove('hide')
+                    navButtonLeft.classList.remove('hide');
+                    coverLeft.classList.remove('hide');
                 }
-            })
+            });
         },
             {
                 threshold: 0.9,
                 root: this
-            })
+            });
         const lastOptionObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    navButtonRight.classList.add('hide')
-                    coverRight.classList.add('hide')
+                    navButtonRight.classList.add('hide');
+                    coverRight.classList.add('hide');
                 }
                 else {
-                    navButtonRight.classList.remove('hide')
-                    coverRight.classList.remove('hide')
+                    navButtonRight.classList.remove('hide');
+                    coverRight.classList.remove('hide');
                 }
-            })
+            });
         },
             {
                 threshold: 0.9,
                 root: this
-            })
-        navButtonLeft.addEventListener('click', this.scrollLeft)
-        navButtonRight.addEventListener('click', this.scrollRight)
+            });
+        navButtonLeft.addEventListener('click', this.scrollLeft);
+        navButtonRight.addEventListener('click', this.scrollRight);
     }
     disconnectedCallback() {
-        navButtonLeft.removeEventListener('click', this.scrollLeft)
-        navButtonRight.removeEventListener('click', this.scrollRight)
+        navButtonLeft.removeEventListener('click', this.scrollLeft);
+        navButtonRight.removeEventListener('click', this.scrollRight);
     }
-})
+});
 
 //Strip option
-const stripOption = document.createElement('template')
+const stripOption = document.createElement('template');
 stripOption.innerHTML = `
 <style>
     *{
@@ -1995,21 +2003,21 @@ stripOption.innerHTML = `
 <label class="strip-option">
     <slot></slot>
 </label>
-`
+`;
 customElements.define('strip-option', class extends HTMLElement {
     constructor() {
-        super()
+        super();
         this.attachShadow({
             mode: 'open'
-        }).append(stripOption.content.cloneNode(true))
-        this._value
-        this.radioButton = this.shadowRoot.querySelector('input')
+        }).append(stripOption.content.cloneNode(true));
+        this._value = undefined;
+        this.radioButton = this.shadowRoot.querySelector('input');
 
-        this.fireEvent = this.fireEvent.bind(this)
-        this.handleKeyDown = this.handleKeyDown.bind(this)
+        this.fireEvent = this.fireEvent.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
     }
     get value() {
-        return this._value
+        return this._value;
     }
     fireEvent() {
         this.dispatchEvent(
@@ -2020,22 +2028,22 @@ customElements.define('strip-option', class extends HTMLElement {
                     value: this._value
                 }
             })
-        )
+        );
     }
     handleKeyDown(e) {
         if (e.key === 'Enter' || e.key === 'Space') {
-            this.fireEvent()
+            this.fireEvent();
         }
     }
     connectedCallback() {
-        this.setAttribute('role', 'option')
-        this.setAttribute('tabindex', '0')
-        this._value = this.getAttribute('value')
-        this.addEventListener('click', this.fireEvent)
-        this.addEventListener('keydown', this.handleKeyDown)
+        this.setAttribute('role', 'option');
+        this.setAttribute('tabindex', '0');
+        this._value = this.getAttribute('value');
+        this.addEventListener('click', this.fireEvent);
+        this.addEventListener('keydown', this.handleKeyDown);
     }
     disconnectedCallback() {
-        this.removeEventListener('click', this.fireEvent)
-        this.removeEventListener('keydown', this.handleKeyDown)
+        this.removeEventListener('click', this.fireEvent);
+        this.removeEventListener('keydown', this.handleKeyDown);
     }
-})
+});
