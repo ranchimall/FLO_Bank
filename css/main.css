@@ -728,25 +728,57 @@ strip-option:last-of-type {
 }
 
 .activity-card--request,
-.activity-card--pending,
-.activity-card--admin {
+.activity-card--pending {
   grid-template-areas: "icon . amount" "icon time .";
 }
 .activity-card--request .activity-card__icon,
-.activity-card--pending .activity-card__icon,
-.activity-card--admin .activity-card__icon {
+.activity-card--pending .activity-card__icon {
   grid-area: icon;
 }
 .activity-card--request .activity-card__time,
-.activity-card--pending .activity-card__time,
-.activity-card--admin .activity-card__time {
+.activity-card--pending .activity-card__time {
   grid-area: time;
 }
 .activity-card--request .activity-card__amount,
-.activity-card--pending .activity-card__amount,
-.activity-card--admin .activity-card__amount {
+.activity-card--pending .activity-card__amount {
   grid-area: amount;
   text-align: end;
+}
+.activity-card--request sm-spinner,
+.activity-card--pending sm-spinner {
+  --height: 1rem;
+  --width: 1rem;
+}
+
+.activity-card--admin {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  grid-template-areas: "icon . button" "icon time button";
+}
+.activity-card--admin .activity-card__icon {
+  grid-area: icon;
+}
+.activity-card--admin .activity-card__time {
+  grid-area: time;
+}
+.activity-card--admin .activity-card__action {
+  grid-area: button;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background-color: var(--accent-color--light);
+  color: var(--accent-color);
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+.activity-card--admin sm-spinner {
+  --height: 1rem;
+  --width: 1rem;
 }
 
 #pending_transaction:not(:empty) {
@@ -1255,12 +1287,8 @@ strip-option:last-of-type {
   grid-template-columns: minmax(0, 1fr);
 }
 
-#admin_request_selector {
-  margin: 1rem 0 1.5rem 0;
-  justify-self: flex-start;
-}
-
 #admin_requests_container {
+  margin-top: 1rem;
   padding-bottom: 3rem;
 }
 
@@ -1310,6 +1338,15 @@ strip-option:last-of-type {
 
   #user_section {
     left: 0;
+  }
+
+  #admin__header {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+    justify-items: center;
   }
 }
 @media screen and (min-width: 640px) {
@@ -1380,6 +1417,18 @@ strip-option:last-of-type {
 
   #transaction_detail__icon {
     justify-self: flex-start;
+  }
+
+  #admin__header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-pack: justify;
+        -ms-flex-pack: justify;
+            justify-content: space-between;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
   }
 }
 @media screen and (max-width: 1024px) {

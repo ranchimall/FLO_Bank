@@ -350,14 +350,14 @@
                 <sm-button id="sign_out_button" onclick="signOut()">Sign out</sm-button>
             </div>
             <div id="admin" class="sub-page hide-completely">
-                <h4>Requests</h4>
-                <strip-select id="admin_request_selector">
-                    <strip-option value="all" selected>All</strip-option>
-                    <strip-option value="openDeposit">Deposit</strip-option>
-                    <strip-option value="closeDeposit">Withdraw</strip-option>
-                    <strip-option value="openLoan">Loan</strip-option>
-                    <strip-option value="closeLoan">Repay</strip-option>
-                </strip-select>
+                <div id="admin__header">
+                    <h3 class="h3">Requests</h3>
+                    <strip-select id="admin_request_selector">
+                        <strip-option value="pending" selected>Pending</strip-option>
+                        <strip-option value="completed">Completed</strip-option>
+                        <strip-option value="failed">Failed</strip-option>
+                    </strip-select>
+                </div>
                 <div id="admin_requests_container"></div>
             </div>
         </section>
@@ -379,9 +379,6 @@
                         <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     Account summary
-                    <button id="refresh_balance_button" class="button justify-right" onclick="refreshBalance(this)">
-                        Refresh
-                    </button>
                 </h4>
                 <div id="account_chart_container">
                     <div id="chart_legend">
@@ -418,7 +415,7 @@
                 </div>
             </div>
             <div>
-                <h4 class="flex align-center">
+                <h4 class="flex align-center space-between">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
                         fill="currentColor">
                         <path fill-rule="evenodd"
@@ -426,6 +423,9 @@
                             clip-rule="evenodd" />
                     </svg>
                     My balance
+                    <button id="refresh_balance_button" class="button justify-right" onclick="refreshBalance(this)">
+                        Refresh
+                    </button>
                 </h4>
                 <div class="balance-card">
                     <div class="balance-card__icon">
@@ -573,9 +573,8 @@
         <li class="activity-card activity-card--admin">
             <div class="activity-card__icon"></div>
             <div class="activity-card__title"></div>
-            <h4 class="activity-card__amount"></h4>
             <time class="activity-card__time"></time>
-            <button class="activity-card__action">Process</button>
+            <button class="activity-card__action button">Process</button>
         </li>
     </template>
     <template id="request_template">
@@ -1155,6 +1154,10 @@
                 }
                 return icon
             },
+            isObjectEmpty(object) {
+                for (const key in object) return false;
+                return true;
+            },
             getLastTransaction() {
                 const allRequests = bank_app.viewAllRequests()
                 let key
@@ -1167,9 +1170,10 @@
         }
         const render = {
             adminRequestCard(activityDetails = {}) {
-                const { requestID, amount, rtype, timestamp, status } = activityDetails
+                const { rtype, id, status } = activityDetails
                 const card = getRef('admin_request_template').content.cloneNode(true).firstElementChild
                 const icon = utils.getRelatedIcon(rtype)
+                const selectedStatus = getRef('admin_request_selector').value
                 let action = ''
                 switch (rtype) {
                     case 'openDeposit':
@@ -1182,15 +1186,16 @@
                         action = 'Get loan'
                         break
                     case 'closeLoan':
-                        action = 'Repay loan'
+                        action = 'Loan repayment'
                         break
                 }
                 card.dataset.type = rtype
-                card.dataset.reqId = requestID
+                card.dataset.reqId = id
                 card.querySelector('.activity-card__icon').innerHTML = icon
                 card.querySelector('.activity-card__title').textContent = action
-                card.querySelector('.activity-card__time').textContent = getFormattedTime(timestamp)
-                card.querySelector('.activity-card__amount').textContent = amount.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
+                card.querySelector('.activity-card__time').textContent = getFormattedTime(id.split('_')[0])
+                if (selectedStatus !== 'pending')
+                    card.querySelector('.activity-card__action').remove()
                 return card
             },
             requestCard(activityDetails = {}) {
@@ -1504,8 +1509,8 @@
         })
 
         function getAccounts() {
-            const currentStatus = getRef('accounts_status_selector').value
-            return bank_app.getUserDetails(myFloID).accounts.filter(({ status }) => status === currentStatus).reverse()
+            const statusFilter = getRef('accounts_status_selector').value
+            return bank_app.getUserDetails(myFloID).accounts.filter(({ status }) => status === statusFilter).reverse()
         }
 
         function showAccountDetails(params) {
@@ -1734,12 +1739,12 @@
         }
 
         function getAdminRequests() {
-            const allRequests = getRequests().filter(({ status }) => status !== 'completed')
-            const typeOfRequest = getRef('admin_request_selector').value
-            if (typeOfRequest !== 'all') {
-                return allRequests.filter(({ rtype }) => rtype === typeOfRequest)
+            const allRequests = utils.getArrayOfObj(bank_app.viewAllRequests()).reverse()
+            const selectedStatus = getRef('admin_request_selector').value
+            if (selectedStatus === 'failed') {
+                return allRequests.filter(({ status }) => status.includes(' '))
             } else {
-                return allRequests
+                return allRequests.filter(({ status }) => status === selectedStatus)
             }
         }
         getRef('admin_request_selector').addEventListener('change', e => {
@@ -1751,6 +1756,7 @@
                 const target = e.target.closest('button')
                 const request = e.target.closest('.activity-card')
                 const reqID = request.dataset.reqId
+                target.innerHTML = '<sm-spinner></sm-spinner>'
                 try {
                     switch (request.dataset.type) {
                         case 'openDeposit':
@@ -1771,10 +1777,11 @@
                             break
                     }
                     request.remove()
+                    refreshBalance()
                 }
                 catch (err) {
                     notify(err, 'error')
-
+                    target.textContent = 'Process'
                 }
             }
         })
@@ -1888,28 +1895,33 @@
 
         const reqCallback = (d, e) => {
             console.log(d)
-            if (isStartUpComplete) {
-                requestResponse.updateMap()
-            }
-            if (floGlobals.adminID === myFloID) {
-                if (adminRequestsLoader) {
-                    adminRequestsLoader.reset()
-                    notify('New request arrived')
+            if (!utils.isObjectEmpty(d)) {
+                if (isStartUpComplete) {
+                    requestResponse.updateMap()
                 }
-            } else {
-                // checkPendingTransaction()
+                if (floGlobals.adminID === myFloID) {
+                    if (adminRequestsLoader) {
+                        adminRequestsLoader.reset()
+                        notify('New request arrived')
+                    }
+                } else {
+                    // checkPendingTransaction()
+                }
             }
         }
 
-        const responseCallback = (d, e) => {
+        const responseCallback = async (d, e) => {
             if (e) console.error("DummyCallback", e);
             console.log("response", d);
-            if (floGlobals.adminID === myFloID) {
-            } else {
-                checkPendingTransaction()
-            }
-            if (isStartUpComplete) {
-                requestResponse.updateMap()
+            if (!utils.isObjectEmpty(d)) {
+                if (isStartUpComplete) {
+                    requestResponse.updateMap()
+                }
+                if (floGlobals.adminID === myFloID) {
+                } else {
+                    await bank_app.refreshData()
+                    checkPendingTransaction()
+                }
             }
         }
     </script>
