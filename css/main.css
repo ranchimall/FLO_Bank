@@ -1073,7 +1073,8 @@ strip-option:last-of-type {
   gap: 2rem;
 }
 
-#account_process__steps {
+#account_process__steps,
+#transaction__steps {
   display: grid;
   gap: 1.5rem;
 }
