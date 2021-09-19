@@ -366,7 +366,7 @@ button:active,
     align-content: flex-start;
   }
 }
-#logo {
+.logo {
   display: grid;
   align-items: center;
   width: 100%;
@@ -380,7 +380,7 @@ button:active,
     font-weight: 600;
   }
 
-  #main_logo {
+  .main-logo {
     height: 1.4rem;
     width: 1.4rem;
     fill: rgba(var(--text-color), 1);
@@ -419,12 +419,18 @@ details {
 }
 #sign_in,
 #sign_up {
-  place-items: center;
+  grid-template-rows: auto 1fr;
+  align-items: center;
   section {
+    margin-top: -6rem;
+    justify-self: center;
     width: min(24rem, 100%);
   }
   sm-form {
     margin: 2rem 0;
+  }
+  header {
+    padding: 1.5rem 0;
   }
 }
 #sign_up {
