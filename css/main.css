@@ -619,6 +619,9 @@ details[open] > summary .icon {
   pointer-events: none;
   opacity: 0.6;
 }
+.quick-action.disabled__icon .icon {
+  fill: rgba(var(--text-color), 0.5);
+}
 .quick-action__icon {
   padding: 1rem;
   border-radius: 1rem;
@@ -1097,6 +1100,7 @@ strip-option:last-of-type {
 }
 
 #transaction__cta {
+  justify-self: flex-start;
   margin-top: 2rem;
 }
 

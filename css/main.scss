@@ -541,6 +541,11 @@ details {
   &.disabled {
     pointer-events: none;
     opacity: 0.6;
+    &__icon {
+      .icon {
+        fill: rgba(var(--text-color), 0.5);
+      }
+    }
   }
   &__icon {
     padding: 1rem;
@@ -944,6 +949,7 @@ strip-option {
   font-size: 1.2rem;
 }
 #transaction__cta {
+  justify-self: flex-start;
   margin-top: 2rem;
 }
 
