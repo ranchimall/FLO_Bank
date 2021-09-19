@@ -618,9 +618,8 @@ details[open] > summary .icon {
 .quick-action.disabled {
   pointer-events: none;
   opacity: 0.6;
-}
-.quick-action.disabled__icon .icon {
-  fill: rgba(var(--text-color), 0.5);
+  -webkit-filter: grayscale(100%);
+          filter: grayscale(100%);
 }
 .quick-action__icon {
   padding: 1rem;

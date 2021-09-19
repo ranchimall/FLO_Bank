@@ -541,11 +541,7 @@ details {
   &.disabled {
     pointer-events: none;
     opacity: 0.6;
-    &__icon {
-      .icon {
-        fill: rgba(var(--text-color), 0.5);
-      }
-    }
+    filter: grayscale(100%);
   }
   &__icon {
     padding: 1rem;
