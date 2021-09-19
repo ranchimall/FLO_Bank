@@ -448,6 +448,14 @@ details[open] > summary .icon {
   background-color: var(--accent-color--light);
 }
 
+.warning {
+  background-color: khaki;
+  color: rgba(0, 0, 0, 0.7);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  line-height: 1.5;
+}
+
 .page-layout {
   display: grid;
   grid-template-columns: 1.5rem minmax(0, 1fr) 1.5rem;
@@ -495,6 +503,9 @@ details[open] > summary .icon {
 #sign_up h5 {
   font-weight: 500;
   color: rgba(var(--text-color), 0.8);
+}
+#sign_up .warning {
+  margin-top: 2rem;
 }
 
 #loading {

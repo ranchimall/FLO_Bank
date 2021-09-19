@@ -99,7 +99,6 @@
         <section class="grid">
             <h1 class="h2">FLO credentials</h1>
             <p>Get your FLO credentials to use RanchiMall Bank and all RanchiMall FLO apps. </p>
-            <strong></strong>
             <div class="grid gap-1-5 card">
                 <div class="grid gap-0-5">
                     <h5>FLO ID</h5>
@@ -111,6 +110,10 @@
                 </div>
             </div>
             <sm-button id="sign_up_button" variant="primary">Sign in with these credentials</sm-button>
+            <strong class="warning">
+                Keep your private key secure and don't share with anyone.
+                Once lost there is no way to recover private key.
+            </strong>
         </section>
     </article>
     <article id="loading" class="page page-layout">
@@ -1872,8 +1875,8 @@
                     const action = rtype === 'openDeposit' ? 'Deposit' : 'Loan'
                     getRef(`${type}_button`).classList.add('hide-completely')
                     getRef(`${type}_button`).after(createElement('strong', {
+                        className: 'warning',
                         textContent: `${action} in process. You can't ${type === 'deposit' ? 'deposit' : 'request loan'} until that's completed.`,
-                        attributes: { 'style': 'background-color: khaki; color: rgba(0,0,0,0.7); padding: 1rem; border-radius: 0.5rem' }
                     }))
                 }
             } else {
