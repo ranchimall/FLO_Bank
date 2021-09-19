@@ -1747,7 +1747,7 @@
 
         async function initDeposit() {
             const amount = parseFloat(getRef('get_deposit_amount').value)
-            const confirm = await getConfirmation(`Confirm deposit of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
+            const confirm = await getConfirmation('Continue?', `Confirm deposit of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
             if (confirm) {
                 showProcess('deposit')
                 bank_app.makeDeposit(amount)
@@ -1764,7 +1764,7 @@
         }
         async function initLoan() {
             const amount = parseFloat(getRef('get_loan_amount').value)
-            const confirm = await getConfirmation(`Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
+            const confirm = await getConfirmation('Continue?', `Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
             if (confirm) {
                 showInitProcess('loan')
                 bank_app.requestLoan(amount)
