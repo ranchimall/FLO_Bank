@@ -559,8 +559,12 @@
                     <div id="account_detail__status"></div>
                 </div>
                 <div class="grid gap-0-5">
-                    <div id="account_detail__type" class="capitalize"></div>
+                    <h5 id="account_detail__type" class="capitalize"></h5>
                     <h3 id="account_detail__amount"></h3>
+                </div>
+                <div class="grid gap-0-5">
+                    <h5 id="account_detail__interest_type" class="capitalize"></h5>
+                    <h4 id="account_detail__interest" class="h4"></h4>
                 </div>
                 <sm-button id="account_action_button" onclick="processAccount()" variant="primary"></sm-button>
             </div>
@@ -1527,12 +1531,15 @@
             const { index } = params
             const { type, status, openTime, closeTime = 0, amount, netAmt } = bank_app.getUserDetails(myFloID).accounts[index]
             const icon = utils.getRelatedIcon(type)
-
+            const interest = netAmt - amount
             getRef('account_detail__icon').innerHTML = icon
             getRef('account_detail__status').textContent = status
             getRef('account_detail__status').className = `status-tag flex align-center ${status}`
             getRef('account_detail__type').textContent = type
             getRef('account_detail__amount').textContent = amount.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
+            getRef('account_detail__interest_type').textContent = `Interest ${type === 'deposit' ? 'earned' : 'accrued'}`
+            getRef('account_detail__interest').textContent = interest.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
+            getRef('account_detail__interest').className = type === 'deposit' ? 'positive' : 'negative'
             renderAccountProgress(index)
 
             if (status === 'active' && !getAccountStatus(index).isPending) {

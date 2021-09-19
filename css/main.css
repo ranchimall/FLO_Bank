@@ -1008,7 +1008,7 @@ strip-option:last-of-type {
 #transaction,
 #account {
   grid-template-rows: auto 1fr;
-  gap: 1.5rem 0;
+  gap: 1rem 0;
   padding: 1.5rem 0;
   -ms-flex-line-pack: start;
       align-content: flex-start;
@@ -1019,6 +1019,10 @@ strip-option:last-of-type {
   display: grid;
   gap: 2rem;
   grid-template-rows: auto 1fr;
+}
+
+.positive {
+  color: var(--green);
 }
 
 #transaction_top,
@@ -1058,8 +1062,18 @@ strip-option:last-of-type {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
+}
+
+#account_detail__interest_type,
+#account_detail__type {
+  color: rgba(var(--text-color), 0.8);
+  font-weight: 500;
+}
+
+#account_detail__interest {
+  font-size: 1.2rem;
 }
 
 #transaction__cta {
@@ -1129,7 +1143,6 @@ strip-option:last-of-type {
   grid-column: 2/3;
 }
 .account-step .button {
-  margin-top: 0.5rem;
   justify-self: flex-start;
 }
 
@@ -1374,6 +1387,16 @@ strip-option:last-of-type {
     grid-template-columns: minmax(0, 1fr);
     text-align: center;
     justify-items: center;
+  }
+
+  #account_process,
+#transaction__steps {
+    border-top: solid rgba(var(--text-color), 0.2) thin;
+    padding-top: 1.5rem;
+  }
+
+  .account-step .button {
+    margin-top: 0.5rem;
   }
 }
 @media screen and (min-width: 640px) {
