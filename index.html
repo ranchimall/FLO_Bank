@@ -1766,7 +1766,7 @@
             const amount = parseFloat(getRef('get_loan_amount').value)
             const confirm = await getConfirmation('Continue?', `Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
             if (confirm) {
-                showInitProcess('loan')
+                showProcess('loan')
                 bank_app.requestLoan(amount)
                     .then(() => {
                         window.location.hash = `#/result?type=loan&amount=${amount}&status=pending`
