@@ -559,7 +559,7 @@
                     <div id="account_detail__status"></div>
                 </div>
                 <div class="grid gap-0-5">
-                    <div id="account_detail__type"></div>
+                    <div id="account_detail__type" class="capitalize"></div>
                     <h3 id="account_detail__amount"></h3>
                 </div>
                 <sm-button id="account_action_button" onclick="processAccount()" variant="primary"></sm-button>
@@ -1274,12 +1274,21 @@
                 card.querySelector('.activity-card__amount').textContent = netAmt.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })
                 return card
             },
-            accountProgressStep(type, title, description = '') {
+            accountProgressStep(type, title, description = '', options = {}) {
+                const { openTx, closeTx } = options
                 const elem = getRef('account_step_template').content.cloneNode(true).firstElementChild
                 elem.classList.add(type)
                 elem.querySelector('.step__icon').innerHTML = type === 'loading' ? '<sm-spinner></sm-spinner>' : utils.getRelatedIcon(type)
                 elem.querySelector('.step__title').textContent = title
                 elem.querySelector('.step__description').innerHTML = description
+                if (openTx || closeTx) {
+                    elem.classList.add('row-3')
+                    elem.append(createElement('a', {
+                        className: 'button',
+                        textContent: 'See record on blockchain',
+                        attributes: { href: `https://flosight.duckdns.org/tx/${openTx || closeTx}`, target: '_blank' }
+                    }))
+                }
                 return elem
             }
         }
@@ -1484,23 +1493,23 @@
         }
 
         function renderAccountProgress(index) {
-            const { type, status, openTime, closeTime = undefined, amount, netAmt } = bank_app.getUserDetails(myFloID).accounts[index]
+            const { type, status, openTime, closeTime = undefined, amount, netAmt, openTx = undefined, closeTx = undefined } = bank_app.getUserDetails(myFloID).accounts[index]
             getRef('account_process__steps').innerHTML = ''
-            getRef('account_process__steps').append(render.accountProgressStep('success', type === "deposit" ? 'Deposited' : 'Got loan', getFormattedTime(openTime)))
+            getRef('account_process__steps').append(render.accountProgressStep('success', type === "deposit" ? 'Deposited' : 'Got loan', getFormattedTime(openTime), { openTx }))
             const { isPending, pendingRequest } = getAccountStatus(index)
             if (type === 'deposit') {
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent withdrawal request', getFormattedTime(pendingRequest.split('_')[0])))
                     getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for withdrawal confirmation', `Once your request is processed, your withdrawn amount will reflect in your balance.<br>meanwhile you can go back and continue using the app.`))
                 } else if (closeTime) {
-                    getRef('account_process__steps').append(render.accountProgressStep('success', 'Withdrawal complete', getFormattedTime(closeTime)))
+                    getRef('account_process__steps').append(render.accountProgressStep('success', 'Withdrawal complete', getFormattedTime(closeTime), { closeTx }))
                 }
             } else {
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent repay request', getFormattedTime(pendingRequest.split('_')[0])))
                     getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for repayment confirmation', `Once your request is processed, your loan will be closed,`))
                 } else if (closeTime) {
-                    getRef('account_process__steps').append(render.accountProgressStep('success', 'Repayment complete', getFormattedTime(closeTime)))
+                    getRef('account_process__steps').append(render.accountProgressStep('success', 'Repayment complete', getFormattedTime(closeTime), { closeTx }))
                 }
             }
         }

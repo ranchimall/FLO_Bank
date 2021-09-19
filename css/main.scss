@@ -925,6 +925,10 @@ strip-option {
   align-content: flex-start;
   gap: 2rem;
 }
+#account_process__steps {
+  display: grid;
+  gap: 1.5rem;
+}
 .account-step {
   opacity: 0;
   grid-template-columns: auto minmax(0, 1fr);
@@ -945,7 +949,7 @@ strip-option {
   }
   &:not(:last-of-type) .step__line {
     position: relative;
-    height: 3rem;
+    height: 100%;
     width: 0.1rem;
     margin: 0.5rem 0 1rem 0;
     justify-self: center;
@@ -964,6 +968,18 @@ strip-option {
   }
   .step__description {
     font-size: 0.8rem;
+  }
+  &.row-3 {
+    &:not(:last-of-type) .step__line {
+      grid-row: span 2;
+    }
+    .button {
+      grid-column: 2/3;
+    }
+  }
+  .button {
+    margin-top: 0.5rem;
+    justify-self: flex-start;
   }
 }
 @keyframes slide-down {
@@ -1196,6 +1212,19 @@ strip-option {
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  .account-step {
+    &.row-3 {
+      grid-template-areas: ". . b-link" ". . b-link";
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      .step__line {
+        grid-column: 1/2;
+      }
+      .button {
+        grid-area: b-link;
+        align-self: flex-start;
+      }
+    }
   }
 }
 @media screen and (max-width: 1024px) {

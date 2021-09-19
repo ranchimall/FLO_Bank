@@ -1073,6 +1073,11 @@ strip-option:last-of-type {
   gap: 2rem;
 }
 
+#account_process__steps {
+  display: grid;
+  gap: 1.5rem;
+}
+
 .account-step {
   opacity: 0;
   grid-template-columns: auto minmax(0, 1fr);
@@ -1098,7 +1103,7 @@ strip-option:last-of-type {
 }
 .account-step:not(:last-of-type) .step__line {
   position: relative;
-  height: 3rem;
+  height: 100%;
   width: 0.1rem;
   margin: 0.5rem 0 1rem 0;
   justify-self: center;
@@ -1115,6 +1120,16 @@ strip-option:last-of-type {
 }
 .account-step .step__description {
   font-size: 0.8rem;
+}
+.account-step.row-3:not(:last-of-type) .step__line {
+  grid-row: span 2;
+}
+.account-step.row-3 .button {
+  grid-column: 2/3;
+}
+.account-step .button {
+  margin-top: 0.5rem;
+  justify-self: flex-start;
 }
 
 @-webkit-keyframes slide-down {
@@ -1440,6 +1455,18 @@ strip-option:last-of-type {
     -webkit-box-align: center;
         -ms-flex-align: center;
             align-items: center;
+  }
+
+  .account-step.row-3 {
+    grid-template-areas: ". . b-link" ". . b-link";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .account-step.row-3 .step__line {
+    grid-column: 1/2;
+  }
+  .account-step.row-3 .button {
+    grid-area: b-link;
+    align-self: flex-start;
   }
 }
 @media screen and (max-width: 1024px) {
