@@ -463,6 +463,7 @@ details {
   display: flex;
 }
 .nav-item {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 0.8rem;
@@ -477,6 +478,18 @@ details {
     }
     .nav-item__title {
       color: var(--accent-color);
+    }
+  }
+  &.has-notification {
+    &::after {
+      left: 0;
+      top: 0;
+      margin: 0.7rem 0.8rem;
+      content: "";
+      position: absolute;
+      padding: 0.3rem;
+      border-radius: 50%;
+      background-color: var(--danger-color);
     }
   }
 }

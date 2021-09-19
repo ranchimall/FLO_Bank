@@ -132,7 +132,7 @@
                     Admin
                 </span>
             </a>
-            <a href="#/home/notifications" class="nav-item user-option">
+            <a id="notifications_page_button" href="#/home/notifications" class="nav-item user-option">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
                     <path
                         d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
@@ -534,7 +534,7 @@
             <div id="transaction_top" class="grid gap-1-5">
                 <div id="transaction_detail__icon"></div>
                 <div class="grid gap-0-5">
-                    <div id="transaction_detail__type"></div>
+                    <div id="transaction_detail__type" class="capitalize"></div>
                     <h3 id="transaction_detail__amount"></h3>
                 </div>
             </div>
@@ -983,6 +983,7 @@
                             responseLoader = new LazyLoader('#all_responses_list', getResponses, render.responseCard, { batchSize: 10 })
                             responseLoader.init()
                         }
+                        getRef('notifications_page_button').classList.remove('has-notification')
                         break;
                     case 'history':
                         if (pagesData.openedSubPages.includes(subPageId)) {
@@ -1164,7 +1165,7 @@
                 for (key in allRequests);
                 return {
                     uid: key,
-                    isPending: !requestResponsePairs.has(key)
+                    isPending: !requestResponsePairs.hasOwnProperty(key)
                 }
             }
         }
@@ -1353,8 +1354,8 @@
                 if (reqStatus === 'completed') {
                     transactionDetails.status = 'completed'
                 } else {
-                    if (requestResponsePairs.has(requestID)) {
-                        transactionDetails.status = bank_app.viewAllResponses()[requestResponsePairs.get(requestID)].status
+                    if (requestResponsePairs.hasOwnProperty(requestID)) {
+                        transactionDetails.status = bank_app.viewAllResponses()[requestResponsePairs[requestID]].status
                     } else {
                         transactionDetails.status = 'pending'
                     }
@@ -1403,8 +1404,8 @@
             getRef('transaction__steps').innerHTML = ''
             getRef('transaction__steps').append(render.accountProgressStep('success', `Sent ${type} request`, getFormattedTime(timestamp)))
 
-            if (requestResponsePairs.has(requestID)) {
-                const { status, reason } = bank_app.viewAllResponses()[requestResponsePairs.get(requestID)]
+            if (requestResponsePairs.hasOwnProperty(requestID)) {
+                const { status, reason } = bank_app.viewAllResponses()[requestResponsePairs[requestID]]
                 // Check if response is positive or not
                 if (status === 'success') {
                     let action
@@ -1581,6 +1582,11 @@
 
         function updateChart() {
             const { depositTotal, loanTotal } = bank_app.getUserDetails(myFloID)
+            if (!depositTotal && !loanTotal) {
+                getRef('account_chart_container').classList.add('hide-completely')
+            } else {
+                getRef('account_chart_container').classList.remove('hide-completely')
+            }
             if (accountChart && isChartVisible) {
                 accountChart.data.datasets[0].data = [depositTotal, loanTotal]
                 accountChart.update()
@@ -1635,8 +1641,14 @@
         const chartObserver = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    accountChart = renderChart()
-                    isChartVisible = true
+                    const { depositTotal, loanTotal } = bank_app.getUserDetails(myFloID)
+                    if (!depositTotal && !loanTotal) {
+                        getRef('account_chart_container').classList.add('hide-completely')
+                    } else {
+                        accountChart = renderChart()
+                        isChartVisible = true
+                        getRef('account_chart_container').classList.remove('hide-completely')
+                    }
                 } else if (!entry.isIntersecting && accountChart) {
                     accountChart.destroy()
                     isChartVisible = false
@@ -1831,7 +1843,7 @@
         let requestResponsePairs
         class ReqResp {
             constructor() {
-                this._mappedRequests = new Map()
+                this._mappedRequests = {}
             }
             get mappedRequests() {
                 return this._mappedRequests
@@ -1840,7 +1852,8 @@
                 const allResponses = bank_app.viewAllResponses()
                 for (const key in allResponses) {
                     // stores requests as requests => response relation
-                    this._mappedRequests.set(allResponses[key].requestID, key)
+                    if (!this._mappedRequests.hasOwnProperty(allResponses[key].requestID))
+                        this._mappedRequests[allResponses[key].requestID] = key
                 }
             }
         }
@@ -1921,6 +1934,11 @@
                 } else {
                     await bank_app.refreshData()
                     checkPendingTransaction()
+                    if (pagesData.lastSubPage !== 'notifications') {
+                        getRef('notifications_page_button').classList.add('has-notification')
+                    } else {
+                        getRef('notifications_page_button').classList.remove('has-notification')
+                    }
                 }
             }
         }
