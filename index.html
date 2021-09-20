@@ -951,13 +951,13 @@
                         break;
                     case 'deposit':
                         const { I_s } = bank_app.getRates()
-                        getRef('deposit_interest_rate').textContent = `Make a deposit at ${I_s * 100}%.p.a`
+                        getRef('deposit_interest_rate').textContent = `Make a deposit at ${(I_s * 100).toFixed(2)}%.p.a`
                         // checks if there is transaction pending, if so then shows warning
                         checkIfAllowed('deposit')
                         break;
                     case 'loan':
                         const { I_b } = bank_app.getRates()
-                        getRef('loan_interest_rate').textContent = `Get a loan at ${I_b * 100}%.p.a`
+                        getRef('loan_interest_rate').textContent = `Get a loan at ${(I_b * 100).toFixed(2)}%.p.a`
                         checkIfAllowed('loan')
                         break;
                     case 'transaction':
@@ -1726,7 +1726,6 @@
             getRef('result__icon').innerHTML = utils.getRelatedIcon(status)
             getRef('result__icon').className = status
             getRef('result__back_button').href = `#/${type}`
-            debugger
             switch (status) {
                 case 'pending':
                     getRef('result__title').textContent = `Sent ${type} request`
@@ -12212,18 +12211,24 @@
                     let index = this.accMap[myFloID] ? this.accMap[myFloID].length : 0;
                     //check for validity of loan (ie, check if enough deposit is present)
                     let user = this.getUserDetails(myFloID)
-                    if (user.netTotal <= amount)
-                        return reject(`Deposit insufficient! Max eligible loan amount: ${user.netTotal}`);
-                    let request = {
-                        rtype: "openLoan",
-                        index: index,
-                        amount: amount,
-                        sign: floCrypto.signData(this.util.istr + `open#${index}:loan|${amount}`, myPrivKey)
+                    if (user.depositTotal <= amount) {
+                        if (user.depositTotal) {
+                            reject(`Deposit insufficient! Max eligible loan amount: ${user.depositTotal.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })}`);
+                        } else {
+                            reject(`Deposit insufficient! Please make a deposit first greater than ${amount.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })} to take loan.`);
+                        }
+                    } else {
+                        let request = {
+                            rtype: "openLoan",
+                            index: index,
+                            amount: amount,
+                            sign: floCrypto.signData(this.util.istr + `open#${index}:loan|${amount}`, myPrivKey)
+                        }
+                        //send request to banker
+                        floCloudAPI.sendApplicationData(request, "REQUEST")
+                            .then(result => resolve(result))
+                            .catch(error => reject(error))
                     }
-                    //send request to banker
-                    floCloudAPI.sendApplicationData(request, "REQUEST")
-                        .then(result => resolve(result))
-                        .catch(error => reject(error))
                 })
             },
 
