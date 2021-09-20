@@ -11373,7 +11373,7 @@
     <script id="bank_app" version=0.6>
         const bank_app = {
 
-            launchApp: function (reqCallback, resCallback) {
+            launchApp: function(reqCallback, resCallback) {
                 return new Promise((resolve, reject) => {
                     let data = ["requests", "responses", "appendix"];
                     Promise.all(data.map(d => compactIDB.readAllData(d))).then(results => {
@@ -11405,7 +11405,7 @@
             accounts: [],
             rates: {},
 
-            refreshData: function (reset = false) {
+            refreshData: function(reset = false) {
                 return new Promise((resolve, reject) => {
                     this.readDataFromBlockchain().then(accounts => {
                         if (reset) {
@@ -11437,7 +11437,7 @@
                 })
             },
 
-            readDataFromCloud: function (isAdmin, reqCallback, resCallback) {
+            readDataFromCloud: function(isAdmin, reqCallback, resCallback) {
                 if (isAdmin)
                     return floCloudAPI.requestApplicationData("REQUEST", {
                         receiverID: floGlobals.adminID,
@@ -11504,7 +11504,7 @@
                 }
             },
 
-            readDataFromBlockchain: function () {
+            readDataFromBlockchain: function() {
                 return new Promise((resolve, reject) => {
                     let options = {
                         sentOnly: true,
@@ -11553,7 +11553,7 @@
 
             },
 
-            dataConstruct: function (time, floID, type, index, sign, pubKey, amount = null, tokenTx = null) {
+            dataConstruct: function(time, floID, type, index, sign, pubKey, amount = null, tokenTx = null) {
                 let data = [];
                 data.push(time);
                 data.push('floID:' + floID);
@@ -11568,7 +11568,7 @@
                 return this.util.istr + data.join('|');
             },
 
-            parseAccount: function (time, account) {
+            parseAccount: function(time, account) {
                 if (!account.data) {
                     this.updateAccountNetValues(time);
                     if (account["I_b"])
@@ -11650,7 +11650,7 @@
             },
 
             tokenAPI: {
-                fetch_api: function (apicall) {
+                fetch_api: function(apicall) {
                     return new Promise((resolve, reject) => {
                         // console.log(floGlobals.tokenURL + apicall);
                         fetch(floGlobals.tokenURL + apicall).then(response => {
@@ -11661,14 +11661,14 @@
                         }).catch(error => reject(error))
                     })
                 },
-                getBalance: function (floID, token = floGlobals.token) {
+                getBalance: function(floID, token = floGlobals.token) {
                     return new Promise((resolve, reject) => {
                         this.fetch_api(`api/v1.0/getFloAddressBalance?token=${token}&floAddress=${floID}`)
                             .then(result => resolve(result.balance || 0))
                             .catch(error => reject(error))
                     })
                 },
-                getTx: function (txID) {
+                getTx: function(txID) {
                     return new Promise((resolve, reject) => {
                         this.fetch_api(`api/v1.0/getTransactionDetails/${txID}`).then(res => {
                             if (res.result === "error")
@@ -11697,7 +11697,7 @@
                         }).catch(error => reject(error))
                     })
                 },
-                sendToken: function (privKey, amount, message = "", receiverID = floGlobals.adminID, token = floGlobals.token) {
+                sendToken: function(privKey, amount, message = "", receiverID = floGlobals.adminID, token = floGlobals.token) {
                     return new Promise((resolve, reject) => {
                         let senderID = floCrypto.getFloID(privKey);
                         if (typeof amount !== "number" || amount <= 0)
@@ -11711,13 +11711,13 @@
                         }).catch(error => reject(error))
                     });
                 },
-                validateToken: function (tx, sender, receiver, amount = null, token = floGlobals.token) {
+                validateToken: function(tx, sender, receiver, amount = null, token = floGlobals.token) {
                     return ((!sender || tx.sender === sender) &&
                         (!receiver || tx.receiver === receiver) &&
                         (amount === null || tx.amount === amount) &&
                         (token === tx.token));
                 },
-                verifyToken: function (txid, sender, receiver, amount = null, token = floGlobals.token) {
+                verifyToken: function(txid, sender, receiver, amount = null, token = floGlobals.token) {
                     return new Promise((resolve, reject) => {
                         this.getTx(tx).then(txn => {
                             if (sender && txn.sender != sender)
@@ -11736,7 +11736,7 @@
 
             },
 
-            writeBankTxData: function (privKey, data, receiverID, tokenAmt = null, token = floGlobals.token) {
+            writeBankTxData: function(privKey, data, receiverID, tokenAmt = null, token = floGlobals.token) {
                 return new Promise((resolve, reject) => {
                     let senderID = floCrypto.getFloID(privKey);
                     if (senderID != floGlobals.adminID)
@@ -11759,7 +11759,7 @@
                 })
             },
 
-            checkTxDuplicate: function (txid, floID = null) {
+            checkTxDuplicate: function(txid, floID = null) {
                 let accounts = [];
                 if (!floID)
                     accounts = this.accounts;
@@ -11771,7 +11771,7 @@
                 return false;
             },
 
-            addAccount: function (floID, account, time, txid, tokenTx) {
+            addAccount: function(floID, account, time, txid, tokenTx) {
                 this.updateAccountNetValues(time);
                 account.netAmt = account.amount;
                 account.status = "active";
@@ -11786,7 +11786,7 @@
                 this.updateRates();
             },
 
-            closeAccount: function (floID, index, time, sign, txid, tokenTx) {
+            closeAccount: function(floID, index, time, sign, txid, tokenTx) {
                 let accIndex = this.accMap[floID][index];
                 if (typeof accIndex != "number")
                     throw Error("Invalid Account index");
@@ -11804,7 +11804,7 @@
                 this.updateRates();
             },
 
-            updateAccountNetValues: function (time = Date.now()) {
+            updateAccountNetValues: function(time = Date.now()) {
                 if (this.util.lastUpdate > time)
                     throw Error("update time is already passed");
                 let t, rates = {};
@@ -11819,7 +11819,7 @@
                 this.util.lastUpdate = time;
             },
 
-            calcNetValue: function (P, r, t) {
+            calcNetValue: function(P, r, t) {
                 let x, A;
                 //A = P*e^rt
                 x = Decimal.mul(r, t) //rt
@@ -11828,7 +11828,7 @@
                 return A.toNumber();
             },
 
-            calcUtilizationRate: function (toNum = true) {
+            calcUtilizationRate: function(toNum = true) {
                 let totalLoan = 0,
                     totalDeposit = 0;
                 for (let acc of this.accounts)
@@ -11850,7 +11850,7 @@
                 return toNum ? U.toNumber() : U;
             },
 
-            calcBorrowingRate: function (U = null, toNum = true) {
+            calcBorrowingRate: function(U = null, toNum = true) {
                 if (U === null)
                     U = this.calcUtilizationRate(false);
                 let model = this.model["I_b"];
@@ -11863,7 +11863,7 @@
                 return this.evaluator(model, constants, toNum);
             },
 
-            calcSavingRate: function (U = null, I_b = null, toNum = true) {
+            calcSavingRate: function(U = null, I_b = null, toNum = true) {
                 if (U === null)
                     U = this.calcUtilizationRate(false);
                 if (I_b === null)
@@ -11879,7 +11879,7 @@
                 return this.evaluator(model, constants, toNum);
             },
 
-            calcRates: function (toNum = true) {
+            calcRates: function(toNum = true) {
                 let U, I_b, I_s, result;
                 U = this.calcUtilizationRate(false);
                 I_b = this.calcBorrowingRate(U, false);
@@ -11896,19 +11896,19 @@
                 };
             },
 
-            updateRates: function () {
+            updateRates: function() {
                 this.rates = this.calcRates(false);
                 return this.rates;
             },
 
-            getRates: function () {
+            getRates: function() {
                 let rates = {}
                 for (let x in this.rates)
                     rates[x] = this.rates[x].toNumber();
                 return rates;
             },
 
-            getUserDetails: function (floID) {
+            getUserDetails: function(floID) {
                 const result = {
                     accounts: [],
                     depositTotal: 0,
@@ -11929,13 +11929,13 @@
                                     break;
                             }
                     })
-                    //Might need to add net interest calculations
-                    result.netTotal = result.depositTotal - result.loanTotal;
                 }
-                return result
+                //Might need to add net interest calculations
+                result.netTotal = result.depositTotal - result.loanTotal;
+                return result;
             },
 
-            getAccount: function (floID, index) {
+            getAccount: function(floID, index) {
                 let mappedIndex = this.accMap[floID][index]
                 return this.accounts[mappedIndex];
             },
@@ -11989,7 +11989,7 @@
                 return postfix
             },
 
-            evaluator: function (model, constants, toNum = true) {
+            evaluator: function(model, constants, toNum = true) {
                 let result = [];
                 const operator = (o) => {
                     switch (o) {
@@ -12028,7 +12028,7 @@
                     return result[0];
             },
 
-            makeDeposit: function (amount) {
+            makeDeposit: function(amount) {
                 return new Promise(async (resolve, reject) => {
                     try {
                         let index = this.accMap[myFloID] ? this.accMap[myFloID].length : 0;
@@ -12054,7 +12054,7 @@
                 })
             },
 
-            verifyDeposit: function (reqID) {
+            verifyDeposit: function(reqID) {
                 return new Promise(async (resolve, reject) => {
                     let req = this.requests[reqID];
                     try {
@@ -12090,8 +12090,8 @@
                         compactIDB.writeData("requests", req, reqID);
                         //send response to client
                         floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                            receiverID: req.floID
-                        }).then(result => resolve(response))
+                                receiverID: req.floID
+                            }).then(result => resolve(response))
                             .catch(error => reject(error))
 
                     } catch (error) {
@@ -12108,15 +12108,15 @@
                             compactIDB.writeData("requests", req, reqID);
                             //send rejected response to client
                             floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                                receiverID: req.floID
-                            }).then(result => resolve(response))
+                                    receiverID: req.floID
+                                }).then(result => resolve(response))
                                 .catch(error => reject(error))
                         }
                     }
                 })
             },
 
-            withdrawDeposit: function (index) {
+            withdrawDeposit: function(index) {
                 return new Promise(async (resolve, reject) => {
                     try {
                         index = parseInt(index)
@@ -12145,7 +12145,7 @@
                 })
             },
 
-            closeDeposit: function (reqID) {
+            closeDeposit: function(reqID) {
                 return new Promise(async (resolve, reject) => {
                     let req = this.requests[reqID];
                     try {
@@ -12180,8 +12180,8 @@
                         req.status = "completed";
                         compactIDB.writeData("requests", req, reqID);
                         floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                            receiverID: req.floID
-                        }).then(result => resolve(response))
+                                receiverID: req.floID
+                            }).then(result => resolve(response))
                             .catch(error => reject(error))
                     } catch (error) {
                         if (error.message || !error.startsWith('R>'))
@@ -12197,21 +12197,21 @@
                             compactIDB.writeData("requests", req, reqID);
                             //send rejected response to client
                             floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                                receiverID: req.floID
-                            }).then(result => resolve(response))
+                                    receiverID: req.floID
+                                }).then(result => resolve(response))
                                 .catch(error => reject(error))
                         }
                     }
                 })
             },
 
-            requestLoan: function (amount) {
+            requestLoan: function(amount) {
                 return new Promise(async (resolve, reject) => {
                     await this.refreshData()
                     let index = this.accMap[myFloID] ? this.accMap[myFloID].length : 0;
                     //check for validity of loan (ie, check if enough deposit is present)
                     let user = this.getUserDetails(myFloID)
-                    if (user.depositTotal <= amount) {
+                    if (user.netTotal <= amount) {
                         if (user.depositTotal) {
                             reject(`Deposit insufficient! Max eligible loan amount: ${user.depositTotal.toLocaleString(`en-IN`, { style: 'currency', currency: 'INR' })}`);
                         } else {
@@ -12232,7 +12232,7 @@
                 })
             },
 
-            sendLoan: function (reqID) {
+            sendLoan: function(reqID) {
                 return new Promise(async (resolve, reject) => {
                     let req = this.requests[reqID];
                     try {
@@ -12242,15 +12242,21 @@
                             throw ('Invalid request: Request-type is not openLoan');
                         if (req.status !== "pending")
                             throw ("Request already processed");
+                        //check for validity of loan (ie, check if enough deposit is present)
+                        let user = this.getUserDetails(req.floID);
+                        if (user.netTotal <= req.amount) {
+                            if (user.depositTotal > 0)
+                                throw ("R>Deposit insufficient");
+                            else
+                                throw ("R>No Active deposit available");
+                        }
                         //verify the signature
+                        if (!this.accMap[req.floID])
+                            this.accMap[req.floID] = [];
                         if (req.index != this.accMap[req.floID].length)
                             throw (`R>Invalid index (correct index is ${this.accMap[req.floID].length})`);
                         if (!floCrypto.verifySign(this.util.istr + `open#${req.index}:loan|${req.amount}`, req.sign, req.pubKey))
                             throw ("R>Invalid signature: Re-signing required");
-                        //check for validity of loan (ie, check if enough deposit is present)
-                        let user = this.getUserDetails(req.floID)
-                        if (user.netTotal <= req.amount)
-                            return reject("R>Deposit insufficient");
                         let data = this.dataConstruct(timestamp, req.floID, "open-loan", req.index, req.sign, req.pubKey, req.amount);
                         let txid = await this.writeBankTxData(myPrivKey, data, req.floID, req.amount)
                         let response = {
@@ -12262,8 +12268,8 @@
                         req.status = "completed";
                         compactIDB.writeData("requests", req, reqID);
                         floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                            receiverID: req.floID
-                        }).then(result => resolve(result))
+                                receiverID: req.floID
+                            }).then(result => resolve(result))
                             .catch(error => reject(error))
                     } catch (error) {
                         if (error.message || !error.startsWith('R>'))
@@ -12279,15 +12285,15 @@
                             compactIDB.writeData("requests", req, reqID);
                             //send rejected response to client
                             floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                                receiverID: req.floID
-                            }).then(result => resolve(response))
+                                    receiverID: req.floID
+                                }).then(result => resolve(response))
                                 .catch(error => reject(error))
                         }
                     }
                 })
             },
 
-            repayLoan: function (index) {
+            repayLoan: function(index) {
                 return new Promise(async (resolve, reject) => {
                     try {
                         index = parseInt(index)
@@ -12316,7 +12322,7 @@
                 })
             },
 
-            closeLoan: function (reqID) {
+            closeLoan: function(reqID) {
                 return new Promise(async (resolve, reject) => {
                     let req = this.requests[reqID];
                     try {
@@ -12355,8 +12361,8 @@
                         req.status = "completed";
                         compactIDB.writeData("requests", req, reqID);
                         floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                            receiverID: req.floID
-                        }).then(result => resolve(result))
+                                receiverID: req.floID
+                            }).then(result => resolve(result))
                             .catch(error => reject(error))
                     } catch (error) {
                         if (error.message || !error.startsWith('R>'))
@@ -12372,15 +12378,15 @@
                             compactIDB.writeData("requests", req, reqID);
                             //send rejected response to client
                             floCloudAPI.sendApplicationData(response, "RESPONSE", {
-                                receiverID: req.floID
-                            }).then(result => resolve(response))
+                                    receiverID: req.floID
+                                }).then(result => resolve(response))
                                 .catch(error => reject(error))
                         }
                     }
                 })
             },
 
-            updateModel: function (I_b = null, I_s = null, constants = {}) {
+            updateModel: function(I_b = null, I_s = null, constants = {}) {
                 return new Promise((resolve, reject) => {
                     if (myFloID !== floGlobals.adminID)
                         reject("Access Denied! Admin only")
@@ -12398,7 +12404,7 @@
                 })
             },
 
-            viewAllRequests: function (floID = null) {
+            viewAllRequests: function(floID = null) {
                 let requests = this.requests
                 if (floID) {
                     let result = {}
@@ -12410,7 +12416,7 @@
                     return requests;
             },
 
-            viewAllResponses: function () {
+            viewAllResponses: function() {
                 return this.responses;
             }
         }
