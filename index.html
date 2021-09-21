@@ -385,7 +385,52 @@
                         <strip-option value="failed">Failed</strip-option>
                     </strip-select>
                 </div>
-                <div id="admin_requests_container"></div>
+                <div id="admin_requests_container" class="observe-empty-state"></div>
+                <div class="empty-state grid gap-0-5 grid justify-center">
+                    <div class="empty-state__icon">
+                        <svg id="bb7dac0d-c86d-4eae-9345-05ead570be6d" data-name="Layer 1"
+                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                            <defs>
+                                <style>
+                                    .e4b4c873-5e79-4c66-a530-269f7775150b {
+                                        fill: #fff;
+                                    }
+
+                                    .f8c35eef-c260-42fc-be6f-7c8afb0beeeb {
+                                        fill: #bcbec0;
+                                    }
+
+                                    .ee8c2e6d-b8f3-4b81-80ab-31d470d121b9 {
+                                        fill: #e6e7e8;
+                                    }
+                                </style>
+                            </defs>
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="34.76" y="40.75" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="57.21" cy="61.46" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="75.4" y="51.37" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="75.4" y="62.79" width="80.09"
+                                height="9.03" rx="1.92" />
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="10" y="99.29" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="32.45" cy="120" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="50.64" y="109.91" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="50.64" y="121.33" width="80.09"
+                                height="9.03" rx="1.92" />
+                            <rect class="e4b4c873-5e79-4c66-a530-269f7775150b" x="52.47" y="157.83" width="177.53"
+                                height="41.42" rx="4" />
+                            <circle class="f8c35eef-c260-42fc-be6f-7c8afb0beeeb" cx="74.93" cy="178.54" r="9.29" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="93.12" y="168.46" width="40.44"
+                                height="9.03" rx="1.92" />
+                            <rect class="ee8c2e6d-b8f3-4b81-80ab-31d470d121b9" x="93.12" y="179.87" width="80.09"
+                                height="9.03" rx="1.92" />
+                        </svg>
+                    </div>
+                    <h4>All done!</h4>
+                    <p>No transactions to process</h4>
+                </div>
             </div>
         </section>
         <section id="user_section">
@@ -656,7 +701,8 @@
                 <div class="activity-card__icon pending"></div>
                 <div class="activity-card__title"></div>
                 <p class="activity-card__description">
-                    You won't be able to do deposit or get a loan till process is completed.
+                    You won't be able to do deposit or get a loan till process is completed. This may take upto 4hrs to
+                    be processed.
                 </p>
                 <h4 class="activity-card__amount"></h4>
             </a>
@@ -951,13 +997,13 @@
                         break;
                     case 'deposit':
                         const { I_s } = bank_app.getRates()
-                        getRef('deposit_interest_rate').textContent = `Make a deposit at ${(I_s * 100).toFixed(2)}%.p.a`
+                        getRef('deposit_interest_rate').textContent = `Make a deposit at estimated ${(I_s * 100).toFixed(2)}%.p.a`
                         // checks if there is transaction pending, if so then shows warning
                         checkIfAllowed('deposit')
                         break;
                     case 'loan':
                         const { I_b } = bank_app.getRates()
-                        getRef('loan_interest_rate').textContent = `Get a loan at ${(I_b * 100).toFixed(2)}%.p.a`
+                        getRef('loan_interest_rate').textContent = `Get a loan at estimated ${(I_b * 100).toFixed(2)}%.p.a`
                         checkIfAllowed('loan')
                         break;
                     case 'transaction':
@@ -998,6 +1044,8 @@
                             accountLoader.init()
                         }
                         checkPendingTransaction()
+                        hideProcess('deposit')
+                        hideProcess('loan')
                         break;
                     case 'admin':
                         if (pagesData.openedSubPages.includes(subPageId)) {
@@ -1531,14 +1579,14 @@
             if (type === 'deposit') {
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent withdrawal request', getFormattedTime(pendingRequest.split('_')[0])))
-                    getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for withdrawal confirmation', `Once your request is processed, your withdrawn amount will reflect in your balance.<br>meanwhile you can go back and continue using the app.`))
+                    getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for withdrawal confirmation', `This may take upto 4hrs to be processed. Once your request is processed, your withdrawn amount will reflect in your balance.<br>meanwhile you can go back and continue using the app.`))
                 } else if (closeTime) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Withdrawal complete', getFormattedTime(closeTime), { closeTx }))
                 }
             } else {
                 if (isPending) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Sent repay request', getFormattedTime(pendingRequest.split('_')[0])))
-                    getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for repayment confirmation', `Once your request is processed, your loan will be closed,`))
+                    getRef('account_process__steps').append(render.accountProgressStep('pending', 'Waiting for repayment confirmation', `This may take upto 4hrs to be processed. Once your request is processed, your loan will be closed,`))
                 } else if (closeTime) {
                     getRef('account_process__steps').append(render.accountProgressStep('success', 'Repayment complete', getFormattedTime(closeTime), { closeTx }))
                 }
@@ -1550,6 +1598,7 @@
         })
 
         function getAccounts() {
+            bank_app.refreshData()
             const statusFilter = getRef('accounts_status_selector').value
             return bank_app.getUserDetails(myFloID).accounts.filter(({ status }) => status === statusFilter).reverse()
         }
@@ -1596,6 +1645,7 @@
                             renderAccountProgress(index)
                         })
                         .catch(err => {
+                            getRef('account_process__steps').lastElementChild.remove()
                             getRef('account_process__steps')
                                 .append(
                                     render.accountProgressStep('failed', 'Failed withdrawal', `Can't withdraw deposit as loan amount exceeds total deposit amount.`)
@@ -1607,6 +1657,7 @@
                             renderAccountProgress(index)
                         })
                         .catch(err => {
+                            getRef('account_process__steps').lastElementChild.remove()
                             getRef('account_process__steps')
                                 .append(
                                     render.accountProgressStep('failed', 'Failed repayment', err)
@@ -1728,7 +1779,7 @@
             switch (status) {
                 case 'pending':
                     getRef('result__title').textContent = `Sent ${type} request`
-                    getRef('result__description').textContent = `Waiting for ${type} confirmation. Meanwhile you can go back and continue using app.`
+                    getRef('result__description').textContent = `Waiting for ${type} confirmation. This may take upto 4hrs to be processed, Meanwhile you can go back and continue using app.`
                     break
                 case 'failed':
                     getRef('result__title').textContent = `Failed to send ${type} request`
@@ -1784,7 +1835,7 @@
         }
         function hideProcess(type) {
             getRef(`${type}_button_wrapper`).children[0].classList.remove('clip')
-            getRef(`${type}_button_wrapper`).children[1].remove()
+            getRef(`${type}_button_wrapper`).children[1]?.remove()
         }
 
         function toggleUserSection() {
@@ -12125,7 +12176,7 @@
                         if (acc.type !== "deposit")
                             throw (`Account#${index} is not deposit`)
                         if (acc.status !== "active")
-                            throw (`Account#${index} is not active`)
+                            throw (`Account#${index} is already withdrawn`)
                         if (details.netTotal < acc.netAmt)
                             throw (`Unable to withdraw deposit amount ${acc.netAmt}: Loan amount exceeds! \nTotal deposit: ${details.totalDeposit}\nTotal Loan: ${details.totalLoan}\nNet Balance: ${details.netTotal}`)
                         await this.refreshData()
@@ -12160,7 +12211,7 @@
                         if (acc.type !== "deposit")
                             throw (`R>Account#${req.index} is not deposit`)
                         if (acc.status !== "active")
-                            throw (`R>Account#${req.index} is not active`)
+                            throw (`R>Account#${req.index} is already closed`)
                         if (details.netTotal < acc.netAmt)
                             throw (`R>Unable to close deposit: Loan amount exceeds`)
                         //check for signature in request

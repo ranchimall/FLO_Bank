@@ -826,6 +826,7 @@ strip-option:last-of-type {
 .activity-card--pending:not(:empty) .activity-card__description {
   font-size: 0.8rem;
   color: rgba(var(--text-color), 0.8);
+  grid-column: span 2;
 }
 
 .status-tag:not(:empty) {
