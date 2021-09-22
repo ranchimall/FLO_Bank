@@ -30,6 +30,7 @@ body * {
   --danger-color: rgb(255, 75, 75);
   --green: #1cad59;
   --yellow: #f3a600;
+  --loan-color: rgb(255, 196, 141);
   scrollbar-width: thin;
 }
 
@@ -44,6 +45,7 @@ body[data-theme=dark] * {
   --danger-color: rgb(255, 106, 106);
   --green: #00e676;
   --yellow: #ffd13a;
+  --loan-color: rgb(255, 201, 170);
 }
 
 p,
@@ -983,7 +985,7 @@ strip-option:last-of-type {
   background-color: var(--green);
 }
 .legend:nth-of-type(2)::before {
-  background-color: #ffbb61;
+  background-color: var(--loan-color);
 }
 
 .balance-card {
@@ -1222,6 +1224,17 @@ strip-option:last-of-type {
   height: 1.8rem;
   width: 1.8rem;
   fill: var(--accent-color);
+}
+
+.est-interest h3 {
+  margin-top: 0.2rem;
+  color: rgba(var(--text-color), 0.8);
+  font-size: 1.3rem;
+}
+.est-interest h3::after {
+  font-weight: 500;
+  content: "% p.a";
+  font-size: 1rem;
 }
 
 #get_deposit_amount,
@@ -1530,6 +1543,8 @@ strip-option:last-of-type {
     top: 0;
     bottom: 0;
     padding-top: 0;
+  }
+  #user_section.reveal {
     -webkit-box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
             box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
   }
