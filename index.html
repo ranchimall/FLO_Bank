@@ -1838,8 +1838,8 @@
                 getRef('deposit_form').removeEventListener('submit', confirmDeposit)
                 getRef('loan_form').removeEventListener('submit', confirmLoan)
             }
-            getRef('deposit_form').elementsChanged()
-            getRef('loan_form').elementsChanged()
+            getRef('deposit_form')?.elementsChanged()
+            getRef('loan_form')?.elementsChanged()
         }
         window.matchMedia("(any-hover: hover)").addEventListener('change', checkTouchSupport);
 
