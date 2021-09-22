@@ -1895,7 +1895,7 @@
             getRef(`${type}_button_wrapper`).append(document.createElement('sm-spinner'))
         }
         function hideProcess(type) {
-            getRef(`${type}_button_wrapper`).children[0].classList.remove('clip')
+            getRef(`${type}_button_wrapper`).children[0]?.classList.remove('clip')
             getRef(`${type}_button_wrapper`).querySelector('sm-spinner')?.remove()
         }
 
@@ -2072,7 +2072,7 @@
                     }
                 } else {
                     refreshBalance()
-                    // checkPendingTransaction()
+                    checkPendingTransaction()
                 }
             }
         }

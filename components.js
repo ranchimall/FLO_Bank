@@ -2101,6 +2101,7 @@ slideButton.innerHTML = `
             left: 50%;
             transform: translateX(-50%); 
             opacity: 0.7;
+            user-select: none;
         }
         :host([disabled]) .slide-thumb{
             pointer-events: none;
@@ -2166,7 +2167,6 @@ class SlideButton extends HTMLElement {
         this.bound = buttonDimensions.width - thumbDimensions.width;
         this.startX = e.clientX;
         this.threshold = this.bound / 2;
-        console.log(e.clientX, this.startX)
         this.thumb.setPointerCapture(e.pointerId);
         this.thumb.addEventListener('pointermove', this.handleTouchMove);
         this.thumb.addEventListener('pointerup', this.handleTouchEnd);

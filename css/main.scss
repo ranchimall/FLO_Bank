@@ -585,7 +585,7 @@ strip-option {
   text-transform: uppercase;
   font-weight: 500;
   letter-spacing: 0.05em;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   --border-radius: 0;
   --active-option-color: rgba(var(--background-color), 1);
   --active-option-background-color: var(--accent-color);
@@ -721,7 +721,7 @@ strip-option {
 .status-tag:not(:empty) {
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   border-radius: 0.2rem;
   padding: 0.3rem 0.4rem;
   font-weight: 500;
@@ -1165,7 +1165,7 @@ strip-option {
     flex-direction: column;
     &__title {
       display: flex;
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       font-weight: 500;
       color: rgba(var(--text-color), 0.8);
       margin-top: 0.3rem;
