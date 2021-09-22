@@ -1069,7 +1069,8 @@ strip-option {
   position: relative;
   justify-content: center;
   align-items: center;
-  sm-button {
+  sm-button,
+  slide-button {
     width: 100%;
     z-index: 1;
     transition: clip-path 0.3s;

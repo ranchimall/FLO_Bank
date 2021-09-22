@@ -531,7 +531,7 @@
                     clip-rule="evenodd" />
             </svg>
         </a>
-        <sm-form>
+        <sm-form id="deposit_form">
             <div class="flex space-between align-center">
                 <div id="deposit__icon" class="grid gap-0-5">
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px"
@@ -552,9 +552,7 @@
             <sm-input id="get_deposit_amount" type="number" min="1" step="0.01"
                 error-text="Amount should be at least ₹1" placeholder="₹Amount" required>
             </sm-input>
-            <div id="deposit_button_wrapper" class="loader-button-wrapper">
-                <sm-button id="deposit_button" variant="primary" disabled onclick="initDeposit()">Deposit</sm-button>
-            </div>
+            <div id="deposit_button_wrapper" class="loader-button-wrapper"></div>
         </sm-form>
     </article>
     <article id="loan" class="page hide-completely page-layout">
@@ -565,7 +563,7 @@
                     clip-rule="evenodd" />
             </svg>
         </a>
-        <sm-form>
+        <sm-form id="loan_form">
             <div class="flex space-between align-center">
                 <div id="loan__icon" class="grid gap-0-5">
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -584,9 +582,7 @@
             <sm-input id="get_loan_amount" type="number" min="1" step="0.01" error-text="Amount should be at least ₹1"
                 placeholder="₹Amount" required>
             </sm-input>
-            <div id="loan_button_wrapper" class="loader-button-wrapper">
-                <sm-button id="loan_button" variant="primary" disabled onclick="initLoan()">Request loan</sm-button>
-            </div>
+            <div id="loan_button_wrapper" class="loader-button-wrapper"></div>
         </sm-form>
     </article>
     <article id="result" class="page hide-completely page-layout">
@@ -1767,17 +1763,34 @@
         })
 
         getRef('get_deposit_amount').addEventListener('input', e => {
-            if (e.target.value.trim() !== '') {
-                getRef('deposit_button').textContent = `Deposit ${parseFloat(e.target.value).toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}`
+            let message = ''
+            if (getRef(`deposit_button_wrapper`).children[0].tagName === 'SM-BUTTON') {
+                message = `Deposit`
             } else {
-                getRef('deposit_button').textContent = `Deposit`
+                message = `Slide to deposit`
+            }
+            if (e.target.value.trim() !== '') {
+                getRef(`deposit_button_wrapper`).children[0].textContent = `${message} ${utils.formatAmount(parseFloat(e.target.value))}`
+            } else {
+                getRef(`deposit_button_wrapper`).children[0].textContent = message
             }
         })
         getRef('get_loan_amount').addEventListener('input', e => {
+            let message = ''
             if (e.target.value.trim() !== '') {
-                getRef('loan_button').textContent = `Request loan of ${parseFloat(e.target.value).toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}`
+                if (getRef(`loan_button_wrapper`).children[0].tagName === 'SM-BUTTON') {
+                    message = `Request loan of`
+                } else {
+                    message = `Slide to request loan of`
+                }
+                getRef(`loan_button_wrapper`).children[0].textContent = `${message} ${utils.formatAmount(parseFloat(e.target.value))}`
             } else {
-                getRef('loan_button').textContent = `Request loan`
+                if (getRef(`loan_button_wrapper`).children[0].tagName === 'SM-BUTTON') {
+                    message = `Request loan`
+                } else {
+                    message = `Slide to request loan`
+                }
+                getRef(`loan_button_wrapper`).children[0].textContent = message
             }
         })
 
@@ -1803,39 +1816,76 @@
             getRef(`get_${type}_amount`).value = ''
         }
 
-        async function initDeposit() {
+        // Sets UX according to supported pointing device
+        const checkTouchSupport = (mql) => {
+            if (mql.matches) {
+                getRef('deposit_button_wrapper').innerHTML = `<sm-button id="deposit_button" variant="primary" onclick="confirmDeposit()" disabled>Deposit</sm-button>`
+                getRef('loan_button_wrapper').innerHTML = `<sm-button id="loan_button" variant="primary" onclick="confirmLoan()" disabled>Request loan</sm-button>`
+
+                getRef('deposit_form').addEventListener('submit', confirmDeposit)
+                getRef('loan_form').addEventListener('submit', confirmLoan)
+
+                getRef('deposit_button_wrapper').removeEventListener('confirmed', initDeposit)
+                getRef('loan_button_wrapper').removeEventListener('confirmed', initLoan)
+            } else {
+                // touch supported
+                getRef('deposit_button_wrapper').innerHTML = `<slide-button id="deposit_slide" type="submit" disabled>Slide to deposit</slide-button>`
+                getRef('loan_button_wrapper').innerHTML = `<slide-button id="loan_slide" type="submit" disabled>Slide to request loan</slide-button>`
+
+                getRef('deposit_button_wrapper').addEventListener('confirmed', initDeposit)
+                getRef('loan_button_wrapper').addEventListener('confirmed', initLoan)
+
+                getRef('deposit_form').removeEventListener('submit', confirmDeposit)
+                getRef('loan_form').removeEventListener('submit', confirmLoan)
+            }
+            getRef('deposit_form').elementsChanged()
+            getRef('loan_form').elementsChanged()
+        }
+        window.matchMedia("(any-hover: hover)").addEventListener('change', checkTouchSupport);
+
+        async function confirmDeposit() {
             const amount = parseFloat(getRef('get_deposit_amount').value)
-            const confirm = await getConfirmation('Continue?', `Confirm deposit of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
+            const confirm = await getConfirmation('Continue?', `Confirm deposit of ${utils.formatAmount(amount)}?`, 'Cancel', 'Confirm')
             if (confirm) {
-                showProcess('deposit')
-                bank_app.makeDeposit(amount)
-                    .then(() => {
-                        window.location.hash = `#/result?type=deposit&amount=${amount}&status=pending`
-                    })
-                    .catch(err => {
-                        window.location.hash = `#/result?type=deposit&amount=${amount}&status=failed&reason=${err}`
-                    })
-                    .finally(() => {
-                        hideProcess('deposit')
-                    })
+                initDeposit()
             }
         }
-        async function initLoan() {
+
+        function initDeposit() {
+            const amount = parseFloat(getRef('get_deposit_amount').value)
+            showProcess('deposit')
+            bank_app.makeDeposit(amount)
+                .then(() => {
+                    window.location.hash = `#/result?type=deposit&amount=${amount}&status=pending`
+                })
+                .catch(err => {
+                    window.location.hash = `#/result?type=deposit&amount=${amount}&status=failed&reason=${err}`
+                })
+                .finally(() => {
+                    hideProcess('deposit')
+                })
+        }
+
+        async function confirmLoan(params) {
             const amount = parseFloat(getRef('get_loan_amount').value)
-            const confirm = await getConfirmation('Continue?', `Confirm loan of ${amount.toLocaleString('en-IN', { currency: 'INR', style: 'currency' })}?`, 'Cancel', 'Confirm')
+            const confirm = await getConfirmation('Continue?', `Confirm loan of ${utils.formatAmount(amount)}?`, 'Cancel', 'Confirm')
             if (confirm) {
-                showProcess('loan')
-                bank_app.requestLoan(amount)
-                    .then(() => {
-                        window.location.hash = `#/result?type=loan&amount=${amount}&status=pending`
-                    })
-                    .catch(err => {
-                        window.location.hash = `#/result?type=loan&amount=${amount}&status=failed&reason=${err}`
-                    })
-                    .finally(() => {
-                        hideProcess('loan')
-                    })
+                initLoan()
             }
+        }
+        function initLoan() {
+            const amount = parseFloat(getRef('get_loan_amount').value)
+            showProcess('loan')
+            bank_app.requestLoan(amount)
+                .then(() => {
+                    window.location.hash = `#/result?type=loan&amount=${amount}&status=pending`
+                })
+                .catch(err => {
+                    window.location.hash = `#/result?type=loan&amount=${amount}&status=failed&reason=${err}`
+                })
+                .finally(() => {
+                    hideProcess('loan')
+                })
         }
 
         function showProcess(type) {
@@ -1844,7 +1894,7 @@
         }
         function hideProcess(type) {
             getRef(`${type}_button_wrapper`).children[0].classList.remove('clip')
-            getRef(`${type}_button_wrapper`).children[1]?.remove()
+            getRef(`${type}_button_wrapper`).querySelector('sm-spinner')?.remove()
         }
 
         function toggleUserSection() {
@@ -1925,20 +1975,20 @@
 
         function checkIfAllowed(type) {
             const { isPending, uid } = utils.getLastTransaction()
-            getRef(`${type}_button`).nextElementSibling?.remove()
+            getRef(`${type}_button_wrapper`).querySelector('strong')?.remove()
             // check if there is a last transaction
             if (uid) {
                 const { amount, rtype } = getRequestDetails(uid)
                 if (isPending && (rtype === 'openDeposit' || rtype === 'openLoan')) {
                     const action = rtype === 'openDeposit' ? 'Deposit' : 'Loan'
-                    getRef(`${type}_button`).classList.add('hide-completely')
+                    getRef(`${type}_button_wrapper`).firstElementChild.classList.add('hide-completely')
                     getRef(`${type}_button`).after(createElement('strong', {
                         className: 'warning',
                         textContent: `${action} in process. You can't ${type === 'deposit' ? 'deposit' : 'request loan'} until that's completed.`,
                     }))
                 }
             } else {
-                getRef(`${type}_button`).classList.remove('hide-completely')
+                getRef(`${type}_button_wrapper`).firstElementChild.classList.remove('hide-completely')
             }
         }
         let requestResponsePairs
@@ -1996,6 +2046,7 @@
                             document.querySelectorAll('.admin-option').forEach(option => option.classList.add('hide-completely'))
                             document.querySelectorAll('.user-option').forEach(option => option.classList.remove('hide-completely'))
                         }
+                        checkTouchSupport(window.matchMedia("(any-hover: hover)"))
                         if (window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')) {
                             window.location.hash = ''
                         } else {

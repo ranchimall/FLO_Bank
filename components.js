@@ -177,17 +177,18 @@ customElements.define('sm-form', class extends HTMLElement {
             mode: 'open'
         }).append(smForm.content.cloneNode(true))
 
-        this.form = this.shadowRoot.querySelector('form')
+        this.form = this.shadowRoot.querySelector('form');
         this.formElements
         this.requiredElements
         this.submitButton
         this.resetButton
-        this.allRequiredValid = false
+        this.allRequiredValid = false;
 
         this.debounce = this.debounce.bind(this)
-        this.handleInput = this.handleInput.bind(this)
+        this._checkValidity = this._checkValidity.bind(this)
         this.handleKeydown = this.handleKeydown.bind(this)
         this.reset = this.reset.bind(this)
+        this.elementsChanged = this.elementsChanged.bind(this)
     }
     debounce(callback, wait) {
         let timeoutId = null;
@@ -198,7 +199,7 @@ customElements.define('sm-form', class extends HTMLElement {
             }, wait);
         };
     }
-    handleInput(e) {
+    _checkValidity() {
         this.allRequiredValid = this.requiredElements.every(elem => elem.isValid)
         if (!this.submitButton) return;
         if (this.allRequiredValid) {
@@ -211,7 +212,13 @@ customElements.define('sm-form', class extends HTMLElement {
     handleKeydown(e) {
         if (e.key === 'Enter' && e.target.tagName !== 'SM-TEXTAREA') {
             if (this.allRequiredValid) {
-                this.submitButton.click()
+                if (this.submitButton && this.submitButton.tagName === 'SM-BUTTON') {
+                    this.submitButton.click()
+                }
+                this.dispatchEvent(new CustomEvent('submit', {
+                    bubbles: true,
+                    composed: true,
+                }))
             }
             else {
                 this.requiredElements.find(elem => !elem.isValid).vibrate()
@@ -221,24 +228,24 @@ customElements.define('sm-form', class extends HTMLElement {
     reset() {
         this.formElements.forEach(elem => elem.reset())
     }
+    elementsChanged() {
+        this.formElements = [...this.querySelectorAll('sm-input, sm-textarea, sm-checkbox, tags-input, file-input, sm-switch, sm-radio')]
+        this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'));
+        this.submitButton = this.querySelector('[variant="primary"], [type="submit"]');
+        this.resetButton = this.querySelector('[type="reset"]');
+        if (this.resetButton) {
+            this.resetButton.addEventListener('click', this.reset);
+        }
+        this._checkValidity()
+    }
     connectedCallback() {
         const slot = this.shadowRoot.querySelector('slot')
-        slot.addEventListener('slotchange', e => {
-            this.formElements = [...this.querySelectorAll('sm-input, sm-textarea, sm-checkbox, tags-input, file-input, sm-switch, sm-radio')]
-            this.requiredElements = this.formElements.filter(elem => elem.hasAttribute('required'));
-            // this.submitButton = e.target.assignedElements().find(elem => elem.getAttribute('variant') === 'primary' || elem.getAttribute('type') === 'submit');
-            this.submitButton = this.querySelector('[variant="primary"], [type="submit"]');
-            // this.resetButton = e.target.assignedElements().find(elem => elem.getAttribute('type') === 'reset');
-            this.resetButton = this.querySelector('[type="reset"]');
-            if (this.resetButton) {
-                this.resetButton.addEventListener('click', this.reset);
-            }
-        })
-        this.addEventListener('input', this.debounce(this.handleInput, 100));
+        slot.addEventListener('slotchange', this.elementsChanged)
+        this.addEventListener('input', this.debounce(this._checkValidity, 100));
         this.addEventListener('keydown', this.debounce(this.handleKeydown, 100));
     }
     disconnectedCallback() {
-        this.removeEventListener('input', this.debounce(this.handleInput, 100));
+        this.removeEventListener('input', this.debounce(this._checkValidity, 100));
         this.removeEventListener('keydown', this.debounce(this.handleKeydown, 100));
     }
 })
@@ -2047,3 +2054,148 @@ customElements.define('strip-option', class extends HTMLElement {
         this.removeEventListener('keydown', this.handleKeyDown);
     }
 });
+
+const slideButton = document.createElement('template')
+slideButton.innerHTML = `
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            -webkit-box-sizing: border-box;
+                    box-sizing: border-box;
+        }
+        .slide-button{
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background-color: rgba(var(--text-color), 0.1);
+            border-radius: var(--button-border-radius, 0.3rem);
+            overscroll-behavior: contain;
+            touch-action: pan;
+            overflow: hidden;
+        }
+        .slide-thumb{
+            position: relative;
+            display: flex;
+            aspect-ratio: 1/1;
+            cursor: grab;
+            padding: 1rem;
+            background-color: var(--accent-color, teal);
+            border-radius: var(--button-border-radius, 0.3rem);
+            touch-action: none;
+            z-index: 1;
+        }
+        .icon{
+            height: var(--arrow-height, 1.5rem);
+            width: var(--arrow-width, 1.5rem);
+            fill: var(--arrow-fill, white);
+        }
+        .transition{
+            transition: transform 0.3s;
+        }
+        .message{
+            position: absolute;
+            justify-self: center; 
+            text-align: center;
+            left: 50%;
+            transform: translateX(-50%); 
+            opacity: 0.7;
+        }
+        :host([disabled]) .slide-thumb{
+            pointer-events: none;
+            background-color: rgba(var(--text-color), 0.5);
+        }
+    </style>
+    <div class="slide-button">
+        <div class="slide-thumb">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+            </svg>
+        </div>
+        <p class="message"><slot>Slide to confirm</slot></p>
+    </div>
+`;
+class SlideButton extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({
+            mode: 'open'
+        }).append(slideButton.content.cloneNode(true));
+
+        this.handleTouchStart = this.handleTouchStart.bind(this);
+        this.handleTouchMove = this.handleTouchMove.bind(this);
+        this.handleTouchEnd = this.handleTouchEnd.bind(this);
+        this.reset = this.reset.bind(this);
+        this.fireEvent = this.fireEvent.bind(this);
+        this.thumb = this.shadowRoot.querySelector('.slide-thumb');
+
+        this.startX = 0;
+        this.threshold = 0;
+        this.bound = 0;
+    }
+    get disabled() {
+        return this.hasAttribute('disabled');
+    }
+
+    set disabled(value) {
+        if (value) {
+            this.setAttribute('disabled', '');
+        } else {
+            this.removeAttribute('disabled');
+        }
+    }
+
+    reset() {
+        this.thumb.setAttribute('style', `transform: translateX(0)`);
+    }
+
+    fireEvent() {
+        this.dispatchEvent(new CustomEvent('confirmed', {
+            bubbles: true,
+            composed: true,
+        }));
+    }
+
+    handleTouchStart(e) {
+        this.thumb.classList.remove('transition')
+        const thumbDimensions = this.thumb.getBoundingClientRect();
+        const buttonDimensions = this.getBoundingClientRect();
+        this.bound = buttonDimensions.width - thumbDimensions.width;
+        this.startX = e.clientX;
+        this.threshold = this.bound / 2;
+        console.log(e.clientX, this.startX)
+        this.thumb.setPointerCapture(e.pointerId);
+        this.thumb.addEventListener('pointermove', this.handleTouchMove);
+        this.thumb.addEventListener('pointerup', this.handleTouchEnd);
+    }
+    handleTouchMove(e) {
+        requestAnimationFrame(() => {
+            this.thumb.setAttribute('style', `transform: translateX(${Math.max(0, Math.min((this.bound), e.clientX - this.startX))}px)`);
+        })
+    }
+    handleTouchEnd(e) {
+        this.thumb.classList.add('transition');
+        if (e.clientX > this.threshold) {
+            this.fireEvent();
+            this.thumb.setAttribute('style', `transform: translateX(${this.bound}px)`);
+        } else {
+            this.reset();
+        }
+        this.thumb.releasePointerCapture(e.pointerId);
+        this.thumb.removeEventListener('pointermove', this.handleTouchMove);
+        this.thumb.removeEventListener('pointerup', this.handleTouchEnd);
+    }
+
+    connectedCallback() {
+        this.thumb.addEventListener('pointerdown', this.handleTouchStart);
+    }
+
+    disconnectedCallback() {
+        this.thumb.removeEventListener('pointerdown', this.handleTouchStart);
+    }
+}
+
+window.customElements.define('slide-button', SlideButton);

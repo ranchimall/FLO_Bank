@@ -1255,7 +1255,8 @@ strip-option:last-of-type {
       -ms-flex-align: center;
           align-items: center;
 }
-.loader-button-wrapper sm-button {
+.loader-button-wrapper sm-button,
+.loader-button-wrapper slide-button {
   width: 100%;
   z-index: 1;
   -webkit-transition: -webkit-clip-path 0.3s;
@@ -1265,7 +1266,8 @@ strip-option:last-of-type {
   -webkit-clip-path: circle(100%);
           clip-path: circle(100%);
 }
-.loader-button-wrapper sm-button.clip {
+.loader-button-wrapper sm-button.clip,
+.loader-button-wrapper slide-button.clip {
   pointer-events: none;
   -webkit-clip-path: circle(0);
           clip-path: circle(0);
