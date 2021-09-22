@@ -1002,11 +1002,13 @@
                         getRef('deposit_interest_rate').textContent = (I_s * 100).toFixed(2)
                         // checks if there is transaction pending, if so then shows warning
                         checkIfAllowed('deposit')
+                        checkTouchSupport(window.matchMedia("(any-hover: hover)"))
                         break;
                     case 'loan':
                         const { I_b } = bank_app.getRates()
                         getRef('loan_interest_rate').textContent = (I_b * 100).toFixed(2)
                         checkIfAllowed('loan')
+                        checkTouchSupport(window.matchMedia("(any-hover: hover)"))
                         break;
                     case 'transaction':
                         showTransactionDetails(params)
@@ -1839,7 +1841,7 @@
                 getRef('loan_form').removeEventListener('submit', confirmLoan)
             }
             getRef('deposit_form')?.elementsChanged()
-            getRef('loan_form')?.elementsChanged()
+            getRef('loan_form') ??.elementsChanged()
         }
         window.matchMedia("(any-hover: hover)").addEventListener('change', checkTouchSupport);
 
@@ -2046,7 +2048,6 @@
                             document.querySelectorAll('.admin-option').forEach(option => option.classList.add('hide-completely'))
                             document.querySelectorAll('.user-option').forEach(option => option.classList.remove('hide-completely'))
                         }
-                        checkTouchSupport(window.matchMedia("(any-hover: hover)"))
                         if (window.location.hash.includes('sign_in') || window.location.hash.includes('sign_up')) {
                             window.location.hash = ''
                         } else {
