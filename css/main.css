@@ -30,7 +30,7 @@ body * {
   --danger-color: rgb(255, 75, 75);
   --green: #1cad59;
   --yellow: #f3a600;
-  --loan-color: rgb(255, 196, 141);
+  --loan-color: rgb(255, 171, 93);
   scrollbar-width: thin;
 }
 
@@ -45,7 +45,7 @@ body[data-theme=dark] * {
   --danger-color: rgb(255, 106, 106);
   --green: #00e676;
   --yellow: #ffd13a;
-  --loan-color: rgb(255, 201, 170);
+  --loan-color: rgb(255, 232, 170);
 }
 
 p,
@@ -666,7 +666,7 @@ strip-option {
   text-transform: uppercase;
   font-weight: 500;
   letter-spacing: 0.05em;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   --border-radius: 0;
   --active-option-color: rgba(var(--background-color), 1);
   --active-option-background-color: var(--accent-color);
@@ -834,7 +834,7 @@ strip-option:last-of-type {
 .status-tag:not(:empty) {
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   border-radius: 0.2rem;
   padding: 0.3rem 0.4rem;
   font-weight: 500;
@@ -1091,14 +1091,19 @@ strip-option:last-of-type {
   font-weight: 700;
 }
 
-#account_detail__interest_type,
 #account_detail__type {
   color: rgba(var(--text-color), 0.8);
   font-weight: 500;
 }
 
+#account_detail__interest_type {
+  font-size: 0.9rem;
+}
+
 #account_detail__interest {
-  font-size: 1.2rem;
+  font-size: 1rem;
+  margin-left: 0.4rem;
+  font-weight: 500;
 }
 
 #transaction__cta {

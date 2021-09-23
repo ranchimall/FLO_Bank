@@ -635,10 +635,10 @@
                 <div class="grid gap-0-5">
                     <h5 id="account_detail__type" class="capitalize"></h5>
                     <h3 id="account_detail__amount"></h3>
-                </div>
-                <div class="grid gap-0-5">
-                    <h5 id="account_detail__interest_type" class="capitalize"></h5>
-                    <h4 id="account_detail__interest" class="h4"></h4>
+                    <div class="flex">
+                        <span id="account_detail__interest_type" class="capitalize"></span>
+                        <span id="account_detail__interest"></span>
+                    </div>
                 </div>
                 <sm-button id="account_action_button" onclick="processAccount()" variant="primary"></sm-button>
             </div>
@@ -1050,6 +1050,8 @@
                         checkPendingTransaction()
                         hideProcess('deposit')
                         hideProcess('loan')
+                        getRef('get_deposit_amount').value = ''
+                        getRef('get_loan_amount').value = ''
                         break;
                     case 'admin':
                         if (pagesData.openedSubPages.includes(subPageId)) {
