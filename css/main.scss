@@ -20,12 +20,12 @@ body {
   * {
     --accent-color: #2672ff;
     --accent-color--light: rgba(38, 114, 255, 0.06);
-    --text-color: 36, 36, 36;
-    --background-color: 247, 250, 255;
-    --foreground-color: rgb(250, 252, 255);
+    --text-color: 20, 20, 20;
+    --foreground-color: 252, 253, 255;
+    --background-color: 241, 243, 248;
     --danger-color: rgb(255, 75, 75);
     --green: #1cad59;
-    --yellow: #f3a600;
+    --yellow: rgb(220, 165, 0);
     --loan-color: rgb(255, 171, 93);
     scrollbar-width: thin;
   }
@@ -39,13 +39,12 @@ body[data-theme="dark"] {
   * {
     --accent-color: rgb(170, 190, 255);
     --accent-color--light: rgba(231, 239, 255, 0.06);
-    --text-color: 230, 230, 230;
-    --text-color-light: 170, 170, 170;
-    --background-color: 10, 10, 10;
-    --foreground-color: rgb(20, 20, 20);
+    --text-color: 200, 200, 200;
+    --foreground-color: 27, 28, 29;
+    --background-color: 21, 22, 22;
     --danger-color: rgb(255, 106, 106);
     --green: #00e676;
-    --yellow: #ffd13a;
+    --yellow: rgb(255, 213, 5);
     --loan-color: rgb(255, 232, 170);
   }
 }
@@ -1181,7 +1180,7 @@ strip-option {
     padding: 0 1.5rem;
   }
   #main_nav {
-    background-color: var(--foreground-color);
+    background-color: rgba(var(--foreground-color), 1);
     border-top: thin solid rgba(var(--text-color), 0.1);
   }
   .nav-item {
@@ -1254,7 +1253,7 @@ strip-option {
     grid-template-columns: 1fr 90vw 1fr;
   }
   #home {
-    background-color: var(--foreground-color);
+    background-color: rgba(var(--foreground-color), 1);
     grid-template-rows: auto 1fr;
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-areas: "main-header main-header user-section" "main-nav subpages user-section";
@@ -1299,7 +1298,7 @@ strip-option {
     overflow: hidden;
     padding: 1.8rem;
     border-radius: 0.5rem;
-    background-color: var(--foreground-color);
+    background-color: rgba(var(--foreground-color), 1);
     box-shadow: 0 0 0.1rem rgba(0, 0, 0, 0.1),
       0 1rem 1.5rem -0.8rem rgba(0, 0, 0, 0.1);
     align-self: flex-start;
