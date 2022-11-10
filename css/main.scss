@@ -578,11 +578,6 @@ details {
     font-weight: 500;
   }
 }
-strip-select {
-  --gap: 0;
-  background-color: rgba(var(--text-color), 0.06);
-  border-radius: 0.3rem;
-}
 .empty-state {
   padding: 0 1.5rem;
   margin: 3rem 0;
@@ -597,6 +592,11 @@ strip-select {
     margin-bottom: 1.5rem;
     background-color: rgba(var(--text-color), 0.06);
   }
+}
+strip-select {
+  --gap: 0;
+  background-color: rgba(var(--text-color), 0.06);
+  border-radius: 0.3rem;
 }
 strip-option {
   text-transform: uppercase;
