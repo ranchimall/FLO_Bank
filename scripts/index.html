@@ -15,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/uhtml@3.0.1/es.js"></script>
     <script src="scripts/components.js" defer></script>
+    <script src="scripts/btcOperator.js" defer></script>
     <script id="floGlobals">
         /* Constants for FLO blockchain operations !!Make sure to add this at begining!! */
         const floGlobals = {
@@ -154,7 +155,7 @@
                 </div>
             </div>
             <theme-toggle></theme-toggle>
-            <button id="user_profile_button" class="icon-button" onclick="openPopup('profile_popup')">
+            <button class="icon-button hide-on-desktop" onclick="toggleUserSection()">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px"
                     viewBox="0 0 24 24" width="24px" fill="#000000">
                     <g>
@@ -165,7 +166,6 @@
                             d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 4c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm0 14c-2.03 0-4.43-.82-6.14-2.88C7.55 15.8 9.68 15 12 15s4.45.8 6.14 2.12C16.43 19.18 14.03 20 12 20z" />
                     </g>
                 </svg>
-                <div id="user_profile_id" class="overflow-ellipsis"></div>
             </button>
         </header>
         <nav id="main_nav">
@@ -215,7 +215,7 @@
                     History
                 </span>
             </a>
-            <a href="#/home/settings" class="nav-item hide-on-desktop">
+            <a href="#/home/settings" class="nav-item">
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 24 24" height="24px"
                     viewBox="0 0 24 24" width="24px" fill="#000000">
                     <g>
@@ -487,19 +487,10 @@
             </div>
             <div class="user-option">
                 <h4 class="flex align-center">
-                    <svg class="icon button__icon--left" xmlns="http://www.w3.org/2000/svg"
-                        enable-background="new 0 0 24 24" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                        <g>
-                            <rect fill="none" height="24" width="24" />
-                        </g>
-                        <g>
-                            <g>
-                                <g>
-                                    <path
-                                        d="M11,5.08V2C6,2.5,2,6.81,2,12s4,9.5,9,10v-3.08c-3-0.48-6-3.4-6-6.92S8,5.56,11,5.08z M18.97,11H22c-0.47-5-4-8.53-9-9 v3.08C16,5.51,18.54,8,18.97,11z M13,18.92V22c5-0.47,8.53-4,9-9h-3.03C18.54,16,16,18.49,13,18.92z" />
-                                </g>
-                            </g>
-                        </g>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                        <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
                     </svg>
                     Account summary
                 </h4>
@@ -539,11 +530,11 @@
             </div>
             <div>
                 <h4 class="flex align-center space-between">
-                    <svg class="icon button__icon--left" xmlns="http://www.w3.org/2000/svg" height="24px"
-                        viewBox="0 0 24 24" width="24px" fill="#000000">
-                        <path d="M0 0h24v24H0z" fill="none" />
-                        <path
-                            d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon button__icon--left" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                            clip-rule="evenodd" />
                     </svg>
                     My balance
                     <button id="refresh_balance_button" class="button justify-right" onclick="refreshBalance(this)">
@@ -698,20 +689,6 @@
             </div>
         </section>
     </article>
-    <sm-popup id="profile_popup">
-        <header slot="header" class="popup__header">
-            <button class="popup__header__close justify-self-start" onclick="closePopup()">
-                <svg class="icon" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px"
-                    fill="#000000">
-                    <path d="M0 0h24v24H0V0z" fill="none" />
-                    <path
-                        d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
-                </svg>
-            </button>
-            <h3>Profile</h3>
-        </header>
-        <div id="profile_popup__content" class="grid gap-3"></div>
-    </sm-popup>
     <template id="admin_request_template">
         <li class="activity-card activity-card--admin">
             <div class="activity-card__icon"></div>
@@ -853,21 +830,6 @@
                 return;
             popupStack.peek().popup.hide(options)
         }
-        document.addEventListener('popupopened', e => {
-            switch (e.target.id) {
-                case 'profile_popup':
-                    renderElem(getRef('profile_popup__content'), render.profile())
-                    break;
-            }
-        })
-        document.addEventListener('popupclosed', e => {
-            switch (e.target.id) {
-                case 'profile_popup':
-                    renderElem(getRef('profile_popup__content'), html``)
-                    break;
-            }
-            zIndex--;
-        })
         // displays a popup for asking permission. Use this instead of JS confirm
         const getConfirmation = (title, options = {}) => {
             return new Promise(resolve => {
@@ -1409,17 +1371,6 @@
                     }))
                 }
                 return elem
-            },
-            profile() {
-                return html`
-                    <div class="grid gap-1-5">
-                        <div class="grid gap-0-5">
-                            <b>My FLO address</b>
-                            <sm-copy class="user-flo-id" clip-text value=${myFloID}></sm-copy>
-                        </div>
-                        <button class="button button--danger justify-self-start" onclick="signOut()">Sign out</button>
-                    </div>
-                `;
             }
         }
         function getSignedIn() {
@@ -2077,7 +2028,6 @@
             floDapps.launchStartUp().then(result => {
                 console.log(result);
                 // alert(`Welcome FLO_ID: ${myFloID}`);
-                getRef('user_profile_id').textContent = myFloID
                 //App functions....
                 bank_app.launchApp(reqCallback, responseCallback)
                     .then(result => {
