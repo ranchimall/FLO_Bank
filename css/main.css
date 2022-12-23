@@ -365,6 +365,10 @@ ul {
   fill: var(--accent-color);
 }
 
+sm-spinner {
+  --size: 1.2rem;
+}
+
 #confirmation_popup,
 #prompt_popup {
   flex-direction: column;
@@ -534,6 +538,7 @@ details[open] > summary .icon {
 #loading sm-spinner {
   justify-self: center;
   margin-bottom: 1.5rem;
+  --size: 1.2rem;
 }
 
 #home {
@@ -778,11 +783,6 @@ sm-chip:last-of-type {
   grid-area: amount;
   text-align: end;
 }
-.activity-card--request sm-spinner,
-.activity-card--pending sm-spinner {
-  --height: 1rem;
-  --width: 1rem;
-}
 
 .activity-card--admin {
   align-items: center;
@@ -803,10 +803,6 @@ sm-chip:last-of-type {
   color: var(--accent-color);
   justify-content: flex-end;
   align-items: center;
-}
-.activity-card--admin sm-spinner {
-  --height: 1rem;
-  --width: 1rem;
 }
 
 #pending_transaction:not(:empty) {
@@ -920,10 +916,6 @@ sm-chip:last-of-type {
   pointer-events: none;
   background-color: transparent;
 }
-#refresh_balance_button sm-spinner {
-  --height: 1rem;
-  --width: 1rem;
-}
 
 #account_chart_container {
   display: flex;
@@ -964,9 +956,7 @@ sm-chip:last-of-type {
 }
 
 .balance-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "icon ." "icon .";
+  display: flex;
   padding: 1rem 0;
   align-items: center;
   gap: 0.3rem 1rem;
@@ -992,6 +982,7 @@ sm-chip:last-of-type {
 .balance-card__amount {
   font-size: 1rem;
   font-weight: 700;
+  margin-left: auto;
 }
 
 .page__header button {
@@ -1099,10 +1090,6 @@ sm-chip:last-of-type {
 .account-step:nth-of-type(4) {
   -webkit-animation-delay: 0.3s;
           animation-delay: 0.3s;
-}
-.account-step sm-spinner {
-  --height: 1rem;
-  --width: 1rem;
 }
 .account-step:not(:last-of-type) .step__line {
   position: relative;
@@ -1282,12 +1269,8 @@ sm-chip:last-of-type {
     transform: none;
   }
 }
-#settings {
+#account_summary {
   padding: 0 1.5rem;
-}
-#settings sm-copy {
-  font-size: 0.9rem;
-  margin: 0.3rem 0 1.5rem 0;
 }
 
 #sign_out_button {
@@ -1363,8 +1346,8 @@ sm-chip:last-of-type {
   .activity-card--account .grid {
     text-align: right;
   }
-  .hide-on-mobile {
-    display: none;
+  .hide-on-small {
+    display: none !important;
   }
 }
 @media screen and (min-width: 640px) {
@@ -1471,24 +1454,6 @@ sm-chip:last-of-type {
   }
   .activity-card--account .activity-card__icon {
     justify-content: flex-start;
-  }
-}
-@media screen and (max-width: 1024px) {
-  #user_section {
-    position: fixed;
-    background-color: rgba(var(--background-color), 1);
-    transition: transform 0.3s;
-    z-index: 2;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    padding-top: 0;
-  }
-  #user_section.reveal {
-    box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
-  }
-  #user_section:not(.reveal) {
-    transform: translateX(100%);
   }
 }
 @media screen and (min-width: 1024px) {

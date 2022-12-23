@@ -360,6 +360,10 @@ ul {
     fill: var(--accent-color);
   }
 }
+
+sm-spinner {
+  --size: 1.2rem;
+}
 #confirmation_popup,
 #prompt_popup {
   flex-direction: column;
@@ -521,6 +525,7 @@ details {
   sm-spinner {
     justify-self: center;
     margin-bottom: 1.5rem;
+    --size: 1.2rem;
   }
 }
 #home {
@@ -745,10 +750,6 @@ sm-chip {
     grid-area: amount;
     text-align: end;
   }
-  sm-spinner {
-    --height: 1rem;
-    --width: 1rem;
-  }
 }
 .activity-card--admin {
   align-items: center;
@@ -768,10 +769,6 @@ sm-chip {
     color: var(--accent-color);
     justify-content: flex-end;
     align-items: center;
-  }
-  sm-spinner {
-    --height: 1rem;
-    --width: 1rem;
   }
 }
 #pending_transaction:not(:empty) {
@@ -882,10 +879,6 @@ sm-chip {
     pointer-events: none;
     background-color: transparent;
   }
-  sm-spinner {
-    --height: 1rem;
-    --width: 1rem;
-  }
 }
 
 #account_chart_container {
@@ -929,9 +922,7 @@ sm-chip {
   }
 }
 .balance-card {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: "icon ." "icon .";
+  display: flex;
   padding: 1rem 0;
   align-items: center;
   gap: 0.3rem 1rem;
@@ -956,6 +947,7 @@ sm-chip {
   &__amount {
     font-size: 1rem;
     font-weight: 700;
+    margin-left: auto;
   }
 }
 
@@ -1049,10 +1041,6 @@ sm-chip {
   }
   &:nth-of-type(4) {
     animation-delay: 0.3s;
-  }
-  sm-spinner {
-    --height: 1rem;
-    --width: 1rem;
   }
   &:not(:last-of-type) .step__line {
     position: relative;
@@ -1202,12 +1190,8 @@ sm-chip {
     transform: none;
   }
 }
-#settings {
+#account_summary {
   padding: 0 1.5rem;
-  sm-copy {
-    font-size: 0.9rem;
-    margin: 0.3rem 0 1.5rem 0;
-  }
 }
 #sign_out_button {
   color: rgba(var(--background-color), 1);
@@ -1283,8 +1267,8 @@ sm-chip {
       text-align: right;
     }
   }
-  .hide-on-mobile {
-    display: none;
+  .hide-on-small {
+    display: none !important;
   }
 }
 @media screen and (min-width: 640px) {
@@ -1398,24 +1382,6 @@ sm-chip {
     justify-content: flex-start;
     .activity-card__icon {
       justify-content: flex-start;
-    }
-  }
-}
-@media screen and (max-width: 1024px) {
-  #user_section {
-    position: fixed;
-    background-color: rgba(var(--background-color), 1);
-    transition: transform 0.3s;
-    z-index: 2;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    padding-top: 0;
-    &.reveal {
-      box-shadow: -0.5rem 0 1.5rem rgba(0, 0, 0, 0.1);
-    }
-    &:not(.reveal) {
-      transform: translateX(100%);
     }
   }
 }
